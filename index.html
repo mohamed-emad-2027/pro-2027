@@ -1,0 +1,624 @@
+<!DOCTYPE html> 
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة البحث العلمي | تأثير أدوات الذكاء الاصطناعي التوليدي - البكالوريا المصرية 2027</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- شريط تقدم القراءة العلوي -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- خلفية تفاعلية ناعمة مريحة للعين -->
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <!-- شريط التنقل العلوي الذكي -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="brand" onclick="switchTab('home')">
+                <div class="brand-logo">🎓</div>
+                <div class="brand-info">
+                    <span class="brand-title">منصة أبحاث البكالوريا</span>
+                    <span class="brand-sub">مدرسة جعفرية الثانوية المشتركة • 2027</span>
+                </div>
+            </div>
+
+            <div class="nav-links" id="navLinks">
+                <button class="nav-btn active" data-target="home">المقدمة والخطة</button>
+                <button class="nav-btn" data-target="team">الأبحاث الفردية (5)</button>
+                <button class="nav-btn" data-target="analytics">النتائج والمحاكي</button>
+                <button class="nav-btn" data-target="conclusion">الخلاصة والتقييم</button>
+                <button class="nav-btn" data-target="about">من نحن</button>
+            </div>
+
+            <div class="nav-actions">
+                <button class="action-icon-btn presentation-btn" onclick="openPresentation()" title="وضع العرض التقديمي السينمائي">🎬 عرض</button>
+                <button class="action-icon-btn guide-btn" onclick="openGuideModal()" title="دليل المنصة ووظائف الأزرار">⚡</button>
+                <button class="action-icon-btn" onclick="changeFontSize(1)" title="تكبير الخط">A+</button>
+                <button class="action-icon-btn" onclick="changeFontSize(-1)" title="تصغير الخط">A-</button>
+                <button class="action-icon-btn" onclick="window.print()" title="طباعة التقرير / حفظ PDF">🖨️</button>
+                <button class="action-icon-btn" id="themeToggle" title="تبديل الوضع الليلي والنهاري">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- القسم الترحيبي (Hero Section) -->
+    <header class="hero">
+        <div class="hero-container">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                <span>مدرسة جعفرية الثانوية المشتركة | البكالوريا المصرية 2026 - 2027</span>
+            </div>
+            <h1 class="hero-title">تأثير أدوات الذكاء الاصطناعي التوليدي على <span class="gradient-text">التحصيل الدراسي</span> لطلاب البكالوريا</h1>
+            <p class="hero-desc">دراسة ميدانية وتحليلية متكاملة حول توازن توظيف تقنيات الذكاء الاصطناعي بين تعميق الفهم الرقمي ومخاطر الاعتماد الكلي — الصف الثاني البكالوريا.</p>
+            
+            <div class="hero-cta">
+                <button class="btn-primary" onclick="switchTab('analytics')">استكشف الإحصاءات والمحاكي 📊</button>
+                <button class="btn-secondary" onclick="switchTab('team')">تصفح الأبحاث الفردية (5) 📑</button>
+                <button class="btn-gold" onclick="openPresentation()">ابدأ العرض التقديمي 🎬</button>
+            </div>
+
+            <!-- شريط الإحصاءات السريعة المتحركة -->
+            <div class="stats-ribbon">
+                <div class="stat-box">
+                    <span class="stat-number" id="sampleCountStat" data-target="100">0</span>
+                    <span class="stat-desc">طالب في العينة الميدانية</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-box">
+                    <span class="stat-number" data-target="5">0</span>
+                    <span class="stat-desc">محاور بحثية مستقلة</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-box">
+                    <span class="stat-number" id="weeklyUsageStat" data-target="78" data-suffix="%">0%</span>
+                    <span class="stat-desc">نسبة الاستخدام الأسبوعي</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-box">
+                    <span class="stat-number" data-target="15">0</span>
+                    <span class="stat-desc">معيار تقييم أكاديمي</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-wrapper">
+        
+        <!-- 1. قسم المقدمة والخطة -->
+        <section id="home" class="section active">
+            <div class="bento-grid">
+                <article class="glass-card span-2">
+                    <div class="card-top">
+                        <span class="icon-badge">🎯</span>
+                        <h2>مقدمة البحث وإشكالية الدراسة</h2>
+                    </div>
+                    <p class="text-lead">يشهد قطاع التعليم تحولاً غير مسبوق مع الانتشار الواسع لأدوات الذكاء الاصطناعي التوليدي (مثل ChatGPT و Gemini). تنطلق مشكلة هذا البحث من التساؤل حول مدى توازن طلاب الصف الثاني البكالوريا بمدرسة جعفرية الثانوية المشتركة بين توظيف هذه التقنيات كوسيلة لتعميق الفهم وتنمية المهارات الرقمية، وبين الانزلاق نحو الاعتماد الكلي وإهمال الواجبات المدرسية دون تفكير نقدي.</p>
+                </article>
+
+                <article class="glass-card">
+                    <div class="card-top">
+                        <span class="icon-badge">🔬</span>
+                        <h2>المنهجية العلمية</h2>
+                    </div>
+                    <p>الاعتماد على <strong>المنهج الوصفي التحليلي الميداني</strong> عبر استبيان إلكتروني محكم يقيس أنماط الاستخدام ومستويات الفهم والتحقق من المعلومات.</p>
+                </article>
+
+                <article class="glass-card">
+                    <div class="card-top">
+                        <span class="icon-badge">📋</span>
+                        <h2>هندسة الاستبيان (4 مراحل)</h2>
+                    </div>
+                    <ul class="styled-list">
+                        <li>تطبيق على عينة استطلاعية أولية (20 طالباً).</li>
+                        <li>توسيع العينة المكتملة لتشمل (100 طالب).</li>
+                        <li>تجميع وتنقيح البيانات الرقمية.</li>
+                        <li>التحليل الإحصائي واستخلاص المؤشرات.</li>
+                    </ul>
+                </article>
+
+                <article class="glass-card span-2 highlight-card">
+                    <div class="card-top">
+                        <span class="icon-badge">🧩</span>
+                        <h2>الحماية المؤسسية وتكامل رحلة الفريق (من الجزء إلى الكل)</h2>
+                    </div>
+                    <p>صُمم البحث بحيث يمتلك كل طالب من أعضاء الفريق الخمسة سؤالاً فرعياً مستقلاً يعالج زاوية محددة من المشكلة، وتتكامل الإجابات الخمس في النهاية لتشكل الإجابة الشاملة على السؤال المحوري للمشروع البحثي (3000 - 5000 كلمة).</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- 2. قسم الأبحاث الفردية للطلاب (5) -->
+        <section id="team" class="section">
+            <div class="section-header">
+                <h2>الأبحاث الفردية لأعضاء الفريق</h2>
+                <p>توزيع الأسئلة الفرعية والنتائج البحثية المستقلة لكل طالب — اضغط على أي بطاقة لعرض التفاصيل الكاملة</p>
+            </div>
+
+            <!-- شريط بحث فوري -->
+            <div class="search-bar-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="researchSearch" placeholder="ابحث في المحاور البحثية أو أسماء الطلاب أو النتائج..." oninput="filterResearch()">
+            </div>
+
+            <div class="research-grid" id="researchGrid">
+                <!-- 1. المبرمج محمد عماد -->
+                <article class="research-card featured" onclick="openModal('mohamed')">
+                    <div>
+                        <div class="card-meta">
+                            <span class="axis-tag">المحور الأول</span>
+                            <span class="role-pill">قائد الفريق ومطور المنصة</span>
+                        </div>
+                        <h3>1. المبرمج محمد عماد عباس</h3>
+                        <div class="q-box">
+                            <strong>السؤال الفرعي:</strong> كيف تعمل نماذج الذكاء الاصطناعي التوليدي وما أثر بناء منصة تفاعلية في عرض وتنظيم بيانات الاستبيان؟
+                        </div>
+                        <p class="summary"><strong>الخلاصة البحثية:</strong> تعتمد النماذج التوليدية على بنية المحولات (Transformers) وتتعلم الأنماط الإحصائية بالكلمات والرموز، وبناء نظام ويب تفاعلي باستخدام HTML5 و CSS3 و JavaScript مع دمج مكتبة Chart.js يسهل تحليل البيانات بصرياً ويرفع وضوح النتائج بنسبة 65%.</p>
+                    </div>
+                    <span class="read-more-link">اقرأ التفاصيل الكاملة للمحور ⬅️</span>
+                </article>
+
+                <!-- 2. المبرمج فوزي -->
+                <article class="research-card" onclick="openModal('fawzy')">
+                    <div>
+                        <div class="card-meta">
+                            <span class="axis-tag">المحور الثاني</span>
+                            <span class="role-pill">مسؤول الاستبيان وجمع البيانات</span>
+                        </div>
+                        <h3>2. المبرمج فوزي</h3>
+                        <div class="q-box">
+                            <strong>السؤال الفرعي:</strong> ما هي أبرز المواد الدراسية والطرق التي يستخدمها طلاب الصف الثاني البكالوريا لأدوات الذكاء الاصطناعي؟
+                        </div>
+                        <p class="summary"><strong>الخلاصة البحثية:</strong> بعد اختبار العينة الأولية وتطبيق الاستبيان على 100 طالب، تبين أن 78% يستخدمون الذكاء الاصطناعي أسبوعياً، وتصدرت مواد البرمجة واللغات الأجنبية والفيزياء قائمة الاستخدام بنسبة 40% لحل الواجبات و35% لشرح الدروس.</p>
+                    </div>
+                    <span class="read-more-link">اقرأ التفاصيل الكاملة للمحور ⬅️</span>
+                </article>
+
+                <!-- 3. المبرمج عبد الرحمن يونس -->
+                <article class="research-card" onclick="openModal('abdelrahman')">
+                    <div>
+                        <div class="card-meta">
+                            <span class="axis-tag">المحور الثالث</span>
+                            <span class="role-pill">محلل البيانات والإحصائيات</span>
+                        </div>
+                        <h3>3. المبرمج عبد الرحمن يونس</h3>
+                        <div class="q-box">
+                            <strong>السؤال الفرعي:</strong> هل يؤدي الاعتماد على الذكاء الاصطناعي إلى تحسن درجات الطلاب أم يضعف مهارات التفكير النقدي؟
+                        </div>
+                        <p class="summary"><strong>الخلاصة البحثية:</strong> كشفت البيانات أن 45% يراجعون المخرجات أحياناً، بينما ينقل 30% الإجابات دون مراجعة إطلاقاً مما يضعف التفكير النقدي والاستنتاج طويل المدى.</p>
+                    </div>
+                    <span class="read-more-link">اقرأ التفاصيل الكاملة للمحور ⬅️</span>
+                </article>
+
+                <!-- 4. المبرمج محمد أحمد -->
+                <article class="research-card" onclick="openModal('mohamed_ahmed')">
+                    <div>
+                        <div class="card-meta">
+                            <span class="axis-tag">المحور الرابع</span>
+                            <span class="role-pill">البحث النظري وتوثيق المراجع</span>
+                        </div>
+                        <h3>4. المبرمج محمد أحمد</h3>
+                        <div class="q-box">
+                            <strong>السؤال الفرعي:</strong> ما هي أبرز المخاطر الأخلاقية والأكاديمية مثل هلوسة المعلومات والاعتماد الكلي؟
+                        </div>
+                        <p class="summary"><strong>الخلاصة البحثية:</strong> أظهرت الدراسة أن 62% من الطلاب يواجهون أحياناً معلومات غير دقيقة (هلوسة الذكاء الاصطناعي)، مما يفرض ضرورة التوثيق العلمي ومقارنة الإجابات بالكتاب المدرسي.</p>
+                    </div>
+                    <span class="read-more-link">اقرأ التفاصيل الكاملة للمحور ⬅️</span>
+                </article>
+
+                <!-- 5. المبرمج محمد عماد -->
+                <article class="research-card" onclick="openModal('mohamed_emad5')">
+                    <div>
+                        <div class="card-meta">
+                            <span class="axis-tag">المحور الخامس</span>
+                            <span class="role-pill">العرض والمقارنة الفئوية</span>
+                        </div>
+                        <h3>5. المبرمج محمد عماد</h3>
+                        <div class="q-box">
+                            <strong>السؤال الفرعي:</strong> هل يختلف نمط استخدام الذكاء الاصطناعي وتأثيره بين طلاب الشعبة العلمية والأدبية؟
+                        </div>
+                        <p class="summary"><strong>الخلاصة البحثية:</strong> أظهرت المقارنة أن طلاب العلمي يوظفون الذكاء الاصطناعي بنسبة 68% في البرمجة وحل المعادلات، بينما يوظفه طلاب الأدبي بنسبة 72% في التلخيص والترجمة وصياغة المقالات.</p>
+                    </div>
+                    <span class="read-more-link">اقرأ التفاصيل الكاملة للمحور ⬅️</span>
+                </article>
+            </div>
+        </section>
+
+        <!-- 3. قسم النتائج والإحصاءات والمحاكي والاستبيان الحي -->
+        <section id="analytics" class="section">
+            <div class="section-header">
+                <h2>التحليل الإحصائي التفاعلي (<span id="liveSampleBadge">عينة 100 طالب</span>)</h2>
+                <p>قراءة بصرية تفاعلية لأنماط الاستخدام ومقارنة الشعب مع إمكانية إضافة استجابة جديدة مباشرة</p>
+            </div>
+
+            <!-- أداة المقارنة التفاعلية بين الشعبة العلمية والأدبية -->
+            <div class="glass-card stream-compare-card">
+                <div class="stream-header">
+                    <div>
+                        <h3>⚖️ مقارنة تفاعلية بين الشعبة العلمية والأدبية</h3>
+                        <p>اختر الشعبة لعرض مؤشرات الاستخدام التفصيلية لطلاب الصف الثاني البكالوريا:</p>
+                    </div>
+                    <div class="stream-buttons">
+                        <button class="stream-btn active" onclick="switchStream('all', this)">العينة الكلية (100%)</button>
+                        <button class="stream-btn" onclick="switchStream('science', this)">الشعبة العلمية 🔬</button>
+                        <button class="stream-btn" onclick="switchStream('arts', this)">الشعبة الأدبية 📖</button>
+                    </div>
+                </div>
+                <div class="stream-metrics" id="streamMetrics">
+                    <div class="s-metric">
+                        <span class="s-val" id="sMetric1">40%</span>
+                        <span class="s-lbl" id="sLabel1">حل الواجبات والتمارين</span>
+                    </div>
+                    <div class="s-metric">
+                        <span class="s-val" id="sMetric2">35%</span>
+                        <span class="s-lbl" id="sLabel2">شرح الدروس والمفاهيم</span>
+                    </div>
+                    <div class="s-metric">
+                        <span class="s-val" id="sMetric3">25%</span>
+                        <span class="s-lbl" id="sLabel3">التلخيص والترجمة والبحث</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-wrapper">
+                <div class="glass-card chart-card">
+                    <h3>الغرض الأساسي من استخدام الذكاء الاصطناعي</h3>
+                    <div class="canvas-container">
+                        <canvas id="usageChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-card">
+                    <h3>هل يراجع الطالب الإجابة قبل نقلها؟</h3>
+                    <div class="canvas-container">
+                        <canvas id="reviewChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الاستبيان التفاعلي الحي -->
+            <div class="glass-card live-survey-card">
+                <div class="card-top" style="justify-content: space-between; flex-wrap: wrap;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span class="icon-badge">📝</span>
+                        <h3>شارك في الاستبيان الحي (تحديث فوري للرسوم البيانية)</h3>
+                    </div>
+                    <button type="button" class="reset-mini-btn" onclick="resetSurveyData()" title="إعادة العينة إلى 100 طالب">↺ إعادة ضبط العينة</button>
+                </div>
+                <p class="sim-desc">أضف استجابتك الآن وشاهد تحديث الرسوم البيانية وعداد العينة في نفس اللحظة (محفوظة تلقائياً):</p>
+                
+                <form class="survey-form" onsubmit="submitLiveSurvey(event)">
+                    <div class="form-group">
+                        <label>1. الغرض الأساسي من استخدامك لأدوات الذكاء الاصطناعي:</label>
+                        <select id="surveyPurpose" required>
+                            <option value="0">حل الواجبات مباشرة</option>
+                            <option value="1">شرح الدروس الصعبة</option>
+                            <option value="2">تلخيص النصوص</option>
+                            <option value="3">الترجمة وتعلم اللغات</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>2. هل تراجع الإجابة وتتحقق منها قبل الاعتماد عليها؟</label>
+                        <select id="surveyReview" required>
+                            <option value="0">نعم، دائماً</option>
+                            <option value="1">أحياناً</option>
+                            <option value="2">لا، أنقلها مباشرة</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary survey-submit">إرسال وتحديث الإحصاءات فوراً 🚀</button>
+                </form>
+                <div id="surveyFeedback" class="survey-feedback"></div>
+            </div>
+
+            <!-- مؤشرات KPI -->
+            <div class="kpi-grid">
+                <div class="glass-card kpi-card warning">
+                    <span class="kpi-value">40%</span>
+                    <h4>مؤشر الاستخدام السلبي</h4>
+                    <p>من العينة يستخدمون الأدوات لحل الواجبات مباشرة، و30% ينقلون الإجابة دون مراجعة إطلاقاً.</p>
+                </div>
+
+                <div class="glass-card kpi-card info">
+                    <span class="kpi-value">68% vs 72%</span>
+                    <h4>مؤشر الفجوة الفئوية</h4>
+                    <p>68% من طلاب العلمي يركزون على البرمجة والمعادلات مقابل 72% لطلاب الأدبي في المهام اللغوية.</p>
+                </div>
+            </div>
+
+            <!-- محاكي التوازن المعرفي التفاعلي -->
+            <div class="glass-card simulator-card">
+                <div class="card-top">
+                    <span class="icon-badge">⚡</span>
+                    <h3>محاكي التوازن المعرفي (اختبر نمط استخدامك الشخصي للذكاء الاصطناعي)</h3>
+                </div>
+                <p class="sim-desc">حرّك المؤشرات التالية لتكتشف تصنيفك البحثي وفق معايير دراستنا:</p>
+                
+                <div class="sim-controls">
+                    <div class="control-group">
+                        <label>ساعات الاستخدام الأسبوعي في المذاكرة: <strong id="hoursVal">5 ساعات</strong></label>
+                        <input type="range" id="hoursInput" min="1" max="25" value="5" oninput="calculateScore()">
+                    </div>
+                    <div class="control-group">
+                        <label>نسبة مراجعتك وتدقيقك للإجابات قبل الاعتماد عليها: <strong id="verifyVal">70%</strong></label>
+                        <input type="range" id="verifyInput" min="0" max="100" value="70" oninput="calculateScore()">
+                    </div>
+                </div>
+
+                <div class="sim-result" id="simResult">
+                    <div class="result-badge" id="resultBadge">استخدام ذكي ومتوازن 🌟</div>
+                    <p id="resultText">أنت توظف الذكاء الاصطناعي كمعلم مساعد لتعميق الفهم مع الحفاظ على التدقيق النقدي للمعلومات.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. قسم الخلاصة والمراجع وبوابة لجنة التحكيم -->
+        <section id="conclusion" class="section">
+            <div class="bento-grid">
+                <article class="glass-card">
+                    <div class="card-top">
+                        <span class="icon-badge">💡</span>
+                        <h2>التوصيات العملية للفريق</h2>
+                    </div>
+                    <ul class="styled-list">
+                        <li><strong>للطلاب:</strong> اعتماد الذكاء الاصطناعي كـ "معلم خصوصي" لشرح المفاهيم المعقدة وتجنب النسخ المباشر للواجبات.</li>
+                        <li><strong>للمعلمين:</strong> تطوير أساليب التقييم والاعتماد على المشاريع العملية والمناقشات الشفهية لقياس الفهم الحقيقي للطالب.</li>
+                        <li><strong>للتطوير التدريبي:</strong> عقد ورش عمل مدرسية لتدريب الطلاب على مهارات "هندسة الأوامر" (Prompt Engineering) والتحقق من المصادر.</li>
+                    </ul>
+                </article>
+
+                <article class="glass-card">
+                    <div class="card-top">
+                        <span class="icon-badge">📚</span>
+                        <h2>قائمة المراجع والمصادر العلمية</h2>
+                    </div>
+                    <ol class="styled-list numbered">
+                        <li>منظمة الأمم المتحدة للتربية والعلم والثقافة (UNESCO) - الدليل الإرشادي للذكاء الاصطناعي التوليدي في التعليم والبحث (2024).</li>
+                        <li>مدرسة جعفرية الثانوية المشتركة - خريطة طريق المشروع البحثي للبكالوريا المصرية (2026 - 2027).</li>
+                        <li>Vaswani, A., et al. (2017). <em>Attention Is All You Need</em>. الورقة البحثية المؤسسة لبنية المحولات (Transformers).</li>
+                        <li>توثيقات مطوري نماذج اللغة الكبيرة (Google AI & OpenAI Documentation) حول آليات التوليد والحد من الهلوسة الرقمية.</li>
+                    </ol>
+                </article>
+
+                <!-- بوابة تقييم لجنة التحكيم وإصدار الشهادة -->
+                <article class="glass-card span-2 jury-card">
+                    <div class="card-top">
+                        <span class="icon-badge">🏆</span>
+                        <h2>بوابة تقييم لجنة التحكيم وإصدار شهادة الاعتماد الرسمية</h2>
+                    </div>
+                    <p class="sim-desc">مخصصة للسادة المشرفين ولجنة التحكيم لتقييم المشروع البحثي والمنصة البرمجية وإصدار شهادة الاعتماد الفورية:</p>
+
+                    <div class="jury-grid">
+                        <div class="form-group">
+                            <label>اسم المشرف / عضو لجنة التحكيم:</label>
+                            <input type="text" id="juryName" placeholder="مثال: أ.د / محمد عبد الله">
+                        </div>
+                        <div class="form-group">
+                            <label>الدقة العلمية والمنهجية (من 40):</label>
+                            <input type="number" id="scoreScience" min="0" max="40" value="39">
+                        </div>
+                        <div class="form-group">
+                            <label>التصميم البرمجي وتجربة المستخدم (من 35):</label>
+                            <input type="number" id="scoreTech" min="0" max="35" value="35">
+                        </div>
+                        <div class="form-group">
+                            <label>جودة العرض وتكامل الفريق (من 25):</label>
+                            <input type="number" id="scoreTeam" min="0" max="25" value="25">
+                        </div>
+                    </div>
+
+                    <button class="btn-gold" onclick="generateCertificate()" style="margin-top: 16px;">إصدار شهادة الاعتماد والتقييم الآن 📜</button>
+
+                    <!-- شهادة الاعتماد المولّدة -->
+                    <div id="certificateBox" class="certificate-box" style="display: none;">
+                        <div class="cert-border">
+                            <div class="cert-header">
+                                <span>جمهورية مصر العربية • وزارة التربية والتعليم</span>
+                                <h3>شهادة اعتماد وتقدير مشروع بحثي متميز</h3>
+                                <p>مدرسة جعفرية الثانوية المشتركة — البكالوريا المصرية 2026 / 2027</p>
+                            </div>
+                            <div class="cert-body">
+                                <p>تشهد لجنة التقييم والتحكيم بأن البحث الميداني بعنوان:</p>
+                                <h4>«تأثير أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا»</h4>
+                                <p>المُقدّم من فريق طلاب الصف الثاني البكالوريا بقيادة <strong>المبرمج محمد عماد عباس</strong>، قد استوفى كافة المعايير العلمية والبرمجية بتقدير عام:</p>
+                                <div class="cert-score" id="certFinalScore">99 / 100 (امتياز مع مرتبة الشرف)</div>
+                            </div>
+                            <div class="cert-footer">
+                                <div>
+                                    <span>اعتماد المشرف / عضو اللجنة:</span>
+                                    <strong id="certJuryName">لجنة التحكيم</strong>
+                                </div>
+                                <div>
+                                    <span>تاريخ الاعتماد:</span>
+                                    <strong id="certDate"></strong>
+                                </div>
+                            </div>
+                            <button class="btn-secondary" onclick="window.print()" style="margin-top: 15px;">🖨️ طباعة الشهادة أو حفظها PDF</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 5. قسم من نحن (فريق العمل) -->
+        <section id="about" class="section">
+            <div class="section-header">
+                <h2>فريق العمل البحثي والبرمجي</h2>
+                <p>طلاب الصف الثاني البكالوريا — مدرسة جعفرية الثانوية المشتركة | العام الدراسي 2026 - 2027</p>
+            </div>
+
+            <div class="team-grid">
+                <!-- 1. المبرمج محمد عماد -->
+                <article class="member-card leader">
+                    <div class="leader-crown">قائد الفريق</div>
+                    <div class="avatar-frame">
+                        <img src="images/mohamed.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=محمد+عماد&background=0f2942&color=d4af37&size=180&bold=true'" alt="المبرمج محمد عماد">
+                    </div>
+                    <h3>1. المبرمج محمد عماد</h3>
+                    <span class="member-role">قائد الفريق ومطور المنصة</span>
+                    <p class="member-bio">طالب بالصف الثاني البكالوريا، متخصص في تطوير الويب والذكاء الاصطناعي والأمن السيبراني، تولى تصميم وبرمجة المنصة التفاعلية للمشروع.</p>
+                    <a href="https://wa.me/201055212909" target="_blank" class="whatsapp-btn">
+                        <span>💬</span> واتساب: 01055212909
+                    </a>
+                </article>
+
+                <!-- 2. المبرمج فوزي -->
+                <article class="member-card">
+                    <div class="avatar-frame">
+                        <img src="images/fawzy.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=فوزي&background=163a5f&color=ffffff&size=180&bold=true'" alt="المبرمج فوزي">
+                    </div>
+                    <h3>2. المبرمج فوزي</h3>
+                    <span class="member-role">مسؤول الاستبيان وجمع البيانات</span>
+                    <p class="member-bio">طالب بالصف الثاني البكالوريا، مسؤول عن تصميم الاستبيان الإلكتروني وتطبيقه على العينة الميدانية وتصنيف استجابات الطلاب بدقة.</p>
+                    <a href="https://wa.me/201206091390" target="_blank" class="whatsapp-btn">
+                        <span>💬</span> واتساب: 01206091390
+                    </a>
+                </article>
+
+                <!-- 3. المبرمج عبد الرحمن يونس -->
+                <article class="member-card">
+                    <div class="avatar-frame">
+                        <img src="images/abdelrahman.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=عبدالرحمن&background=163a5f&color=ffffff&size=180&bold=true'" alt="المبرمج عبد الرحمن يونس">
+                    </div>
+                    <h3>3. المبرمج عبد الرحمن يونس</h3>
+                    <span class="member-role">محلل البيانات والإحصائيات</span>
+                    <p class="member-bio">طالب بالصف الثاني البكالوريا، متخصص في قراءة المؤشرات الرقمية وتحويل نتائج الاستبيان إلى نسب مئوية تقيس تأثير الذكاء الاصطناعي.</p>
+                    <a href="https://wa.me/201212770940" target="_blank" class="whatsapp-btn">
+                        <span>💬</span> واتساب: 01212770940
+                    </a>
+                </article>
+
+                <!-- 4. المبرمج محمد أحمد -->
+                <article class="member-card">
+                    <div class="avatar-frame">
+                        <img src="images/mohamed_ahmed.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=محمد+أحمد&background=163a5f&color=ffffff&size=180&bold=true'" alt="المبرمج محمد أحمد">
+                    </div>
+                    <h3>4. المبرمج محمد أحمد</h3>
+                    <span class="member-role">البحث النظري وتوثيق المراجع</span>
+                    <p class="member-bio">طالب بالصف الثاني البكالوريا، تولى صياغة الإطار النظري للبحث ودراسة أخلاقيات المعرفة وتوثيق المصادر الأكاديمية.</p>
+                    <a href="https://wa.me/201096996501" target="_blank" class="whatsapp-btn">
+                        <span>💬</span> واتساب: 01096996501
+                    </a>
+                </article>
+
+                <!-- 5. المبرمج محمد عماد -->
+                <article class="member-card">
+                    <div class="avatar-frame">
+                        <img src="images/mohamed_emad5.jpeg" onerror="this.src='https://ui-avatars.com/api/?name=محمد+عماد&background=163a5f&color=ffffff&size=180&bold=true'" alt="المبرمج محمد عماد">
+                    </div>
+                    <h3>5. المبرمج محمد عماد</h3>
+                    <span class="member-role">منسق العرض والمقارنة الفئوية</span>
+                    <p class="member-bio">طالب بالصف الثاني البكالوريا، مسؤول عن المقارنة بين طلاب الشعبتين العلمية والأدبية وتنسيق العرض التقديمي النهائي أمام اللجنة.</p>
+                    <a href="https://wa.me/201553819259" target="_blank" class="whatsapp-btn">
+                        <span>💬</span> واتساب: 01553819259
+                    </a>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- مساعد البحث الذكي العائم (Smart Assistant) -->
+    <div class="ai-assistant-widget">
+        <button class="ai-fab" onclick="toggleChatBot()" title="اسأل مساعد البحث الذكي">🤖</button>
+        <div class="ai-chat-window" id="aiChatWindow">
+            <div class="ai-chat-header">
+                <div>
+                    <strong>🤖 مساعد البحث الذكي</strong>
+                    <span>مدرّب على بيانات بحث البكالوريا 2027</span>
+                </div>
+                <button onclick="toggleChatBot()">✕</button>
+            </div>
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="bot-msg">مرحباً بك! أنا المساعد الذكي لمنصة أبحاث <strong>مدرسة جعفرية الثانوية المشتركة</strong>. اسألني عن نتائج العينة، المقارنة بين العلمي والأدبي، التوصيات، أو فريق العمل!</div>
+            </div>
+            <div class="ai-quick-chips">
+                <button onclick="askBot('ما هي أهم نتائج العينة؟')">أهم النتائج 📊</button>
+                <button onclick="askBot('الفرق بين العلمي والأدبي؟')">العلمي vs الأدبي ⚖️</button>
+                <button onclick="askBot('من هو قائد الفريق؟')">قائد الفريق 👨‍💻</button>
+            </div>
+            <div class="ai-chat-input">
+                <input type="text" id="botInput" placeholder="اكتب سؤالك هنا..." onkeypress="if(event.key==='Enter') sendBotMessage()">
+                <button onclick="sendBotMessage()">إرسال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- وضع العرض التقديمي السينمائي (Presentation Mode) -->
+    <div class="presentation-overlay" id="presentationOverlay">
+        <div class="pres-top-bar">
+            <span class="pres-brand">🎓 العرض التقديمي الرسمي | مدرسة جعفرية الثانوية المشتركة 2027</span>
+            <div class="pres-controls">
+                <span id="slideCounter">1 / 6</span>
+                <button onclick="prevSlide()">السابق ➡️</button>
+                <button onclick="nextSlide()">⬅️ التالي</button>
+                <button class="pres-close" onclick="closePresentation()">✕ إنهاء العرض</button>
+            </div>
+        </div>
+        <div class="pres-stage" id="presStage"></div>
+    </div>
+
+    <!-- نافذة منبثقة لتفاصيل المحاور البحثية (Modal) -->
+    <div class="modal-overlay" id="researchModal" onclick="closeModal(event)">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+            <span class="axis-tag" id="modalAxis">المحور</span>
+            <h2 id="modalTitle">عنوان المحور</h2>
+            <p class="modal-author" id="modalAuthor">الباحث</p>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- نافذة دليل المنصة الذكي (⚡) -->
+    <div class="modal-overlay" id="guideModal" onclick="closeGuideModal(event)">
+        <div class="modal-box guide-modal-box">
+            <button class="modal-close" onclick="closeGuideModalDirect()">✕</button>
+            <span class="axis-tag">⚡ دليل استخدام المنصة الذكية</span>
+            <h2>مرحباً بك في منصة أبحاث البكالوريا 2027</h2>
+            <p class="modal-author">تعريف شامل بالمنصة ووظائف جميع الأزرار والأقسام</p>
+            <div class="modal-body guide-list-container">
+                <div class="guide-item">
+                    <strong>🎓 ما هي هذه المنصة؟</strong>
+                    <p>منصة رقمية تفاعلية صممها وبرمجها فريق طلاب الصف الثاني البكالوريا بمدرسة جعفرية الثانوية المشتركة، لعرض وتحليل نتائج الدراسة الميدانية حول تأثير الذكاء الاصطناعي التوليدي على التحصيل الدراسي.</p>
+                </div>
+                <div class="guide-item">
+                    <strong>✨ المزايا التفاعلية المتقدمة:</strong>
+                    <ul>
+                        <li><strong>🎬 وضع العرض التقديمي:</strong> يحول المنصة إلى شرائح عرض ملء الشاشة لعرض المشروع أمام اللجنة بالأسهم.</li>
+                        <li><strong>🤖 مساعد البحث الذكي:</strong> أيقونة محادثة في زاوية الشاشة تجيب عن أسئلة الزوار حول نتائج البحث.</li>
+                        <li><strong>📝 الاستبيان الحي والمقارنة الفئوية:</strong> يتيح إضافة استجابات جديدة تحدث الرسوم البيانية فوراً ومقارنة العلمي بالأدبي.</li>
+                        <li><strong>🏆 بوابة لجنة التحكيم:</strong> تتيح للمشرف إدخال الدرجات وإصدار شهادة اعتماد رسمية قابلة للطباعة.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- التذييل وحقوق الملكية وكود QR الذكي -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="qr-box">
+                <div id="qrcode" class="qr-canvas-holder"></div>
+                <div class="qr-text">
+                    <strong>📱 البطاقة الرقمية السريعة (QR Code)</strong>
+                    <span>امسح الرمز بكاميرا الهاتف لاستعراض ملخص البحث</span>
+                </div>
+            </div>
+            <p class="footer-org">إعداد فريق طلاب الصف الثاني البكالوريا - مدرسة جعفرية الثانوية المشتركة | العام الدراسي 2026 - 2027</p>
+            <div class="copyright-badge">
+                ✨ جميع الحقوق محفوظة لدى المبرمج محمد عماد عباس 2027 ✨
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
