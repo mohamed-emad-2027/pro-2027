@@ -1,3 +1,7 @@
+// 🔑 ضع مفتاح Google Gemini API الخاص بك بين علامتي التنصيص في السطر التالي:
+const GEMINI_API_KEY = "AQ.Ab8RN6JfEV75mZ03PqzIw4B4NFBuE2ilVuyqBL7jXrY06223Fg";
+// =========================================================================
+
 // ============== 1. إدارة التبويبات وشريط التقدم وحجم الخط ==============
 const navBtns = document.querySelectorAll('.nav-btn');
 const sections = document.querySelectorAll('.section');
@@ -315,12 +319,12 @@ function generateCertificate() {
     certBox.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ============== 8. مساعد البحث الذكي العالم ==============
+// ============== 8. مساعد البحث الذكي المدعوم بـ Google Gemini ==============
 function toggleChatBot() {
     document.getElementById('aiChatWindow').classList.toggle('open');
 }
 
-function getBotReply(q) {
+function getLocalBotReply(q) {
     if (q.includes('عينة') || q.includes('نتائج') || q.includes('نسب')) {
         return 'شملت الدراسة فعلياً ' + surveyState.total + ' طالب بمدرسة الجعفرية الثانوية المشتركة، وأظهرت أن 78% يستخدمون الذكاء الاصطناعي أسبوعياً.';
     }
@@ -336,13 +340,73 @@ function getBotReply(q) {
     return 'سؤال رائع! يمكنك استكشاف المحاور الخمسة أو تجربة محاكي التوازن المعرفي في قسم النتائج والمحاكي لمعرفة تفاصيل أكثر.';
 }
 
-function askBot(question) {
+async function askBot(question) {
     const box = document.getElementById('aiChatMessages');
-    box.innerHTML += '<div class="user-msg">' + question + '</div>';
-    setTimeout(() => {
-        box.innerHTML += '<div class="bot-msg">' + getBotReply(question) + '</div>';
-        box.scrollTop = box.scrollHeight;
-    }, 300);
+
+    const userDiv = document.createElement('div');
+    userDiv.className = 'user-msg';
+    userDiv.textContent = question;
+    box.appendChild(userDiv);
+
+    const botDiv = document.createElement('div');
+    botDiv.className = 'bot-msg';
+    botDiv.style.whiteSpace = 'pre-line';
+    botDiv.textContent = 'جاري التفكير... ⏳';
+    box.appendChild(botDiv);
+    box.scrollTop = box.scrollHeight;
+
+    if (!GEMINI_API_KEY || GEMINI_API_KEY === 'ضع_مفتاح_جيميناي_هنا') {
+        setTimeout(() => {
+            botDiv.textContent = getLocalBotReply(question);
+            box.scrollTop = box.scrollHeight;
+        }, 300);
+        return;
+    }
+
+    const researchContext =
+        'أنت المساعد البحثي الذكي لمنصة "أثر توظيف أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا" (2026-2027) بمدرسة الجعفرية الثانوية المشتركة (الصف الثاني البكالوريا).\n' +
+        'فريق البحث والبرمجة:\n' +
+        '- قائد الفريق ومطور المنصة: المبرمج محمد عماد عباس (المحور الأول: البنية التقنية وتطوير المنصة، والمحور الخامس: المقارنة الفئوية).\n' +
+        '- المبرمج فوزي حسين (المحور الثاني: الدراسة الميدانية وأنماط الاستخدام).\n' +
+        '- المبرمج مازن أبو صابر (المحور الثالث: التحليل الإحصائي لأثر الاعتماد على الذكاء الاصطناعي).\n' +
+        '- المبرمج محمد أحمد (المحور الرابع: الإطار النظري والمخاطر الأخلاقية وهلوسة المعلومات).\n' +
+        'أبرز النتائج الميدانية (العينة الحالية: ' + surveyState.total + ' طالب بعد التوسع من عينة استطلاعية 20 طالباً):\n' +
+        '- 78% يستخدمون الذكاء الاصطناعي أسبوعياً في المذاكرة والبحث.\n' +
+        '- 40% يستخدمونه لحل الواجبات مباشرة، 35% لشرح الدروس، 15% للتلخيص، 10% للترجمة.\n' +
+        '- 30% ينقلون الإجابات دون مراجعة مما يضعف التفكير النقدي والأسئلة الاستنتاجية.\n' +
+        '- المقارنة الفئوية: طلاب العلمي (68% البرمجة وحل المعادلات العلمية، 22% تبسيط الفيزياء والكيمياء)، طلاب الأدبي (72% التلخيص والترجمة وصياغة المقالات، 18% تحليل النصوص والتاريخ).\n' +
+        'التعليمات: أجب باللغة العربية الفصحى المبسطة وبأسلوب علمي موجز ومباشر يناسب الطلاب ولجنة التحكيم (في حدود 3 إلى 5 أسطر إلا إذا طُلب شرح مفصل).';
+
+    try {
+        const response = await fetch(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY.trim()),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                { text: researchContext + '\n\nسؤال الزائر: ' + question }
+                            ]
+                        }
+                    ]
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        const data = await response.json();
+        const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        botDiv.textContent = aiText ? aiText.trim() : getLocalBotReply(question);
+    } catch (err) {
+        botDiv.textContent = getLocalBotReply(question);
+    }
+
+    box.scrollTop = box.scrollHeight;
 }
 
 function sendBotMessage() {
@@ -492,4 +556,14 @@ window.addEventListener('DOMContentLoaded', () => {
     animateCounters(surveyState.total);
     initCharts();
     renderRealQRCode();
+
+    const botInput = document.getElementById('botInput');
+    if (botInput) {
+        botInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendBotMessage();
+            }
+        });
+    }
 });
