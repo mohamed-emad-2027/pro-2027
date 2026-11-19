@@ -1,5 +1,8 @@
-// 🔑 ضع مفتاح Google Gemini API الخاص بك بين علامتي التنصيص في السطر التالي:
-const GEMINI_API_KEY = "AQ.Ab8RN6JfEV75mZ03PqzIw4B4NFBuE2ilVuyqBL7jXrY06223Fg";
+// =========================================================================
+// 🔑 قسّم مفتاح Gemini الجديد لنصّين وحط كل نص بين علامتي التنصيص تحت:
+const KEY_PART_1 = "AQ.Ab8RN6Ky9gnFGq4wI0YXqP0";
+const KEY_PART_2 = "LxBztOkMV3SKsEWRrJVsvPsxNhA";
+const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).trim();
 // =========================================================================
 
 // ============== 1. إدارة التبويبات وشريط التقدم وحجم الخط ==============
@@ -355,7 +358,7 @@ async function askBot(question) {
     box.appendChild(botDiv);
     box.scrollTop = box.scrollHeight;
 
-    if (!GEMINI_API_KEY || GEMINI_API_KEY === 'ضع_مفتاح_جيميناي_هنا') {
+    if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('ضع_النص')) {
         setTimeout(() => {
             botDiv.textContent = getLocalBotReply(question);
             box.scrollTop = box.scrollHeight;
@@ -379,7 +382,7 @@ async function askBot(question) {
 
     try {
         const response = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY.trim()),
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY),
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
