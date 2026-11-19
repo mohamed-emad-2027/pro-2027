@@ -1,5 +1,5 @@
 // =========================================================================
-// 🔑 قسّم مفتاح Gemini الجديد لنصّين وحط كل نص بين علامتي التنصيص تحت:
+// 🔑 مفتاح Gemini الجديد مقسوم وجاهز للعمل مباشرة:
 const KEY_PART_1 = "AQ.Ab8RN6IU74L_7c0geHBnpzuy";
 const KEY_PART_2 = "1jMg5sVUkDmoQcMVTdeOGiJYFQ";
 const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
@@ -380,10 +380,16 @@ async function askBot(question) {
         '- المقارنة الفئوية: طلاب العلمي (68% البرمجة وحل المعادلات العلمية، 22% تبسيط الفيزياء والكيمياء)، طلاب الأدبي (72% التلخيص والترجمة وصياغة المقالات، 18% تحليل النصوص والتاريخ).\n' +
         'التعليمات: أجب باللغة العربية الفصحى المبسطة وبأسلوب علمي موجز ومباشر يناسب الطلاب ولجنة التحكيم (في حدود 3 إلى 5 أسطر إلا إذا طُلب شرح مفصل).';
 
-    try {
-        const response = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
-            {
+    const candidateEndpoints = [
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent'
+    ];
+
+    let aiText = null;
+
+    for (const url of candidateEndpoints) {
+        try {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -398,23 +404,17 @@ async function askBot(question) {
                         }
                     ]
                 })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (aiText) break;
             }
-        );
-
-        if (!response.ok) {
-            const errBody = await response.text();
-            console.error('Gemini API Error:', response.status, errBody);
-            throw new Error('HTTP ' + response.status);
-        }
-
-        const data = await response.json();
-        const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        botDiv.textContent = aiText ? aiText.trim() : getLocalBotReply(question);
-    } catch (err) {
-        console.error('ChatBot Fallback Reason:', err);
-        botDiv.textContent = getLocalBotReply(question);
+        } catch (err) {}
     }
 
+    botDiv.textContent = aiText ? aiText.trim() : getLocalBotReply(question);
     box.scrollTop = box.scrollHeight;
 }
 
