@@ -632,7 +632,7 @@
     </footer>
 
     <script src="script.js"></script>
-    <!-- بداية إضافة العرض التلقائي (ثانيتان لكل شريحة) والنغمة المحمية بكلمة سر بدون حذف أي شيء -->
+    <!-- بداية إضافة العرض التلقائي الأوتوماتيك (كل ثانيتين) والنغمة المحمية بكلمة سر بدون حذف أي شيء -->
 <script>
 (function () {
   if (window.__pro2027SlideAutoAndToneInit) return;
@@ -640,7 +640,7 @@
 
   const TONE_PASSCODE = 'RORO12';
   const TOTAL_SLIDES = 6;
-  const SLIDE_DURATION_MS = 2000; // ثانيتان لكل شريحة
+  const SLIDE_DURATION_MS = 2000; // أوتوماتيك كل ثانيتين
 
   let slideTimer = null;
   let beatTimer = null;
@@ -654,16 +654,15 @@
   let activeNodes = [];
   let stepIndex = 0;
 
-  // نمط لحني شرقي عاطفي متكرر (ترددات بالهرتز) مستوحى من طابع المقطع
   const ORIENTAL_REMIX_STEPS = [
-    { lead: 440.00, bass: 110.00, kick: true,  dur: 0.22 }, // A4
-    { lead: 466.16, bass: 110.00, kick: false, dur: 0.20 }, // Bb4 (ربع تون شرقي قريب)
-    { lead: 523.25, bass: 130.81, kick: true,  dur: 0.24 }, // C5
-    { lead: 440.00, bass: 110.00, kick: false, dur: 0.22 }, // A4
-    { lead: 392.00, bass: 98.00,  kick: true,  dur: 0.25 }, // G4
-    { lead: 440.00, bass: 110.00, kick: false, dur: 0.22 }, // A4
-    { lead: 349.23, bass: 87.31,  kick: true,  dur: 0.26 }, // F4
-    { lead: 329.63, bass: 82.41,  kick: false, dur: 0.26 }  // E4
+    { lead: 440.00, bass: 110.00, kick: true,  dur: 0.22 },
+    { lead: 466.16, bass: 110.00, kick: false, dur: 0.20 },
+    { lead: 523.25, bass: 130.81, kick: true,  dur: 0.24 },
+    { lead: 440.00, bass: 110.00, kick: false, dur: 0.22 },
+    { lead: 392.00, bass: 98.00,  kick: true,  dur: 0.25 },
+    { lead: 440.00, bass: 110.00, kick: false, dur: 0.22 },
+    { lead: 349.23, bass: 87.31,  kick: true,  dur: 0.26 },
+    { lead: 329.63, bass: 82.41,  kick: false, dur: 0.26 }
   ];
 
   function ensureControlButtons() {
@@ -673,7 +672,10 @@
 
     const allButtons = Array.from(document.querySelectorAll('button'));
     const endBtn = allButtons.find((b) => (b.textContent || '').includes('إنهاء العرض'));
-    const nextBtn = allButtons.find((b) => (b.textContent || '').trim() === 'التالي' || (b.textContent || '').includes('التالي'));
+    const nextBtn = allButtons.find((b) => {
+      const t = (b.textContent || '').trim();
+      return t === 'التالي' || t.includes('التالي');
+    });
 
     const anchor = endBtn || nextBtn;
     if (!anchor || !anchor.parentElement) return;
@@ -684,7 +686,7 @@
       const autoBtn = document.createElement('button');
       autoBtn.type = 'button';
       autoBtn.id = 'pro2027AutoBtn';
-      autoBtn.textContent = '⏸️ تلقائي (2ث/شريحة)';
+      autoBtn.textContent = '⏸️ أوتوماتيك (2ث)';
       autoBtn.style.cssText = 'margin-inline:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:#1b365d;color:#ffffff;font-size:13px;cursor:pointer;font-family:inherit;';
       autoBtn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -717,7 +719,7 @@
     const autoBtn = document.getElementById('pro2027AutoBtn');
     const toneBtn = document.getElementById('pro2027ToneBtn');
     if (autoBtn) {
-      autoBtn.textContent = autoPlayEnabled ? '⏸️ تلقائي (2ث/شريحة)' : '▶️ تشغيل (2ث/شريحة)';
+      autoBtn.textContent = autoPlayEnabled ? '⏸️ أوتوماتيك (2ث)' : '▶️ تشغيل أوتوماتيك (2ث)';
     }
     if (toneBtn) {
       if (!toneUnlocked) {
@@ -763,27 +765,47 @@
   }
 
   function readCurrentSlideNumber() {
-    const bodyText = document.body ? document.body.innerText : '';
-    const match = bodyText.match(/\b([1-6])\s*\/\s*6\b/);
+    const text = document.body ? document.body.innerText : '';
+    const match = text.match(/\b([1-6])\s*\/\s*6\b/);
     if (match) return parseInt(match[1], 10);
-    return 1;
+    return null;
   }
 
-  function clickNextSlideButton() {
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const nextBtn = buttons.find((b) => {
-      const t = (b.textContent || '').trim();
-      return t === 'التالي' || t.endsWith('التالي') || t.includes('التالي');
+  function forceNextSlide() {
+    // 1. تجربة الدوال العامة إن وُجدت
+    const fnCandidates = ['nextSlide', 'goNextSlide', 'changeSlide', 'showNextSlide', 'slideNext'];
+    for (let i = 0; i < fnCandidates.length; i++) {
+      const fnName = fnCandidates[i];
+      if (typeof window[fnName] === 'function') {
+        try {
+          if (fnName === 'changeSlide') {
+            window[fnName](1);
+          } else {
+            window[fnName]();
+          }
+          return true;
+        } catch (e) {}
+      }
+    }
+
+    // 2. البحث عن زر التالي أو أي عنصر يحتوي على "التالي"
+    const candidates = Array.from(document.querySelectorAll('button, [role="button"], a'));
+    const nextEl = candidates.find((el) => {
+      if (el.id === 'pro2027AutoBtn' || el.id === 'pro2027ToneBtn') return false;
+      const t = (el.textContent || '').trim();
+      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
+      return t === 'التالي' || t.includes('التالي') || aria.includes('next');
     });
-    if (nextBtn && !nextBtn.disabled) {
-      nextBtn.click();
+
+    if (nextEl && !nextEl.disabled) {
+      nextEl.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      if (typeof nextEl.click === 'function') nextEl.click();
       return true;
     }
-    if (typeof window.nextSlide === 'function') {
-      window.nextSlide();
-      return true;
-    }
-    return false;
+
+    // 3. إرسال ضغطة سهم يمين كبديل أخير
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, bubbles: true }));
+    return true;
   }
 
   function startAutoSlides() {
@@ -792,13 +814,20 @@
     syncButtonLabels();
 
     slideTimer = setInterval(function () {
-      if (!presentationActive || !autoPlayEnabled) return;
+      if (!autoPlayEnabled) return;
+
       const current = readCurrentSlideNumber();
-      if (current < TOTAL_SLIDES) {
-        clickNextSlideButton();
-      } else {
-        stopAutoSlides();
+      if (current !== null && current >= TOTAL_SLIDES) {
+        // لو وصل لآخر شريحة يرجع للشريحة 1 تلقائياً عشان العرض يفضل شغال أوتوماتيك
+        const prevCandidates = Array.from(document.querySelectorAll('button, [role="button"], a'));
+        const firstBtn = prevCandidates.find((el) => (el.textContent || '').trim() === '1' || (el.textContent || '').includes('البداية'));
+        if (firstBtn) {
+          firstBtn.click();
+        }
+        return;
       }
+
+      forceNextSlide();
     }, SLIDE_DURATION_MS);
   }
 
@@ -810,11 +839,10 @@
   }
 
   function triggerRemixStep(stepObj) {
-    if (!audioCtx || !masterGain || !toneUnlocked || soundMuted || !presentationActive) return;
+    if (!audioCtx || !masterGain || !toneUnlocked || soundMuted) return;
     try {
       const now = audioCtx.currentTime;
 
-      // لحن شرقي عاطفي مفلتر
       const leadOsc = audioCtx.createOscillator();
       const leadFilter = audioCtx.createBiquadFilter();
       const leadGain = audioCtx.createGain();
@@ -836,7 +864,6 @@
       leadOsc.start(now);
       leadOsc.stop(now + stepObj.dur + 0.02);
 
-      // بيس إيقاعي عميق
       const bassOsc = audioCtx.createOscillator();
       const bassGain = audioCtx.createGain();
       bassOsc.type = 'sine';
@@ -852,7 +879,6 @@
 
       activeNodes.push(leadOsc, bassOsc);
 
-      // نبضة إيقاعية خفيفة
       if (stepObj.kick) {
         const kickOsc = audioCtx.createOscillator();
         const kickGain = audioCtx.createGain();
@@ -895,7 +921,7 @@
       stepIndex = 1;
 
       beatTimer = setInterval(function () {
-        if (!presentationActive || !toneUnlocked || soundMuted) return;
+        if (!toneUnlocked || soundMuted) return;
         const item = ORIENTAL_REMIX_STEPS[stepIndex % ORIENTAL_REMIX_STEPS.length];
         triggerRemixStep(item);
         stepIndex += 1;
@@ -924,9 +950,6 @@
   function onPresentationEnter() {
     presentationActive = true;
     autoPlayEnabled = true;
-    toneUnlocked = false;
-    soundMuted = true;
-    stopRemixTone();
     setTimeout(function () {
       ensureControlButtons();
       startAutoSlides();
@@ -935,8 +958,6 @@
 
   function onPresentationExit() {
     presentationActive = false;
-    clearInterval(slideTimer);
-    slideTimer = null;
     toneUnlocked = false;
     soundMuted = true;
     stopRemixTone();
@@ -944,7 +965,7 @@
   }
 
   document.addEventListener('click', function (ev) {
-    const btn = ev.target.closest('button, a');
+    const btn = ev.target.closest('button, a, [role="button"]');
     if (!btn) return;
     const text = (btn.textContent || '').trim();
 
@@ -955,13 +976,6 @@
 
     if (text.includes('عرض') && !text.includes('العرض التقديمي')) {
       onPresentationEnter();
-      return;
-    }
-
-    if (text.includes('السابق') || text.includes('التالي')) {
-      if (btn.id !== 'pro2027AutoBtn' && btn.id !== 'pro2027ToneBtn') {
-        stopAutoSlides();
-      }
     }
   });
 
@@ -978,9 +992,17 @@
   if (document.body) {
     observer.observe(document.body, { childList: true, subtree: true });
   }
+
+  // تشغيل العداد الأوتوماتيك مباشرة عند فتح الصفحة أيضاً
+  window.addEventListener('DOMContentLoaded', function () {
+    ensureControlButtons();
+    startAutoSlides();
+  });
+  ensureControlButtons();
+  startAutoSlides();
 })();
 </script>
-<!-- نهاية إضافة العرض التلقائي والنغمة المحمية بكلمة سر -->
+<!-- نهاية إضافة العرض التلقائي الأوتوماتيك (كل ثانيتين) والنغمة المحمية بكلمة سر -->
 </script>
 <!-- نهاية إضافة العرض التلقائي والنغمة الهادئة -->
 </body>
