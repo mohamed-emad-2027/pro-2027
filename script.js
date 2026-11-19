@@ -1,7 +1,7 @@
 // =========================================================================
 // 🔑 قسّم مفتاح Gemini الجديد لنصّين وحط كل نص بين علامتي التنصيص تحت:
-const KEY_PART_1 = "AQ.Ab8RN6Ky9gnFGq4wI0YXqP0";
-const KEY_PART_2 = "LxBztOkMV3SKsEWRrJVsvPsxNhA";
+const KEY_PART_1 = "AQ.Ab8RN6IU74L_7c0geHBnpzuy";
+const KEY_PART_2 = "1jMg5sVUkDmoQcMVTdeOGiJYFQ";
 const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
 // =========================================================================
 
@@ -323,34 +323,6 @@ function generateCertificate() {
 }
 
 // ============== 8. مساعد البحث الذكي المدعوم بـ Google Gemini ==============
-let cachedGeminiModel = null;
-
-async function getWorkingGeminiModel(apiKey) {
-    if (cachedGeminiModel) return cachedGeminiModel;
-    try {
-        const res = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey)
-        );
-        if (res.ok) {
-            const info = await res.json();
-            const models = info.models || [];
-            const validModels = models.filter(m =>
-                Array.isArray(m.supportedGenerationMethods) &&
-                m.supportedGenerationMethods.includes('generateContent')
-            );
-            const flashModel =
-                validModels.find(m => m.name.includes('flash') && !m.name.includes('8b') && !m.name.includes('lite')) ||
-                validModels.find(m => m.name.includes('flash')) ||
-                validModels[0];
-            if (flashModel && flashModel.name) {
-                cachedGeminiModel = flashModel.name;
-                return cachedGeminiModel;
-            }
-        }
-    } catch (e) {}
-    return 'models/gemini-flash-latest';
-}
-
 function toggleChatBot() {
     document.getElementById('aiChatWindow').classList.toggle('open');
 }
@@ -409,12 +381,14 @@ async function askBot(question) {
         'التعليمات: أجب باللغة العربية الفصحى المبسطة وبأسلوب علمي موجز ومباشر يناسب الطلاب ولجنة التحكيم (في حدود 3 إلى 5 أسطر إلا إذا طُلب شرح مفصل).';
 
     try {
-        const modelPath = await getWorkingGeminiModel(GEMINI_API_KEY);
         const response = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/' + modelPath + ':generateContent?key=' + encodeURIComponent(GEMINI_API_KEY),
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-goog-api-key': GEMINI_API_KEY
+                },
                 body: JSON.stringify({
                     contents: [
                         {
@@ -428,6 +402,8 @@ async function askBot(question) {
         );
 
         if (!response.ok) {
+            const errBody = await response.text();
+            console.error('Gemini API Error:', response.status, errBody);
             throw new Error('HTTP ' + response.status);
         }
 
@@ -435,6 +411,7 @@ async function askBot(question) {
         const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
         botDiv.textContent = aiText ? aiText.trim() : getLocalBotReply(question);
     } catch (err) {
+        console.error('ChatBot Fallback Reason:', err);
         botDiv.textContent = getLocalBotReply(question);
     }
 
