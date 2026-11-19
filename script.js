@@ -1,5 +1,4 @@
 // =========================================================================
-// 🔑 مفتاح Gemini الجديد مقسوم وجاهز للعمل مباشرة:
 const KEY_PART_1 = "AQ.Ab8RN6IU74L_7c0geHBnpzuy";
 const KEY_PART_2 = "1jMg5sVUkDmoQcMVTdeOGiJYFQ";
 const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
@@ -322,7 +321,7 @@ function generateCertificate() {
     certBox.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ============== 8. مساعد البحث الذكي السريع المدعوم بـ Google Gemini ==============
+// ============== 8. مساعد البحث الذكي المدعوم بـ Google Gemini ==============
 function toggleChatBot() {
     document.getElementById('aiChatWindow').classList.toggle('open');
 }
@@ -343,6 +342,22 @@ function getLocalBotReply(q) {
     return 'سؤال رائع! يمكنك استكشاف المحاور الخمسة أو تجربة محاكي التوازن المعرفي في قسم النتائج والمحاكي لمعرفة تفاصيل أكثر.';
 }
 
+async function callGeminiUrl(url, fullPrompt) {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-goog-api-key': GEMINI_API_KEY
+        },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: fullPrompt }] }]
+        })
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+}
+
 async function askBot(question) {
     const box = document.getElementById('aiChatMessages');
 
@@ -358,59 +373,46 @@ async function askBot(question) {
     box.appendChild(botDiv);
     box.scrollTop = box.scrollHeight;
 
-    if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('ضع_النص')) {
-        setTimeout(() => {
-            botDiv.textContent = getLocalBotReply(question);
-            box.scrollTop = box.scrollHeight;
-        }, 300);
-        return;
-    }
-
     const researchContext =
         'أنت المساعد البحثي الذكي لمنصة "أثر توظيف أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا" (2026-2027) بمدرسة الجعفرية الثانوية المشتركة (الصف الثاني البكالوريا).\n' +
         'فريق البحث والبرمجة: قائد الفريق ومطور المنصة المبرمج محمد عماد عباس (المحور الأول والخامس)، المبرمج فوزي حسين (المحور الثاني: الدراسة الميدانية)، المبرمج مازن أبو صابر (المحور الثالث: التحليل الإحصائي)، والمبرمج محمد أحمد (المحور الرابع: الإطار النظري والمخاطر الأخلاقية).\n' +
         'أبرز النتائج (العينة ' + surveyState.total + ' طالب): 78% استخدام أسبوعي، 40% حل الواجبات، 35% شرح الدروس، 15% تلخيص، 10% ترجمة، 30% ينقلون بدون مراجعة. العلمي: 68% برمجة ومعادلات و22% فيزياء وكيمياء. الأدبي: 72% تلخيص وترجمة ومقالات و18% نصوص وتاريخ.\n' +
         'أجب بالعربية الفصحى المبسطة وبإيجاز مباشر (2 إلى 4 أسطر).';
 
-    const candidateEndpoints = [
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent',
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent'
-    ];
-
+    const fullPrompt = researchContext + '\n\nسؤال الزائر: ' + question;
     let aiText = null;
 
-    for (const url of candidateEndpoints) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000);
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                signal: controller.signal,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-goog-api-key': GEMINI_API_KEY
-                },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                { text: researchContext + '\n\nسؤال الزائر: ' + question }
-                            ]
-                        }
-                    ]
-                })
-            });
-            clearTimeout(timeoutId);
+    try {
+        aiText = await callGeminiUrl(
+            'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
+            fullPrompt
+        );
 
-            if (response.ok) {
-                const data = await response.json();
-                aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (aiText) break;
+        if (!aiText) {
+            const listRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+                headers: { 'X-goog-api-key': GEMINI_API_KEY }
+            });
+            if (listRes.ok) {
+                const listData = await listRes.json();
+                const backupModels = (listData.models || [])
+                    .filter(m =>
+                        Array.isArray(m.supportedGenerationMethods) &&
+                        m.supportedGenerationMethods.includes('generateContent') &&
+                        m.name.includes('flash') &&
+                        !m.name.includes('gemini-flash-latest')
+                    )
+                    .slice(0, 2);
+
+                for (const m of backupModels) {
+                    aiText = await callGeminiUrl(
+                        'https://generativelanguage.googleapis.com/v1beta/' + m.name + ':generateContent',
+                        fullPrompt
+                    );
+                    if (aiText) break;
+                }
             }
-        } catch (err) {
-            clearTimeout(timeoutId);
         }
-    }
+    } catch (e) {}
 
     botDiv.textContent = aiText ? aiText.trim() : getLocalBotReply(question);
     box.scrollTop = box.scrollHeight;
