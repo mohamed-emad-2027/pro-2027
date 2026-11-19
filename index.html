@@ -632,5 +632,258 @@
     </footer>
 
     <script src="script.js"></script>
+    <!-- بداية إضافة العرض التلقائي (دقيقة للـ 6 شرائح) والنغمة الهادئة بدون حذف أي شيء -->
+<script>
+(function () {
+  if (window.__pro2027SlideAutoAndToneInit) return;
+  window.__pro2027SlideAutoAndToneInit = true;
+
+  const TOTAL_SLIDES = 6;
+  const TOTAL_DURATION_MS = 60000; // دقيقة واحدة للـ 6 شرائح
+  const SLIDE_DURATION_MS = TOTAL_DURATION_MS / TOTAL_SLIDES; // 10 ثوانٍ لكل شريحة
+
+  let slideTimer = null;
+  let autoPlayEnabled = true;
+  let soundMuted = false;
+  let presentationActive = false;
+
+  let audioCtx = null;
+  let masterGain = null;
+  let osc1 = null;
+  let osc2 = null;
+  let osc3 = null;
+  let toneActive = false;
+
+  function ensureControlButtons() {
+    if (document.getElementById('pro2027AutoBtn') && document.getElementById('pro2027ToneBtn')) {
+      return;
+    }
+
+    const allButtons = Array.from(document.querySelectorAll('button'));
+    const endBtn = allButtons.find((b) => (b.textContent || '').includes('إنهاء العرض'));
+    const nextBtn = allButtons.find((b) => (b.textContent || '').trim() === 'التالي' || (b.textContent || '').includes('التالي'));
+
+    const anchor = endBtn || nextBtn;
+    if (!anchor || !anchor.parentElement) return;
+
+    const bar = anchor.parentElement;
+
+    if (!document.getElementById('pro2027AutoBtn')) {
+      const autoBtn = document.createElement('button');
+      autoBtn.type = 'button';
+      autoBtn.id = 'pro2027AutoBtn';
+      autoBtn.textContent = '⏸️ تلقائي (60ث)';
+      autoBtn.style.cssText = 'margin-inline:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:#1b365d;color:#ffffff;font-size:13px;cursor:pointer;font-family:inherit;';
+      autoBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (autoPlayEnabled) {
+          stopAutoSlides();
+        } else {
+          startAutoSlides();
+        }
+      });
+      bar.insertBefore(autoBtn, anchor);
+    }
+
+    if (!document.getElementById('pro2027ToneBtn')) {
+      const toneBtn = document.createElement('button');
+      toneBtn.type = 'button';
+      toneBtn.id = 'pro2027ToneBtn';
+      toneBtn.textContent = '🔊 نغمة هادئة';
+      toneBtn.style.cssText = 'margin-inline:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:#1b365d;color:#ffffff;font-size:13px;cursor:pointer;font-family:inherit;';
+      toneBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        soundMuted = !soundMuted;
+        syncButtonLabels();
+        if (soundMuted) {
+          stopCalmTone();
+        } else if (presentationActive) {
+          startCalmTone();
+        }
+      });
+      bar.insertBefore(toneBtn, anchor);
+    }
+
+    syncButtonLabels();
+  }
+
+  function syncButtonLabels() {
+    const autoBtn = document.getElementById('pro2027AutoBtn');
+    const toneBtn = document.getElementById('pro2027ToneBtn');
+    if (autoBtn) {
+      autoBtn.textContent = autoPlayEnabled ? '⏸️ تلقائي (60ث)' : '▶️ تشغيل (60ث)';
+    }
+    if (toneBtn) {
+      toneBtn.textContent = soundMuted ? '🔇 نغمة مكتومة' : '🔊 نغمة هادئة';
+    }
+  }
+
+  function readCurrentSlideNumber() {
+    const bodyText = document.body ? document.body.innerText : '';
+    const match = bodyText.match(/\b([1-6])\s*\/\s*6\b/);
+    if (match) return parseInt(match[1], 10);
+    return 1;
+  }
+
+  function clickNextSlideButton() {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const nextBtn = buttons.find((b) => {
+      const t = (b.textContent || '').trim();
+      return t === 'التالي' || t.endsWith('التالي') || t.includes('التالي');
+    });
+    if (nextBtn && !nextBtn.disabled) {
+      nextBtn.click();
+      return true;
+    }
+    if (typeof window.nextSlide === 'function') {
+      window.nextSlide();
+      return true;
+    }
+    return false;
+  }
+
+  function startAutoSlides() {
+    clearInterval(slideTimer);
+    autoPlayEnabled = true;
+    syncButtonLabels();
+
+    slideTimer = setInterval(function () {
+      if (!presentationActive || !autoPlayEnabled) return;
+      const current = readCurrentSlideNumber();
+      if (current < TOTAL_SLIDES) {
+        clickNextSlideButton();
+      } else {
+        stopAutoSlides();
+      }
+    }, SLIDE_DURATION_MS);
+  }
+
+  function stopAutoSlides() {
+    clearInterval(slideTimer);
+    slideTimer = null;
+    autoPlayEnabled = false;
+    syncButtonLabels();
+  }
+
+  function startCalmTone() {
+    if (soundMuted) return;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      if (toneActive) return;
+
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(0.026, audioCtx.currentTime + 2.2);
+      masterGain.connect(audioCtx.destination);
+
+      osc1 = audioCtx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(196.0, audioCtx.currentTime); // G3 هادئ
+
+      const g2 = audioCtx.createGain();
+      g2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+
+      osc2 = audioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(246.94, audioCtx.currentTime); // B3 دافئ
+
+      const g3 = audioCtx.createGain();
+      g3.gain.setValueAtTime(0.22, audioCtx.currentTime);
+
+      osc3 = audioCtx.createOscillator();
+      osc3.type = 'sine';
+      osc3.frequency.setValueAtTime(293.66, audioCtx.currentTime); // D4 مريح
+
+      osc1.connect(masterGain);
+      osc2.connect(g2);
+      g2.connect(masterGain);
+      osc3.connect(g3);
+      g3.connect(masterGain);
+
+      osc1.start();
+      osc2.start();
+      osc3.start();
+      toneActive = true;
+      syncButtonLabels();
+    } catch (err) {}
+  }
+
+  function stopCalmTone() {
+    try {
+      if (masterGain && audioCtx) {
+        masterGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.35);
+      }
+      setTimeout(function () {
+        try {
+          if (osc1) { osc1.stop(); osc1.disconnect(); osc1 = null; }
+          if (osc2) { osc2.stop(); osc2.disconnect(); osc2 = null; }
+          if (osc3) { osc3.stop(); osc3.disconnect(); osc3 = null; }
+          toneActive = false;
+        } catch (e) {}
+      }, 750);
+    } catch (err) {}
+  }
+
+  function onPresentationEnter() {
+    presentationActive = true;
+    autoPlayEnabled = true;
+    soundMuted = false;
+    setTimeout(function () {
+      ensureControlButtons();
+      startCalmTone();
+      startAutoSlides();
+    }, 150);
+  }
+
+  function onPresentationExit() {
+    presentationActive = false;
+    clearInterval(slideTimer);
+    slideTimer = null;
+    stopCalmTone();
+  }
+
+  document.addEventListener('click', function (ev) {
+    const btn = ev.target.closest('button, a');
+    if (!btn) return;
+    const text = (btn.textContent || '').trim();
+
+    if (text.includes('إنهاء العرض')) {
+      onPresentationExit();
+      return;
+    }
+
+    if (text.includes('عرض') && !text.includes('العرض التقديمي')) {
+      onPresentationEnter();
+      return;
+    }
+
+    if (text.includes('السابق') || text.includes('التالي')) {
+      if (btn.id !== 'pro2027AutoBtn' && btn.id !== 'pro2027ToneBtn') {
+        stopAutoSlides();
+      }
+    }
+  });
+
+  const observer = new MutationObserver(function () {
+    const hasEndBtn = Array.from(document.querySelectorAll('button')).some((b) => (b.textContent || '').includes('إنهاء العرض'));
+    if (hasEndBtn) {
+      presentationActive = true;
+      ensureControlButtons();
+    } else if (presentationActive) {
+      onPresentationExit();
+    }
+  });
+
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+})();
+</script>
+<!-- نهاية إضافة العرض التلقائي والنغمة الهادئة -->
 </body>
 </html>
