@@ -632,378 +632,110 @@
     </footer>
 
     <script src="script.js"></script>
-    <!-- بداية إضافة العرض التلقائي الأوتوماتيك (كل ثانيتين) والنغمة المحمية بكلمة سر بدون حذف أي شيء -->
-<script>
+    <script>
 (function () {
-  if (window.__pro2027SlideAutoAndToneInit) return;
-  window.__pro2027SlideAutoAndToneInit = true;
+  const SLIDE_INTERVAL_MS = 5000;
+  const PASSCODE = 'RORO12';
+  const AUDIO_SRC = 'song.mp4';
 
-  const TONE_PASSCODE = 'RORO12';
-  const TOTAL_SLIDES = 6;
-  const SLIDE_DURATION_MS = 2000; // أوتوماتيك كل ثانيتين
+  const slides = Array.from(
+    document.querySelectorAll('.slide, .presentation-slide, [data-slide], section.slide, .swiper-slide')
+  );
 
-  let slideTimer = null;
-  let beatTimer = null;
-  let autoPlayEnabled = true;
-  let toneUnlocked = false;
-  let soundMuted = true;
-  let presentationActive = false;
+  let currentIndex = 0;
+  let autoTimer = null;
 
-  let audioCtx = null;
-  let masterGain = null;
-  let activeNodes = [];
-  let stepIndex = 0;
+  function showSlide(index) {
+    if (!slides.length) return;
+    currentIndex = ((index % slides.length) + slides.length) % slides.length;
 
-  const ORIENTAL_REMIX_STEPS = [
-    { lead: 440.00, bass: 110.00, kick: true,  dur: 0.22 },
-    { lead: 466.16, bass: 110.00, kick: false, dur: 0.20 },
-    { lead: 523.25, bass: 130.81, kick: true,  dur: 0.24 },
-    { lead: 440.00, bass: 110.00, kick: false, dur: 0.22 },
-    { lead: 392.00, bass: 98.00,  kick: true,  dur: 0.25 },
-    { lead: 440.00, bass: 110.00, kick: false, dur: 0.22 },
-    { lead: 349.23, bass: 87.31,  kick: true,  dur: 0.26 },
-    { lead: 329.63, bass: 82.41,  kick: false, dur: 0.26 }
-  ];
-
-  function ensureControlButtons() {
-    if (document.getElementById('pro2027AutoBtn') && document.getElementById('pro2027ToneBtn')) {
-      return;
-    }
-
-    const allButtons = Array.from(document.querySelectorAll('button'));
-    const endBtn = allButtons.find((b) => (b.textContent || '').includes('إنهاء العرض'));
-    const nextBtn = allButtons.find((b) => {
-      const t = (b.textContent || '').trim();
-      return t === 'التالي' || t.includes('التالي');
+    slides.forEach((slide, i) => {
+      const isActive = i === currentIndex;
+      slide.classList.toggle('active', isActive);
+      slide.classList.toggle('is-active', isActive);
+      slide.classList.toggle('current', isActive);
+      if (slide.style) {
+        slide.style.display = isActive ? '' : 'none';
+      }
     });
 
-    const anchor = endBtn || nextBtn;
-    if (!anchor || !anchor.parentElement) return;
-
-    const bar = anchor.parentElement;
-
-    if (!document.getElementById('pro2027AutoBtn')) {
-      const autoBtn = document.createElement('button');
-      autoBtn.type = 'button';
-      autoBtn.id = 'pro2027AutoBtn';
-      autoBtn.textContent = '⏸️ أوتوماتيك (2ث)';
-      autoBtn.style.cssText = 'margin-inline:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:#1b365d;color:#ffffff;font-size:13px;cursor:pointer;font-family:inherit;';
-      autoBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (autoPlayEnabled) {
-          stopAutoSlides();
-        } else {
-          startAutoSlides();
-        }
-      });
-      bar.insertBefore(autoBtn, anchor);
-    }
-
-    if (!document.getElementById('pro2027ToneBtn')) {
-      const toneBtn = document.createElement('button');
-      toneBtn.type = 'button';
-      toneBtn.id = 'pro2027ToneBtn';
-      toneBtn.textContent = '🔒 نغمة بكلمة سر';
-      toneBtn.style.cssText = 'margin-inline:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:#1b365d;color:#ffffff;font-size:13px;cursor:pointer;font-family:inherit;';
-      toneBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        handleToneButtonClick();
-      });
-      bar.insertBefore(toneBtn, anchor);
-    }
-
-    syncButtonLabels();
-  }
-
-  function syncButtonLabels() {
-    const autoBtn = document.getElementById('pro2027AutoBtn');
-    const toneBtn = document.getElementById('pro2027ToneBtn');
-    if (autoBtn) {
-      autoBtn.textContent = autoPlayEnabled ? '⏸️ أوتوماتيك (2ث)' : '▶️ تشغيل أوتوماتيك (2ث)';
-    }
-    if (toneBtn) {
-      if (!toneUnlocked) {
-        toneBtn.textContent = '🔒 نغمة بكلمة سر';
-      } else {
-        toneBtn.textContent = soundMuted ? '🔇 النغمة مكتومة' : '🔓 النغمة شغالة';
-      }
-    }
-  }
-
-  function requestTonePasscode() {
-    const entered = window.prompt('أدخل كلمة السر لتشغيل النغمة:');
-    if (entered === null) {
-      return false;
-    }
-    if (entered === TONE_PASSCODE) {
-      toneUnlocked = true;
-      soundMuted = false;
-      syncButtonLabels();
-      startRemixTone();
-      return true;
-    }
-    stopRemixTone();
-    toneUnlocked = false;
-    soundMuted = true;
-    syncButtonLabels();
-    window.alert('كلمة السر غير صحيحة. النغمة لن تفتح بدون كلمة السر الصحيحة.');
-    return false;
-  }
-
-  function handleToneButtonClick() {
-    if (!toneUnlocked) {
-      requestTonePasscode();
-      return;
-    }
-    soundMuted = !soundMuted;
-    syncButtonLabels();
-    if (soundMuted) {
-      stopRemixTone();
-    } else if (presentationActive) {
-      startRemixTone();
-    }
-  }
-
-  function readCurrentSlideNumber() {
-    const text = document.body ? document.body.innerText : '';
-    const match = text.match(/\b([1-6])\s*\/\s*6\b/);
-    if (match) return parseInt(match[1], 10);
-    return null;
-  }
-
-  function forceNextSlide() {
-    // 1. تجربة الدوال العامة إن وُجدت
-    const fnCandidates = ['nextSlide', 'goNextSlide', 'changeSlide', 'showNextSlide', 'slideNext'];
-    for (let i = 0; i < fnCandidates.length; i++) {
-      const fnName = fnCandidates[i];
-      if (typeof window[fnName] === 'function') {
-        try {
-          if (fnName === 'changeSlide') {
-            window[fnName](1);
-          } else {
-            window[fnName]();
-          }
-          return true;
-        } catch (e) {}
-      }
-    }
-
-    // 2. البحث عن زر التالي أو أي عنصر يحتوي على "التالي"
-    const candidates = Array.from(document.querySelectorAll('button, [role="button"], a'));
-    const nextEl = candidates.find((el) => {
-      if (el.id === 'pro2027AutoBtn' || el.id === 'pro2027ToneBtn') return false;
-      const t = (el.textContent || '').trim();
-      const aria = (el.getAttribute('aria-label') || '').toLowerCase();
-      return t === 'التالي' || t.includes('التالي') || aria.includes('next');
-    });
-
-    if (nextEl && !nextEl.disabled) {
-      nextEl.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-      if (typeof nextEl.click === 'function') nextEl.click();
-      return true;
-    }
-
-    // 3. إرسال ضغطة سهم يمين كبديل أخير
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, bubbles: true }));
-    return true;
+    document.dispatchEvent(
+      new CustomEvent('slidechange', { detail: { index: currentIndex, total: slides.length } })
+    );
   }
 
   function startAutoSlides() {
-    clearInterval(slideTimer);
-    autoPlayEnabled = true;
-    syncButtonLabels();
-
-    slideTimer = setInterval(function () {
-      if (!autoPlayEnabled) return;
-
-      const current = readCurrentSlideNumber();
-      if (current !== null && current >= TOTAL_SLIDES) {
-        // لو وصل لآخر شريحة يرجع للشريحة 1 تلقائياً عشان العرض يفضل شغال أوتوماتيك
-        const prevCandidates = Array.from(document.querySelectorAll('button, [role="button"], a'));
-        const firstBtn = prevCandidates.find((el) => (el.textContent || '').trim() === '1' || (el.textContent || '').includes('البداية'));
-        if (firstBtn) {
-          firstBtn.click();
-        }
-        return;
-      }
-
-      forceNextSlide();
-    }, SLIDE_DURATION_MS);
+    if (!slides.length) return;
+    stopAutoSlides();
+    autoTimer = setInterval(() => {
+      showSlide(currentIndex + 1);
+    }, SLIDE_INTERVAL_MS);
   }
 
   function stopAutoSlides() {
-    clearInterval(slideTimer);
-    slideTimer = null;
-    autoPlayEnabled = false;
-    syncButtonLabels();
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
   }
 
-  function triggerRemixStep(stepObj) {
-    if (!audioCtx || !masterGain || !toneUnlocked || soundMuted) return;
-    try {
-      const now = audioCtx.currentTime;
+  const audio = new Audio(AUDIO_SRC);
+  audio.preload = 'auto';
+  audio.loop = true;
 
-      const leadOsc = audioCtx.createOscillator();
-      const leadFilter = audioCtx.createBiquadFilter();
-      const leadGain = audioCtx.createGain();
-
-      leadOsc.type = 'sawtooth';
-      leadOsc.frequency.setValueAtTime(stepObj.lead, now);
-
-      leadFilter.type = 'lowpass';
-      leadFilter.frequency.setValueAtTime(1400, now);
-
-      leadGain.gain.setValueAtTime(0.0001, now);
-      leadGain.gain.linearRampToValueAtTime(0.32, now + 0.03);
-      leadGain.gain.exponentialRampToValueAtTime(0.0001, now + stepObj.dur);
-
-      leadOsc.connect(leadFilter);
-      leadFilter.connect(leadGain);
-      leadGain.connect(masterGain);
-
-      leadOsc.start(now);
-      leadOsc.stop(now + stepObj.dur + 0.02);
-
-      const bassOsc = audioCtx.createOscillator();
-      const bassGain = audioCtx.createGain();
-      bassOsc.type = 'sine';
-      bassOsc.frequency.setValueAtTime(stepObj.bass, now);
-      bassGain.gain.setValueAtTime(0.0001, now);
-      bassGain.gain.linearRampToValueAtTime(0.45, now + 0.02);
-      bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
-
-      bassOsc.connect(bassGain);
-      bassGain.connect(masterGain);
-      bassOsc.start(now);
-      bassOsc.stop(now + 0.25);
-
-      activeNodes.push(leadOsc, bassOsc);
-
-      if (stepObj.kick) {
-        const kickOsc = audioCtx.createOscillator();
-        const kickGain = audioCtx.createGain();
-        kickOsc.type = 'sine';
-        kickOsc.frequency.setValueAtTime(135, now);
-        kickOsc.frequency.exponentialRampToValueAtTime(42, now + 0.14);
-
-        kickGain.gain.setValueAtTime(0.5, now);
-        kickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-
-        kickOsc.connect(kickGain);
-        kickGain.connect(masterGain);
-        kickOsc.start(now);
-        kickOsc.stop(now + 0.17);
-        activeNodes.push(kickOsc);
-      }
-    } catch (e) {}
+  function promptAndPlayAudio() {
+    const input = window.prompt('أدخل كلمة السر لتشغيل الأغنية:');
+    if (input === null) return;
+    if (input.trim() === PASSCODE) {
+      audio.play().catch(() => {
+        window.alert('تعذر تشغيل الملف الصوتي، تأكد من وجود song.mp4 في نفس مجلد index.html.');
+      });
+    } else {
+      window.alert('كلمة السر غير صحيحة.');
+    }
   }
 
-  function startRemixTone() {
-    if (!toneUnlocked || soundMuted) return;
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      if (!audioCtx) audioCtx = new Ctx();
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-
-      stopRemixTone();
-
-      const now = audioCtx.currentTime;
-      masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.0001, now);
-      masterGain.gain.exponentialRampToValueAtTime(0.08, now + 0.35);
-      masterGain.connect(audioCtx.destination);
-
-      stepIndex = 0;
-      triggerRemixStep(ORIENTAL_REMIX_STEPS[0]);
-      stepIndex = 1;
-
-      beatTimer = setInterval(function () {
-        if (!toneUnlocked || soundMuted) return;
-        const item = ORIENTAL_REMIX_STEPS[stepIndex % ORIENTAL_REMIX_STEPS.length];
-        triggerRemixStep(item);
-        stepIndex += 1;
-      }, 280);
-
-      syncButtonLabels();
-    } catch (err) {}
+  function createUnlockButton() {
+    if (document.getElementById('roro12-audio-btn')) return;
+    const btn = document.createElement('button');
+    btn.id = 'roro12-audio-btn';
+    btn.type = 'button';
+    btn.textContent = '🔒 تشغيل الأغنية بكلمة سر';
+    btn.style.cssText = [
+      'position:fixed',
+      'bottom:16px',
+      'left:16px',
+      'z-index:9999',
+      'padding:10px 16px',
+      'border:none',
+      'border-radius:10px',
+      'background:#111827',
+      'color:#f9fafb',
+      'font-family:inherit',
+      'font-size:14px',
+      'cursor:pointer',
+      'box-shadow:0 4px 14px rgba(0,0,0,0.25)'
+    ].join(';');
+    btn.addEventListener('click', promptAndPlayAudio);
+    document.body.appendChild(btn);
   }
 
-  function stopRemixTone() {
-    clearInterval(beatTimer);
-    beatTimer = null;
-    activeNodes.forEach(function (node) {
-      try { node.stop(); } catch (e) {}
-      try { node.disconnect(); } catch (e) {}
-    });
-    activeNodes = [];
-    try {
-      if (masterGain) {
-        masterGain.disconnect();
-        masterGain = null;
-      }
-    } catch (e) {}
-  }
-
-  function onPresentationEnter() {
-    presentationActive = true;
-    autoPlayEnabled = true;
-    setTimeout(function () {
-      ensureControlButtons();
+  document.addEventListener('DOMContentLoaded', () => {
+    if (slides.length) {
+      showSlide(0);
       startAutoSlides();
-    }, 150);
-  }
-
-  function onPresentationExit() {
-    presentationActive = false;
-    toneUnlocked = false;
-    soundMuted = true;
-    stopRemixTone();
-    syncButtonLabels();
-  }
-
-  document.addEventListener('click', function (ev) {
-    const btn = ev.target.closest('button, a, [role="button"]');
-    if (!btn) return;
-    const text = (btn.textContent || '').trim();
-
-    if (text.includes('إنهاء العرض')) {
-      onPresentationExit();
-      return;
     }
-
-    if (text.includes('عرض') && !text.includes('العرض التقديمي')) {
-      onPresentationEnter();
-    }
+    createUnlockButton();
   });
 
-  const observer = new MutationObserver(function () {
-    const hasEndBtn = Array.from(document.querySelectorAll('button')).some((b) => (b.textContent || '').includes('إنهاء العرض'));
-    if (hasEndBtn) {
-      presentationActive = true;
-      ensureControlButtons();
-    } else if (presentationActive) {
-      onPresentationExit();
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    if (slides.length) {
+      showSlide(0);
+      startAutoSlides();
     }
-  });
-
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true });
+    createUnlockButton();
   }
-
-  // تشغيل العداد الأوتوماتيك مباشرة عند فتح الصفحة أيضاً
-  window.addEventListener('DOMContentLoaded', function () {
-    ensureControlButtons();
-    startAutoSlides();
-  });
-  ensureControlButtons();
-  startAutoSlides();
 })();
 </script>
-<!-- نهاية إضافة العرض التلقائي الأوتوماتيك (كل ثانيتين) والنغمة المحمية بكلمة سر -->
-</script>
-<!-- نهاية إضافة العرض التلقائي والنغمة الهادئة -->
 </body>
 </html>
