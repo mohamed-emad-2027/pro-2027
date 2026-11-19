@@ -2,7 +2,7 @@
 // 🔑 قسّم مفتاح Gemini الجديد لنصّين وحط كل نص بين علامتي التنصيص تحت:
 const KEY_PART_1 = "AQ.Ab8RN6Ky9gnFGq4wI0YXqP0";
 const KEY_PART_2 = "LxBztOkMV3SKsEWRrJVsvPsxNhA";
-const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).trim();
+const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
 // =========================================================================
 
 // ============== 1. إدارة التبويبات وشريط التقدم وحجم الخط ==============
@@ -323,6 +323,34 @@ function generateCertificate() {
 }
 
 // ============== 8. مساعد البحث الذكي المدعوم بـ Google Gemini ==============
+let cachedGeminiModel = null;
+
+async function getWorkingGeminiModel(apiKey) {
+    if (cachedGeminiModel) return cachedGeminiModel;
+    try {
+        const res = await fetch(
+            'https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey)
+        );
+        if (res.ok) {
+            const info = await res.json();
+            const models = info.models || [];
+            const validModels = models.filter(m =>
+                Array.isArray(m.supportedGenerationMethods) &&
+                m.supportedGenerationMethods.includes('generateContent')
+            );
+            const flashModel =
+                validModels.find(m => m.name.includes('flash') && !m.name.includes('8b') && !m.name.includes('lite')) ||
+                validModels.find(m => m.name.includes('flash')) ||
+                validModels[0];
+            if (flashModel && flashModel.name) {
+                cachedGeminiModel = flashModel.name;
+                return cachedGeminiModel;
+            }
+        }
+    } catch (e) {}
+    return 'models/gemini-flash-latest';
+}
+
 function toggleChatBot() {
     document.getElementById('aiChatWindow').classList.toggle('open');
 }
@@ -381,8 +409,9 @@ async function askBot(question) {
         'التعليمات: أجب باللغة العربية الفصحى المبسطة وبأسلوب علمي موجز ومباشر يناسب الطلاب ولجنة التحكيم (في حدود 3 إلى 5 أسطر إلا إذا طُلب شرح مفصل).';
 
     try {
+        const modelPath = await getWorkingGeminiModel(GEMINI_API_KEY);
         const response = await fetch(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + encodeURIComponent(GEMINI_API_KEY),
+            'https://generativelanguage.googleapis.com/v1beta/' + modelPath + ':generateContent?key=' + encodeURIComponent(GEMINI_API_KEY),
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
