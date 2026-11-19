@@ -632,7 +632,7 @@
     </footer>
 
     <script src="script.js"></script>
-    <!-- بداية إضافة العرض التلقائي (دقيقة للـ 6 شرائح) والنغمة الهادئة بدون حذف أي شيء -->
+    <!-- بداية إضافة العرض التلقائي (دقيقة للـ 6 شرائح) والنغمة العاطفية الهادئة بدون حذف أي شيء -->
 <script>
 (function () {
   if (window.__pro2027SlideAutoAndToneInit) return;
@@ -643,16 +643,30 @@
   const SLIDE_DURATION_MS = TOTAL_DURATION_MS / TOTAL_SLIDES; // 10 ثوانٍ لكل شريحة
 
   let slideTimer = null;
+  let melodyTimer = null;
   let autoPlayEnabled = true;
   let soundMuted = false;
   let presentationActive = false;
 
   let audioCtx = null;
   let masterGain = null;
-  let osc1 = null;
-  let osc2 = null;
-  let osc3 = null;
+  let padOsc1 = null;
+  let padOsc2 = null;
+  let padFilter = null;
   let toneActive = false;
+  let noteStep = 0;
+
+  // تتابع نغمات عاطفي دافئ وهادئ (ترددات بالهرتز)
+  const POETIC_NOTES = [
+    220.00, // A3
+    261.63, // C4
+    329.63, // E4
+    392.00, // G4
+    349.23, // F4
+    329.63, // E4
+    293.66, // D4
+    261.63  // C4
+  ];
 
   function ensureControlButtons() {
     if (document.getElementById('pro2027AutoBtn') && document.getElementById('pro2027ToneBtn')) {
@@ -689,7 +703,7 @@
       const toneBtn = document.createElement('button');
       toneBtn.type = 'button';
       toneBtn.id = 'pro2027ToneBtn';
-      toneBtn.textContent = '🔊 نغمة هادئة';
+      toneBtn.textContent = '🔊 نغمة عاطفية';
       toneBtn.style.cssText = 'margin-inline:6px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:#1b365d;color:#ffffff;font-size:13px;cursor:pointer;font-family:inherit;';
       toneBtn.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -714,7 +728,7 @@
       autoBtn.textContent = autoPlayEnabled ? '⏸️ تلقائي (60ث)' : '▶️ تشغيل (60ث)';
     }
     if (toneBtn) {
-      toneBtn.textContent = soundMuted ? '🔇 نغمة مكتومة' : '🔊 نغمة هادئة';
+      toneBtn.textContent = soundMuted ? '🔇 نغمة مكتومة' : '🔊 نغمة عاطفية';
     }
   }
 
@@ -765,6 +779,29 @@
     syncButtonLabels();
   }
 
+  function playSingleEmotionalNote(freq) {
+    if (!audioCtx || !masterGain || soundMuted || !toneActive) return;
+    try {
+      const now = audioCtx.currentTime;
+      const noteOsc = audioCtx.createOscillator();
+      const noteGain = audioCtx.createGain();
+
+      // موجة مثلثية ناعمة مفلترة تعطي إحساساً شبيهاً بالبيانو أو العود الهادئ
+      noteOsc.type = 'triangle';
+      noteOsc.frequency.setValueAtTime(freq, now);
+
+      noteGain.gain.setValueAtTime(0.0001, now);
+      noteGain.gain.linearRampToValueAtTime(0.45, now + 0.35);
+      noteGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
+
+      noteOsc.connect(noteGain);
+      noteGain.connect(masterGain);
+
+      noteOsc.start(now);
+      noteOsc.stop(now + 2.5);
+    } catch (e) {}
+  }
+
   function startCalmTone() {
     if (soundMuted) return;
     try {
@@ -774,59 +811,78 @@
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      if (toneActive) return;
+
+      clearInterval(melodyTimer);
+      stopCalmToneImmediate();
+
+      const now = audioCtx.currentTime;
+      padFilter = audioCtx.createBiquadFilter();
+      padFilter.type = 'lowpass';
+      padFilter.frequency.setValueAtTime(750, now);
 
       masterGain = audioCtx.createGain();
-      masterGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-      masterGain.gain.exponentialRampToValueAtTime(0.026, audioCtx.currentTime + 2.2);
+      masterGain.gain.setValueAtTime(0.0001, now);
+      masterGain.gain.exponentialRampToValueAtTime(0.045, now + 1.8);
+
+      padFilter.connect(masterGain);
       masterGain.connect(audioCtx.destination);
 
-      osc1 = audioCtx.createOscillator();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(196.0, audioCtx.currentTime); // G3 هادئ
+      // خلفية دافئة مستمرة على A3 و E4
+      padOsc1 = audioCtx.createOscillator();
+      padOsc1.type = 'sine';
+      padOsc1.frequency.setValueAtTime(110.0, now); // A2 عميق ودافئ
 
-      const g2 = audioCtx.createGain();
-      g2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      const padG2 = audioCtx.createGain();
+      padG2.gain.setValueAtTime(0.4, now);
 
-      osc2 = audioCtx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(246.94, audioCtx.currentTime); // B3 دافئ
+      padOsc2 = audioCtx.createOscillator();
+      padOsc2.type = 'sine';
+      padOsc2.frequency.setValueAtTime(164.81, now); // E3 مريح
 
-      const g3 = audioCtx.createGain();
-      g3.gain.setValueAtTime(0.22, audioCtx.currentTime);
+      padOsc1.connect(padFilter);
+      padOsc2.connect(padG2);
+      padG2.connect(padFilter);
 
-      osc3 = audioCtx.createOscillator();
-      osc3.type = 'sine';
-      osc3.frequency.setValueAtTime(293.66, audioCtx.currentTime); // D4 مريح
+      padOsc1.start(now);
+      padOsc2.start(now);
 
-      osc1.connect(masterGain);
-      osc2.connect(g2);
-      g2.connect(masterGain);
-      osc3.connect(g3);
-      g3.connect(masterGain);
-
-      osc1.start();
-      osc2.start();
-      osc3.start();
       toneActive = true;
+      noteStep = 0;
+      playSingleEmotionalNote(POETIC_NOTES[0]);
+      noteStep = 1;
+
+      melodyTimer = setInterval(function () {
+        if (!presentationActive || soundMuted || !toneActive) return;
+        const freq = POETIC_NOTES[noteStep % POETIC_NOTES.length];
+        playSingleEmotionalNote(freq);
+        noteStep += 1;
+      }, 2200);
+
       syncButtonLabels();
     } catch (err) {}
   }
 
+  function stopCalmToneImmediate() {
+    try {
+      if (padOsc1) { padOsc1.stop(); padOsc1.disconnect(); padOsc1 = null; }
+      if (padOsc2) { padOsc2.stop(); padOsc2.disconnect(); padOsc2 = null; }
+      if (padFilter) { padFilter.disconnect(); padFilter = null; }
+      if (masterGain) { masterGain.disconnect(); masterGain = null; }
+      toneActive = false;
+    } catch (e) {}
+  }
+
   function stopCalmTone() {
+    clearInterval(melodyTimer);
+    melodyTimer = null;
     try {
       if (masterGain && audioCtx) {
-        masterGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.35);
+        masterGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.3);
       }
-      setTimeout(function () {
-        try {
-          if (osc1) { osc1.stop(); osc1.disconnect(); osc1 = null; }
-          if (osc2) { osc2.stop(); osc2.disconnect(); osc2 = null; }
-          if (osc3) { osc3.stop(); osc3.disconnect(); osc3 = null; }
-          toneActive = false;
-        } catch (e) {}
-      }, 750);
-    } catch (err) {}
+      setTimeout(stopCalmToneImmediate, 700);
+    } catch (err) {
+      stopCalmToneImmediate();
+    }
   }
 
   function onPresentationEnter() {
@@ -883,6 +939,8 @@
     observer.observe(document.body, { childList: true, subtree: true });
   }
 })();
+</script>
+<!-- نهاية إضافة العرض التلقائي والنغمة العاطفية الهادئة -->
 </script>
 <!-- نهاية إضافة العرض التلقائي والنغمة الهادئة -->
 </body>
