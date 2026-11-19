@@ -5,6 +5,7 @@
 const KEY_PART_1 = "AQ.Ab8RN6IU74L_7c0geHBnpzuy";
 const KEY_PART_2 = "1jMg5sVUkDmoQcMVTdeOGiJYFQ";
 const DEFAULT_GEMINI_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
+const API_PANEL_PASSCODE = "Mohmmed@2030#.";
 // =========================================================================
 
 // ============== 1. إدارة التبويبات وشريط التقدم وحجم الخط ==============
@@ -503,7 +504,7 @@ function injectProChatbotUI() {
         toolbar.innerHTML = `
             <span class="pro-ai-status"><span class="pro-ai-dot"></span> AI Pro 2027 متصل</span>
             <div class="pro-ai-tools-btns">
-                <button type="button" class="pro-tool-btn" onclick="toggleApiKeyPanel()" title="إعداد مفتاح Gemini API">🔑 API</button>
+                <button type="button" class="pro-tool-btn" onclick="toggleApiKeyPanel()" title="إعداد مفتاح Gemini API">🔒 API</button>
                 <button type="button" class="pro-tool-btn" onclick="exportChatTranscript()" title="تحميل المحادثة كملف">📄 تصدير</button>
                 <button type="button" class="pro-tool-btn" onclick="clearProChat()" title="مسح المحادثة">🗑️</button>
             </div>
@@ -516,6 +517,7 @@ function injectProChatbotUI() {
         apiPanel.innerHTML = `
             <input type="password" id="proApiKeyInput" placeholder="الصق مفتاح Gemini API (AIzaSy...) هنا">
             <button type="button" onclick="saveProApiKey()">حفظ وتفعيل</button>
+            <button type="button" onclick="lockApiPanel()" title="قفل الـ API">🔒</button>
         `;
         chatWin.insertBefore(apiPanel, messagesBox);
     }
@@ -541,9 +543,29 @@ function toggleChatBot() {
 function toggleApiKeyPanel() {
     const panel = document.getElementById('proApiPanel');
     if (!panel) return;
-    panel.classList.toggle('open');
+
+    if (panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        return;
+    }
+
+    const enteredPass = prompt('أدخل كلمة السر أولاً لفتح إعدادات API:');
+    if (enteredPass === null) return;
+
+    if (enteredPass !== API_PANEL_PASSCODE) {
+        appendSystemNotice('⛔ كلمة السر غير صحيحة! لا يُسمح بفتح إعدادات API لغير المالك.');
+        return;
+    }
+
+    panel.classList.add('open');
     const inp = document.getElementById('proApiKeyInput');
     if (inp) inp.value = localStorage.getItem('custom_gemini_key_2027') || '';
+}
+
+function lockApiPanel() {
+    const panel = document.getElementById('proApiPanel');
+    if (panel) panel.classList.remove('open');
+    appendSystemNotice('🔒 تم قفل لوحة API بنجاح.');
 }
 
 function saveProApiKey() {
@@ -553,11 +575,11 @@ function saveProApiKey() {
     if (val.length > 15) {
         localStorage.setItem('custom_gemini_key_2027', val);
         document.getElementById('proApiPanel').classList.remove('open');
-        appendSystemNotice('✅ تم تفعيل مفتاح Google Gemini API الشخصي بنجاح!');
+        appendSystemNotice('✅ تم تفعيل مفتاح Google Gemini API الشخصي بنجاح وتم قفل اللوحة!');
     } else if (!val) {
         localStorage.removeItem('custom_gemini_key_2027');
         document.getElementById('proApiPanel').classList.remove('open');
-        appendSystemNotice('🔄 تمت العودة للوضع التلقائي الهجين.');
+        appendSystemNotice('🔄 تمت العودة للوضع التلقائي الهجين وتم قفل اللوحة.');
     }
 }
 
@@ -753,7 +775,6 @@ function renderStreamedBotResponse(botDiv, fullText, sourceLabel, question) {
             clearInterval(activeTypingTimer);
             activeTypingTimer = null;
 
-            // شريط الأدوات أسفل الرسالة (استماع صوتي + نسخ + اسم المحرك)
             const actionsBar = document.createElement('div');
             actionsBar.className = 'pro-msg-actions';
 
@@ -782,7 +803,6 @@ function renderStreamedBotResponse(botDiv, fullText, sourceLabel, question) {
             actionsBar.appendChild(badge);
             botDiv.appendChild(actionsBar);
 
-            // أزرار اقتراحات ذكية للمتابعة
             const chipsRow = document.createElement('div');
             chipsRow.className = 'pro-followup-chips';
             getSuggestedFollowups(question).forEach(label => {
@@ -820,7 +840,6 @@ async function askBot(question) {
     box.appendChild(botDiv);
     box.scrollTop = box.scrollHeight;
 
-    // 1. الرد الفوري في أجزاء من الثانية للأسئلة المباشرة جداً داخل المنصة والحسابات
     const qLower = question.trim().toLowerCase();
     const isInstantLocal =
         qLower.includes('رقم') ||
@@ -853,7 +872,6 @@ async function askBot(question) {
     let liveReply = null;
     let sourceName = '🧠 AI Pro Engine';
 
-    // 2. الاتصال المباشر بـ Google Gemini API الرسمي
     if (activeGeminiKey) {
         try {
             const gemRes = await fetchWithTimeout(
@@ -878,7 +896,6 @@ async function askBot(question) {
         } catch (e) {}
     }
 
-    // 3. الاتصال الحي بالسيرفر السحابي المفتوح (Live Cloud LLM API)
     if (!liveReply) {
         try {
             const apiRes = await fetchWithTimeout(
@@ -904,7 +921,6 @@ async function askBot(question) {
         } catch (e) {}
     }
 
-    // 4. المحرك المعرفي المدمج (يضمن الإجابة دائماً حتى بدون إنترنت)
     const finalAnswer = liveReply || getUniversalKnowledgeReply(question);
     renderStreamedBotResponse(botDiv, finalAnswer, sourceName, question);
 }
