@@ -372,7 +372,6 @@ async function askBot(question) {
         'أبرز النتائج (العينة ' + surveyState.total + ' طالب): 78% استخدام أسبوعي، 40% حل الواجبات، 35% شرح الدروس، 15% تلخيص، 10% ترجمة، 30% ينقلون بدون مراجعة. العلمي: 68% برمجة ومعادلات و22% فيزياء وكيمياء. الأدبي: 72% تلخيص وترجمة ومقالات و18% نصوص وتاريخ.\n' +
         'أجب بالعربية الفصحى المبسطة وبإيجاز مباشر (2 إلى 4 أسطر).';
 
-    // البدء بالموديل الأسرع أولاً لمنع أي تأخير، مع حد أقصى 6 ثواني لكل محاولة
     const candidateEndpoints = [
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent',
         'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent'
