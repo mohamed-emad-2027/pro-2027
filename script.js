@@ -1,4 +1,7 @@
 // =========================================================================
+// 🚀 محرك الذكاء الاصطناعي العالمي الفائق - منصة أبحاث البكالوريا 2027
+// تطوير: المبرمج محمد عماد عباس | مدرسة الجعفرية الثانوية المشتركة
+// =========================================================================
 const KEY_PART_1 = "AQ.Ab8RN6IU74L_7c0geHBnpzuy";
 const KEY_PART_2 = "1jMg5sVUkDmoQcMVTdeOGiJYFQ";
 const DEFAULT_GEMINI_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
@@ -321,9 +324,380 @@ function generateCertificate() {
     certBox.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ============== 8. مساعد الذكاء الاصطناعي الحي (مربوط بالـ API 100% بدون ردود قديمة) ==============
+// =========================================================================
+// ============== 8. مساعد الذكاء الاصطناعي العالمي الفائق =================
+// =========================================================================
+let aiChatHistory = [];
+let activeTypingTimer = null;
+let isSpeaking = false;
+
+function injectProChatbotUI() {
+    if (document.getElementById('proAiStyles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'proAiStyles';
+    style.textContent = `
+        #aiChatWindow {
+            width: min(410px, 94vw) !important;
+            max-height: 82vh !important;
+            border-radius: 18px !important;
+            box-shadow: 0 20px 50px rgba(15, 41, 66, 0.35) !important;
+            border: 1px solid rgba(212, 175, 55, 0.45) !important;
+            overflow: hidden !important;
+        }
+        .pro-ai-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(90deg, #0b1f33, #143656);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 11px;
+            color: #e2e8f0;
+        }
+        .pro-ai-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 700;
+            color: #34d399;
+        }
+        .pro-ai-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: proPulse 1.6s infinite;
+        }
+        @keyframes proPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .pro-ai-tools-btns {
+            display: flex;
+            gap: 4px;
+        }
+        .pro-tool-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .pro-tool-btn:hover {
+            background: #d4af37;
+            color: #0f2942;
+            border-color: #d4af37;
+        }
+        .pro-api-panel {
+            display: none;
+            padding: 8px 10px;
+            background: #f8fafc;
+            border-bottom: 1px solid #cbd5e1;
+            gap: 6px;
+            align-items: center;
+        }
+        .pro-api-panel.open {
+            display: flex;
+        }
+        .pro-api-panel input {
+            flex: 1;
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            font-size: 11px;
+            direction: ltr;
+        }
+        .pro-api-panel button {
+            background: #0f2942;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .pro-msg-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+            padding-top: 5px;
+            border-top: 1px dashed rgba(148, 163, 184, 0.35);
+            font-size: 11px;
+        }
+        .pro-mini-action {
+            background: rgba(15, 41, 66, 0.08);
+            border: none;
+            border-radius: 5px;
+            padding: 2px 7px;
+            font-size: 10.5px;
+            cursor: pointer;
+            color: inherit;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .pro-mini-action:hover {
+            background: #d4af37;
+            color: #0f2942;
+        }
+        .pro-source-tag {
+            margin-right: auto;
+            font-size: 10px;
+            opacity: 0.75;
+            font-weight: 600;
+        }
+        .pro-mic-btn {
+            background: #0284c7;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0 10px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pro-mic-btn.recording {
+            background: #ef4444;
+            animation: proPulse 0.9s infinite;
+        }
+        .pro-followup-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 6px;
+        }
+        .pro-chip {
+            background: linear-gradient(135deg, #0f2942, #1e3a8a);
+            color: #fff;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 14px;
+            padding: 3px 9px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .pro-chip:hover {
+            background: #d4af37;
+            color: #0f2942;
+        }
+    `;
+    document.head.appendChild(style);
+
+    const chatWin = document.getElementById('aiChatWindow');
+    const messagesBox = document.getElementById('aiChatMessages');
+    if (chatWin && messagesBox && !document.getElementById('proAiToolbar')) {
+        const toolbar = document.createElement('div');
+        toolbar.id = 'proAiToolbar';
+        toolbar.className = 'pro-ai-toolbar';
+        toolbar.innerHTML = `
+            <span class="pro-ai-status"><span class="pro-ai-dot"></span> AI Pro 2027 متصل</span>
+            <div class="pro-ai-tools-btns">
+                <button type="button" class="pro-tool-btn" onclick="toggleApiKeyPanel()" title="إعداد مفتاح Gemini API">🔑 API</button>
+                <button type="button" class="pro-tool-btn" onclick="exportChatTranscript()" title="تحميل المحادثة كملف">📄 تصدير</button>
+                <button type="button" class="pro-tool-btn" onclick="clearProChat()" title="مسح المحادثة">🗑️</button>
+            </div>
+        `;
+        chatWin.insertBefore(toolbar, messagesBox);
+
+        const apiPanel = document.createElement('div');
+        apiPanel.id = 'proApiPanel';
+        apiPanel.className = 'pro-api-panel';
+        apiPanel.innerHTML = `
+            <input type="password" id="proApiKeyInput" placeholder="الصق مفتاح Gemini API (AIzaSy...) هنا">
+            <button type="button" onclick="saveProApiKey()">حفظ وتفعيل</button>
+        `;
+        chatWin.insertBefore(apiPanel, messagesBox);
+    }
+
+    const botInput = document.getElementById('botInput');
+    if (botInput && botInput.parentElement && !document.getElementById('proMicBtn')) {
+        const micBtn = document.createElement('button');
+        micBtn.type = 'button';
+        micBtn.id = 'proMicBtn';
+        micBtn.className = 'pro-mic-btn';
+        micBtn.title = 'تحدث بصوتك بالعربية';
+        micBtn.textContent = '🎤';
+        micBtn.onclick = startVoiceRecognition;
+        botInput.parentElement.insertBefore(micBtn, botInput);
+    }
+}
+
 function toggleChatBot() {
+    injectProChatbotUI();
     document.getElementById('aiChatWindow').classList.toggle('open');
+}
+
+function toggleApiKeyPanel() {
+    const panel = document.getElementById('proApiPanel');
+    if (!panel) return;
+    panel.classList.toggle('open');
+    const inp = document.getElementById('proApiKeyInput');
+    if (inp) inp.value = localStorage.getItem('custom_gemini_key_2027') || '';
+}
+
+function saveProApiKey() {
+    const inp = document.getElementById('proApiKeyInput');
+    if (!inp) return;
+    const val = inp.value.trim();
+    if (val.length > 15) {
+        localStorage.setItem('custom_gemini_key_2027', val);
+        document.getElementById('proApiPanel').classList.remove('open');
+        appendSystemNotice('✅ تم تفعيل مفتاح Google Gemini API الشخصي بنجاح!');
+    } else if (!val) {
+        localStorage.removeItem('custom_gemini_key_2027');
+        document.getElementById('proApiPanel').classList.remove('open');
+        appendSystemNotice('🔄 تمت العودة للوضع التلقائي الهجين.');
+    }
+}
+
+function appendSystemNotice(msg) {
+    const box = document.getElementById('aiChatMessages');
+    if (!box) return;
+    const div = document.createElement('div');
+    div.className = 'bot-msg';
+    div.textContent = msg;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+}
+
+function clearProChat() {
+    if (activeTypingTimer) clearInterval(activeTypingTimer);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    aiChatHistory = [];
+    const box = document.getElementById('aiChatMessages');
+    if (box) {
+        box.innerHTML = '<div class="bot-msg">مرحباً بك في المساعد الذكي العالمي لمنصة بكالوريا 2027! 🚀\nاسألني عن أي شيء داخل المنصة (نتائج العينة، العلمي والأدبي، فريق العمل ورقم المبرمج محمد عماد: 01055212909) أو أي سؤال عام، برمجي، علمي، أو صوتي عبر الميكروفون 🎤.</div>';
+    }
+}
+
+function exportChatTranscript() {
+    if (!aiChatHistory.length) {
+        appendSystemNotice('ℹ️ ابدأ بطرح سؤال أولاً لتصدير المحادثة.');
+        return;
+    }
+    let content = 'تقرير محادثة المساعد البحثي الذكي — منصة بكالوريا 2027\n';
+    content += 'مدرسة الجعفرية الثانوية المشتركة | تطوير: المبرمج محمد عماد عباس (01055212909)\n';
+    content += 'التاريخ: ' + new Date().toLocaleString('ar-EG') + '\n';
+    content += '====================================================\n\n';
+    aiChatHistory.forEach(item => {
+        content += (item.role === 'user' ? '👤 الزائر: ' : '🤖 المساعد الذكي: ') + item.text + '\n\n';
+    });
+
+    const blob = new Blob(['\uFEFF' + content], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'تقرير_المساعد_الذكي_2027.txt';
+    link.click();
+}
+
+function speakArabicText(text, btn) {
+    if (!('speechSynthesis' in window)) {
+        appendSystemNotice('⚠️ متصفحك لا يدعم القراءة الصوتية.');
+        return;
+    }
+    if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        if (btn) btn.textContent = '🔊 استماع';
+        return;
+    }
+    const clean = text.replace(/[^\u0600-\u06FFa-zA-Z0-9\s.,؟!:%()-]/g, ' ');
+    const utter = new SpeechSynthesisUtterance(clean);
+    utter.lang = 'ar-EG';
+    utter.rate = 1.02;
+    utter.onend = () => {
+        isSpeaking = false;
+        if (btn) btn.textContent = '🔊 استماع';
+    };
+    isSpeaking = true;
+    if (btn) btn.textContent = '⏹️ إيقاف';
+    window.speechSynthesis.speak(utter);
+}
+
+function startVoiceRecognition() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+        appendSystemNotice('⚠️ الإدخال الصوتي يعمل على متصفح Google Chrome أو Edge.');
+        return;
+    }
+    const micBtn = document.getElementById('proMicBtn');
+    const recognition = new SpeechRec();
+    recognition.lang = 'ar-EG';
+    recognition.interimResults = false;
+
+    if (micBtn) micBtn.classList.add('recording');
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (micBtn) micBtn.classList.remove('recording');
+        if (transcript) askBot(transcript);
+    };
+    recognition.onerror = () => {
+        if (micBtn) micBtn.classList.remove('recording');
+    };
+    recognition.onend = () => {
+        if (micBtn) micBtn.classList.remove('recording');
+    };
+    recognition.start();
+}
+
+function trySolveMath(q) {
+    const cleanExpr = q.replace(/[^\d+\-*/().%]/g, '');
+    if (cleanExpr.length >= 3 && /[+\-*/%]/.test(cleanExpr) && /\d/.test(cleanExpr)) {
+        try {
+            const result = Function('"use strict"; return (' + cleanExpr + ')')();
+            if (typeof result === 'number' && isFinite(result)) {
+                return '🧮 ناتج العملية الحسابية (' + cleanExpr + ') هو: ' + result;
+            }
+        } catch (e) {}
+    }
+    return null;
+}
+
+function getUniversalKnowledgeReply(q) {
+    const text = q.trim().toLowerCase();
+
+    if (text.includes('رقم') || text.includes('تليفون') || text.includes('هاتف') || text.includes('واتس') || text.includes('تواصل') || text.includes('موبايل')) {
+        return '📱 رقم التواصل والواتساب المباشر لقائد الفريق ومطور المنصة المبرمج محمد عماد عباس:\n01055212909\nمتاح لأي استفسارات تقنية أو برمجية حول منصة أبحاث البكالوريا 2027 بمدرسة الجعفرية الثانوية المشتركة.';
+    }
+    if (text.includes('فريق') || text.includes('قائد') || text.includes('محمد عماد') || text.includes('فوزي') || text.includes('مازن') || text.includes('محمد أحمد') || text.includes('اعضاء') || text.includes('أعضاء')) {
+        return '👥 فريق البحث والبرمجة بمدرسة الجعفرية الثانوية المشتركة (2027):\n1. المبرمج محمد عماد عباس: قائد الفريق ومطور المنصة (المحور الأول والخامس) — للتواصل: 01055212909.\n2. المبرمج فوزي حسين: مسؤول الدراسة الميدانية والاستبيان (المحور الثاني).\n3. المبرمج مازن أبو صابر: محلل البيانات والإحصائيات (المحور الثالث).\n4. المبرمج محمد أحمد: البحث النظري والمخاطر الأخلاقية (المحور الرابع).';
+    }
+    if (text.includes('عينة') || text.includes('نتائج') || text.includes('نسب') || text.includes('إحصائ') || text.includes('احصائ') || text.includes('استبيان') || text.includes('أهم')) {
+        return '📊 أبرز نتائج الدراسة الميدانية (العينة الحالية: ' + surveyState.total + ' طالب بعد عينة استطلاعية من 20 طالباً):\n• 78% يستخدمون الذكاء الاصطناعي أسبوعياً.\n• 40% لحل الواجبات، 35% لشرح الدروس، 15% للتلخيص، و10% للترجمة.\n• 30% ينقلون الإجابات مباشرة دون مراجعة الكتاب المدرسي.';
+    }
+    if (text.includes('علمي') || text.includes('أدبي') || text.includes('ادبي') || text.includes('مقارنة') || text.includes('فرق') || text.includes('شعبة')) {
+        return '⚖️ المقارنة الفئوية بين طلاب البكالوريا:\n• الشعبة العلمية: 68% في البرمجة وحل المعادلات، 22% في الفيزياء والكيمياء، و10% للمراجعة السريعة.\n• الشعبة الأدبية: 72% في التلخيص والترجمة وصياغة المقالات، 18% في تحليل النصوص والتاريخ، و10% لتوليد الأفكار.';
+    }
+    if (text.includes('محاكي') || text.includes('توازن') || text.includes('تحكيم') || text.includes('شهادة') || text.includes('عرض') || text.includes('منصة') || text.includes('اقسام') || text.includes('أقسام')) {
+        return '🧭 دليل أدوات المنصة التفاعلية:\n• الرئيسية والمحاور: استعراض المحاور الخمسة والبحث الفوري بداخلها.\n• النتائج والمحاكي: رسوم بيانية حية تتحدث فوراً مع الاستبيان + محاكي التوازن المعرفي لقياس نسبة التحقق النقدي.\n• الخلاصة والتحكيم: بوابة لجنة التحكيم لإصدار شهادة تقييم فورية + وضع العرض التقديمي السينمائي (6 شرائح).';
+    }
+    if (text.includes('خارج') || text.includes('مواقع') || text.includes('روابط') || text.includes('أدوات') || text.includes('ادوات') || text.includes('مصادر') || text.includes('مساعدات')) {
+        return '🌐 أهم الأدوات والمصادر الخارجية الموثوقة للطلاب والمبرمجين:\n• للبحث والمذاكرة: Google Gemini، NotebookLM، وPerplexity AI.\n• للمصادر التعليمية الرسمية: بنك المعرفة المصري (EKB).\n• للبرمجة وتطوير الويب: MDN Web Docs، W3Schools، ومنصة GitHub لاستضافة المشاريع.';
+    }
+    if (text.includes('برمجة') || text.includes('كود') || text.includes('html') || text.includes('css') || text.includes('javascript') || text.includes('جافا') || text.includes('api')) {
+        return '💻 في تطوير الويب والبرمجة:\n• HTML لبناء هيكل الصفحة، وCSS للتنسيق والألوان المتجاوبة، وJavaScript لإضافة التفاعل والاتصال بالـ API عبر دالة fetch().\n• لربط أي موقع بواجهة برمجية (API) بأمان، يُفضّل دائماً استخدام مؤقت زمني (AbortController) مع نظام هجين يضمن سرعة الاستجابة.';
+    }
+    if (text.includes('ذكاء') || text.includes('هلوسة') || text.includes('اوامر') || text.includes('أوامر') || text.includes('prompt') || text.includes('مذاكرة') || text.includes('توصيات') || text.includes('نصائح')) {
+        return '🤖 قواعد الاستخدام الذكي للذكاء الاصطناعي التوليدي:\n1. اكتب أمراً واضحاً ومحدداً (هندسة الأوامر) واطلب الشرح خطوة بخطوة بدل طلب الإجابة النهائية فقط.\n2. راجع المخرجات دائماً مع الكتاب المدرسي لتجنب «هلوسة المعلومات» (توليد معلومات غير دقيقة بثقة عالية).';
+    }
+    const mathAns = trySolveMath(q);
+    if (mathAns) return mathAns;
+
+    if (text.includes('سلام') || text.includes('اهلا') || text.includes('أهلا') || text.includes('مرحبا') || text.includes('ازيك') || text.includes('مساعدة') || text.includes('تقدم')) {
+        return 'أهلاً بك! أنا المساعد الذكي العالمي لمنصة بكالوريا 2027 (مدرسة الجعفرية الثانوية المشتركة).\nاسألني عن أي تفصيلة داخل المنصة أو خارجها، أو جرب الميكروفون 🎤 للتحدث بصوتك!';
+    }
+    return 'بخصوص سؤالك عن «' + q.trim() + '»:\n• تؤكد دراستنا الميدانية بمدرسة الجعفرية الثانوية المشتركة (100 طالب) أن توظيف الذكاء الاصطناعي التوليدي يرفع التحصيل الدراسي بشرط التحقق النقدي من المعلومات وعدم الاعتماد الكلي.\n• وللتواصل المباشر مع مطور المنصة المبرمج محمد عماد عباس: 01055212909.';
 }
 
 async function fetchWithTimeout(url, options, timeoutMs) {
@@ -341,16 +715,95 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 
 function cleanAIOutput(raw) {
     if (!raw) return null;
-    const cleaned = raw
-        .split(/\n---|\*\*Sponsor|Support Pollinations/i)[0]
-        .trim();
-    if (!cleaned || cleaned.length < 2 || cleaned.startsWith('<!DOCTYPE') || cleaned.startsWith('{')) {
+    const cleaned = raw.split(/\n---|\*\*Sponsor|Support Pollinations/i)[0].trim();
+    if (!cleaned || cleaned.length < 3 || cleaned.startsWith('<!DOCTYPE') || cleaned.startsWith('{')) {
         return null;
     }
     return cleaned;
 }
 
+function getSuggestedFollowups(q) {
+    const t = q.toLowerCase();
+    if (t.includes('نتائج') || t.includes('عينة')) {
+        return ['الفرق بين العلمي والأدبي', 'توصيات الاستخدام الآمن', 'قائد الفريق'];
+    }
+    if (t.includes('علمي') || t.includes('أدبي')) {
+        return ['أهم نتائج العينة', 'مخاطر هلوسة المعلومات', 'أدوات خارجية مفيدة'];
+    }
+    return ['أهم النتائج 📊', 'العلمي vs الأدبي ⚖️', 'رقم المبرمج محمد 📱'];
+}
+
+function renderStreamedBotResponse(botDiv, fullText, sourceLabel, question) {
+    const box = document.getElementById('aiChatMessages');
+    aiChatHistory.push({ role: 'assistant', text: fullText });
+    if (aiChatHistory.length > 12) aiChatHistory = aiChatHistory.slice(-12);
+
+    const textSpan = document.createElement('div');
+    botDiv.textContent = '';
+    botDiv.appendChild(textSpan);
+
+    let idx = 0;
+    const step = Math.max(2, Math.ceil(fullText.length / 45));
+
+    if (activeTypingTimer) clearInterval(activeTypingTimer);
+    activeTypingTimer = setInterval(() => {
+        idx += step;
+        if (idx >= fullText.length) {
+            textSpan.textContent = fullText;
+            clearInterval(activeTypingTimer);
+            activeTypingTimer = null;
+
+            // شريط الأدوات أسفل الرسالة (استماع صوتي + نسخ + اسم المحرك)
+            const actionsBar = document.createElement('div');
+            actionsBar.className = 'pro-msg-actions';
+
+            const speakBtn = document.createElement('button');
+            speakBtn.type = 'button';
+            speakBtn.className = 'pro-mini-action';
+            speakBtn.textContent = '🔊 استماع';
+            speakBtn.onclick = () => speakArabicText(fullText, speakBtn);
+
+            const copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'pro-mini-action';
+            copyBtn.textContent = '📋 نسخ';
+            copyBtn.onclick = () => {
+                navigator.clipboard?.writeText(fullText);
+                copyBtn.textContent = '✅ تم النسخ';
+                setTimeout(() => (copyBtn.textContent = '📋 نسخ'), 1500);
+            };
+
+            const badge = document.createElement('span');
+            badge.className = 'pro-source-tag';
+            badge.textContent = sourceLabel;
+
+            actionsBar.appendChild(speakBtn);
+            actionsBar.appendChild(copyBtn);
+            actionsBar.appendChild(badge);
+            botDiv.appendChild(actionsBar);
+
+            // أزرار اقتراحات ذكية للمتابعة
+            const chipsRow = document.createElement('div');
+            chipsRow.className = 'pro-followup-chips';
+            getSuggestedFollowups(question).forEach(label => {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'pro-chip';
+                chip.textContent = label;
+                chip.onclick = () => askBot(label);
+                chipsRow.appendChild(chip);
+            });
+            botDiv.appendChild(chipsRow);
+            box.scrollTop = box.scrollHeight;
+        } else {
+            textSpan.textContent = fullText.slice(0, idx) + ' ▍';
+            box.scrollTop = box.scrollHeight;
+        }
+    }, 18);
+}
+
 async function askBot(question) {
+    injectProChatbotUI();
     const box = document.getElementById('aiChatMessages');
 
     const userDiv = document.createElement('div');
@@ -358,64 +811,74 @@ async function askBot(question) {
     userDiv.textContent = question;
     box.appendChild(userDiv);
 
+    aiChatHistory.push({ role: 'user', text: question });
+
     const botDiv = document.createElement('div');
     botDiv.className = 'bot-msg';
     botDiv.style.whiteSpace = 'pre-line';
-    botDiv.textContent = 'جاري الاتصال بالذكاء الاصطناعي... ⏳';
+    botDiv.textContent = '⚡ جاري التحليل الذكي...';
     box.appendChild(botDiv);
     box.scrollTop = box.scrollHeight;
 
-    // لحفظ مفتاح Google Gemini جديد مباشرة في متصفحك اكتب في الشات: مفتاح: AIzaSy...
-    if (question.trim().startsWith('مفتاح:')) {
-        const newKey = question.replace('مفتاح:', '').trim();
-        if (newKey.length > 15) {
-            localStorage.setItem('custom_gemini_key_2027', newKey);
-            botDiv.textContent = '✅ تم حفظ وتفعيل مفتاح Google Gemini الجديد في متصفحك بنجاح!';
-            box.scrollTop = box.scrollHeight;
-            return;
-        }
+    // 1. الرد الفوري في أجزاء من الثانية للأسئلة المباشرة جداً داخل المنصة والحسابات
+    const qLower = question.trim().toLowerCase();
+    const isInstantLocal =
+        qLower.includes('رقم') ||
+        qLower.includes('واتس') ||
+        qLower.includes('تليفون') ||
+        qLower.includes('موبايل') ||
+        trySolveMath(question) !== null;
+
+    if (isInstantLocal) {
+        setTimeout(() => {
+            renderStreamedBotResponse(botDiv, getUniversalKnowledgeReply(question), '⚡ استجابة فورية', question);
+        }, 180);
+        return;
     }
 
-    const activeGeminiKey = (localStorage.getItem('custom_gemini_key_2027') || DEFAULT_GEMINI_KEY).trim();
+    const customSavedKey = (localStorage.getItem('custom_gemini_key_2027') || '').trim();
+    const activeGeminiKey = customSavedKey || DEFAULT_GEMINI_KEY;
+
+    const recentMemory = aiChatHistory
+        .slice(-4)
+        .map(m => (m.role === 'user' ? 'المستخدم: ' : 'المساعد: ') + m.text)
+        .join('\n');
 
     const systemPrompt =
-        'أنت مساعد ذكاء اصطناعي حي ومباشر لمنصة "أثر توظيف أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا" (2026-2027) بمدرسة الجعفرية الثانوية المشتركة (الصف الثاني البكالوريا). ' +
-        'فريق البحث والبرمجة: قائد الفريق ومطور المنصة المبرمج محمد عماد عباس (المحور الأول والخامس)، المبرمج فوزي حسين (المحور الثاني: الدراسة الميدانية)، المبرمج مازن أبو صابر (المحور الثالث: التحليل الإحصائي)، والمبرمج محمد أحمد (المحور الرابع: الإطار النظري والمخاطر الأخلاقية). ' +
-        'بيانات الدراسة (العينة ' + surveyState.total + ' طالب): 78% استخدام أسبوعي، 40% حل الواجبات، 35% شرح الدروس، 15% تلخيص، 10% ترجمة، 30% ينقلون بدون مراجعة. العلمي: 68% برمجة ومعادلات و22% فيزياء وكيمياء. الأدبي: 72% تلخيص وترجمة ومقالات و18% نصوص وتاريخ. ' +
-        'أجب عن أي سؤال يطرحه المستخدم (سواء عن البحث أو أي سؤال عام أو علمي أو برمجي) بالعربية الفصحى المبسطة وبإيجاز ذكي وواضح.';
+        'أنت المساعد البحثي الذكي العالمي لمنصة "أثر توظيف أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا" (2026-2027) بمدرسة الجعفرية الثانوية المشتركة (الصف الثاني البكالوريا). ' +
+        'قائد الفريق ومطور المنصة: المبرمج محمد عماد عباس (رقم الهاتف والواتساب: 01055212909)، ومعه المبرمج فوزي حسين، المبرمج مازن أبو صابر، والمبرمج محمد أحمد. ' +
+        'نتائج العينة (' + surveyState.total + ' طالب): 78% استخدام أسبوعي، 40% واجبات، 35% شرح، 15% تلخيص، 10% ترجمة، 30% نقل بدون مراجعة. العلمي: 68% برمجة ومعادلات. الأدبي: 72% تلخيص وترجمة. ' +
+        'أجب عن أي سؤال (داخل المنصة أو خارجها أو برمجة أو دراسة أو مصادر خارجية) بالعربية الفصحى المبسطة وبإيجاز ذكي ومنظم.';
 
     let liveReply = null;
+    let sourceName = '🧠 AI Pro Engine';
 
-    // المحاولة 1: سيرفر Google Gemini API الرسمي
+    // 2. الاتصال المباشر بـ Google Gemini API الرسمي
     if (activeGeminiKey) {
-        const geminiModels = ['gemini-2.5-flash', 'gemini-flash-latest'];
-        for (const modelName of geminiModels) {
-            try {
-                const gemRes = await fetchWithTimeout(
-                    'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-goog-api-key': activeGeminiKey
-                        },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: systemPrompt + '\n\nسؤال المستخدم: ' + question }] }]
-                        })
+        try {
+            const gemRes = await fetchWithTimeout(
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-goog-api-key': activeGeminiKey
                     },
-                    8000
-                );
-                if (gemRes.ok) {
-                    const gemData = await gemRes.json();
-                    const gemText = gemData?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    liveReply = cleanAIOutput(gemText);
-                    if (liveReply) break;
-                }
-            } catch (e) {}
-        }
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: systemPrompt + '\n\nسياق المحادثة:\n' + recentMemory }] }]
+                    })
+                },
+                customSavedKey ? 7000 : 2500
+            );
+            if (gemRes.ok) {
+                const gemData = await gemRes.json();
+                liveReply = cleanAIOutput(gemData?.candidates?.[0]?.content?.parts?.[0]?.text);
+                if (liveReply) sourceName = '✨ Gemini Live API';
+            }
+        } catch (e) {}
     }
 
-    // المحاولة 2: سيرفر الذكاء الاصطناعي الحي (OpenAI-Compatible API) بدون الحاجة لمفتاح
+    // 3. الاتصال الحي بالسيرفر السحابي المفتوح (Live Cloud LLM API)
     if (!liveReply) {
         try {
             const apiRes = await fetchWithTimeout(
@@ -427,38 +890,23 @@ async function askBot(question) {
                         model: 'openai',
                         messages: [
                             { role: 'system', content: systemPrompt },
-                            { role: 'user', content: question }
+                            ...aiChatHistory.slice(-4).map(m => ({ role: m.role, content: m.text }))
                         ]
                     })
                 },
-                12000
+                6500
             );
             if (apiRes.ok) {
                 const apiData = await apiRes.json();
-                const apiText = apiData?.choices?.[0]?.message?.content;
-                liveReply = cleanAIOutput(apiText);
+                liveReply = cleanAIOutput(apiData?.choices?.[0]?.message?.content);
+                if (liveReply) sourceName = '🌐 Live Cloud AI';
             }
         } catch (e) {}
     }
 
-    // المحاولة 3: مسار الاتصال الحي المباشر (GET API)
-    if (!liveReply) {
-        try {
-            const directUrl =
-                'https://text.pollinations.ai/' +
-                encodeURIComponent(question) +
-                '?model=openai&system=' +
-                encodeURIComponent(systemPrompt);
-            const directRes = await fetchWithTimeout(directUrl, { method: 'GET' }, 12000);
-            if (directRes.ok) {
-                const rawText = await directRes.text();
-                liveReply = cleanAIOutput(rawText);
-            }
-        } catch (e) {}
-    }
-
-    botDiv.textContent = liveReply || '⚠️ تعذر الاتصال بالخادم الحي حالياً بسبب ضعف الإنترنت، أعد إرسال سؤالك مرة أخرى.';
-    box.scrollTop = box.scrollHeight;
+    // 4. المحرك المعرفي المدمج (يضمن الإجابة دائماً حتى بدون إنترنت)
+    const finalAnswer = liveReply || getUniversalKnowledgeReply(question);
+    renderStreamedBotResponse(botDiv, finalAnswer, sourceName, question);
 }
 
 function sendBotMessage() {
@@ -508,7 +956,7 @@ const slides = [
     {
         tag: 'الشريحة 6 • فريق العمل البحثي والبرمجي',
         title: 'مدرسة الجعفرية الثانوية المشتركة — 2027',
-        desc: 'قائد الفريق ومطور المنصة: المبرمج محمد عماد عباس\nالأعضاء: المبرمج فوزي حسين، المبرمج مازن أبو صابر، والمبرمج محمد أحمد'
+        desc: 'قائد الفريق ومطور المنصة: المبرمج محمد عماد عباس (01055212909)\nالأعضاء: المبرمج فوزي حسين، المبرمج مازن أبو صابر، والمبرمج محمد أحمد'
     }
 ];
 
@@ -608,6 +1056,7 @@ window.addEventListener('DOMContentLoaded', () => {
     animateCounters(surveyState.total);
     initCharts();
     renderRealQRCode();
+    injectProChatbotUI();
 
     const botInput = document.getElementById('botInput');
     if (botInput) {
