@@ -1,7 +1,7 @@
 // =========================================================================
 const KEY_PART_1 = "AQ.Ab8RN6IU74L_7c0geHBnpzuy";
 const KEY_PART_2 = "1jMg5sVUkDmoQcMVTdeOGiJYFQ";
-const GEMINI_API_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
+const DEFAULT_GEMINI_KEY = (KEY_PART_1 + KEY_PART_2).replace(/\s+/g, '');
 // =========================================================================
 
 // ============== 1. إدارة التبويبات وشريط التقدم وحجم الخط ==============
@@ -321,41 +321,33 @@ function generateCertificate() {
     certBox.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ============== 8. مساعد البحث الذكي المدعوم بـ Google Gemini ==============
+// ============== 8. مساعد الذكاء الاصطناعي الحي (مربوط بالـ API 100% بدون ردود قديمة) ==============
 function toggleChatBot() {
     document.getElementById('aiChatWindow').classList.toggle('open');
 }
 
-function getLocalBotReply(q) {
-    if (q.includes('عينة') || q.includes('نتائج') || q.includes('نسب')) {
-        return 'شملت الدراسة فعلياً ' + surveyState.total + ' طالب بمدرسة الجعفرية الثانوية المشتركة، وأظهرت أن 78% يستخدمون الذكاء الاصطناعي أسبوعياً.';
+async function fetchWithTimeout(url, options, timeoutMs) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timer);
+        return res;
+    } catch (err) {
+        clearTimeout(timer);
+        throw err;
     }
-    if (q.includes('أدبي') || q.includes('علمي') || q.includes('فرق')) {
-        return 'يتفوق طلاب العلمي بنسبة 68% في حل المعادلات والبرمجة، بينما يتفوق طلاب الأدبي بنسبة 72% في التلخيص والترجمة وصياغة المقالات.';
-    }
-    if (q.includes('فريق') || q.includes('محمد عماد') || q.includes('قائد')) {
-        return 'يقود الفريق المبرمج محمد عماد عباس (مطور المنصة)، ويضم: المبرمج فوزي حسين، المبرمج مازن أبو صابر، والمبرمج محمد أحمد.';
-    }
-    if (q.includes('نصائح') || q.includes('توصيات')) {
-        return 'أهم توصياتنا: استخدام الذكاء الاصطناعي كمعلم خصوصي للشرح لا للنسخ، وتدريب الطلاب على هندسة الأوامر والتحقق النقدي.';
-    }
-    return 'سؤال رائع! يمكنك استكشاف المحاور الخمسة أو تجربة محاكي التوازن المعرفي في قسم النتائج والمحاكي لمعرفة تفاصيل أكثر.';
 }
 
-async function callGeminiUrl(url, fullPrompt) {
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-goog-api-key': GEMINI_API_KEY
-        },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: fullPrompt }] }]
-        })
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+function cleanAIOutput(raw) {
+    if (!raw) return null;
+    const cleaned = raw
+        .split(/\n---|\*\*Sponsor|Support Pollinations/i)[0]
+        .trim();
+    if (!cleaned || cleaned.length < 2 || cleaned.startsWith('<!DOCTYPE') || cleaned.startsWith('{')) {
+        return null;
+    }
+    return cleaned;
 }
 
 async function askBot(question) {
@@ -369,52 +361,103 @@ async function askBot(question) {
     const botDiv = document.createElement('div');
     botDiv.className = 'bot-msg';
     botDiv.style.whiteSpace = 'pre-line';
-    botDiv.textContent = 'جاري التفكير... ⏳';
+    botDiv.textContent = 'جاري الاتصال بالذكاء الاصطناعي... ⏳';
     box.appendChild(botDiv);
     box.scrollTop = box.scrollHeight;
 
-    const researchContext =
-        'أنت المساعد البحثي الذكي لمنصة "أثر توظيف أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا" (2026-2027) بمدرسة الجعفرية الثانوية المشتركة (الصف الثاني البكالوريا).\n' +
-        'فريق البحث والبرمجة: قائد الفريق ومطور المنصة المبرمج محمد عماد عباس (المحور الأول والخامس)، المبرمج فوزي حسين (المحور الثاني: الدراسة الميدانية)، المبرمج مازن أبو صابر (المحور الثالث: التحليل الإحصائي)، والمبرمج محمد أحمد (المحور الرابع: الإطار النظري والمخاطر الأخلاقية).\n' +
-        'أبرز النتائج (العينة ' + surveyState.total + ' طالب): 78% استخدام أسبوعي، 40% حل الواجبات، 35% شرح الدروس، 15% تلخيص، 10% ترجمة، 30% ينقلون بدون مراجعة. العلمي: 68% برمجة ومعادلات و22% فيزياء وكيمياء. الأدبي: 72% تلخيص وترجمة ومقالات و18% نصوص وتاريخ.\n' +
-        'أجب بالعربية الفصحى المبسطة وبإيجاز مباشر (2 إلى 4 أسطر).';
-
-    const fullPrompt = researchContext + '\n\nسؤال الزائر: ' + question;
-    let aiText = null;
-
-    try {
-        aiText = await callGeminiUrl(
-            'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
-            fullPrompt
-        );
-
-        if (!aiText) {
-            const listRes = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
-                headers: { 'X-goog-api-key': GEMINI_API_KEY }
-            });
-            if (listRes.ok) {
-                const listData = await listRes.json();
-                const backupModels = (listData.models || [])
-                    .filter(m =>
-                        Array.isArray(m.supportedGenerationMethods) &&
-                        m.supportedGenerationMethods.includes('generateContent') &&
-                        m.name.includes('flash') &&
-                        !m.name.includes('gemini-flash-latest')
-                    )
-                    .slice(0, 2);
-
-                for (const m of backupModels) {
-                    aiText = await callGeminiUrl(
-                        'https://generativelanguage.googleapis.com/v1beta/' + m.name + ':generateContent',
-                        fullPrompt
-                    );
-                    if (aiText) break;
-                }
-            }
+    // لحفظ مفتاح Google Gemini جديد مباشرة في متصفحك اكتب في الشات: مفتاح: AIzaSy...
+    if (question.trim().startsWith('مفتاح:')) {
+        const newKey = question.replace('مفتاح:', '').trim();
+        if (newKey.length > 15) {
+            localStorage.setItem('custom_gemini_key_2027', newKey);
+            botDiv.textContent = '✅ تم حفظ وتفعيل مفتاح Google Gemini الجديد في متصفحك بنجاح!';
+            box.scrollTop = box.scrollHeight;
+            return;
         }
-    } catch (e) {}
+    }
 
-    botDiv.textContent = aiText ? aiText.trim() : getLocalBotReply(question);
+    const activeGeminiKey = (localStorage.getItem('custom_gemini_key_2027') || DEFAULT_GEMINI_KEY).trim();
+
+    const systemPrompt =
+        'أنت مساعد ذكاء اصطناعي حي ومباشر لمنصة "أثر توظيف أدوات الذكاء الاصطناعي التوليدي على التحصيل الدراسي لطلاب البكالوريا" (2026-2027) بمدرسة الجعفرية الثانوية المشتركة (الصف الثاني البكالوريا). ' +
+        'فريق البحث والبرمجة: قائد الفريق ومطور المنصة المبرمج محمد عماد عباس (المحور الأول والخامس)، المبرمج فوزي حسين (المحور الثاني: الدراسة الميدانية)، المبرمج مازن أبو صابر (المحور الثالث: التحليل الإحصائي)، والمبرمج محمد أحمد (المحور الرابع: الإطار النظري والمخاطر الأخلاقية). ' +
+        'بيانات الدراسة (العينة ' + surveyState.total + ' طالب): 78% استخدام أسبوعي، 40% حل الواجبات، 35% شرح الدروس، 15% تلخيص، 10% ترجمة، 30% ينقلون بدون مراجعة. العلمي: 68% برمجة ومعادلات و22% فيزياء وكيمياء. الأدبي: 72% تلخيص وترجمة ومقالات و18% نصوص وتاريخ. ' +
+        'أجب عن أي سؤال يطرحه المستخدم (سواء عن البحث أو أي سؤال عام أو علمي أو برمجي) بالعربية الفصحى المبسطة وبإيجاز ذكي وواضح.';
+
+    let liveReply = null;
+
+    // المحاولة 1: سيرفر Google Gemini API الرسمي
+    if (activeGeminiKey) {
+        const geminiModels = ['gemini-2.5-flash', 'gemini-flash-latest'];
+        for (const modelName of geminiModels) {
+            try {
+                const gemRes = await fetchWithTimeout(
+                    'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-goog-api-key': activeGeminiKey
+                        },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: systemPrompt + '\n\nسؤال المستخدم: ' + question }] }]
+                        })
+                    },
+                    8000
+                );
+                if (gemRes.ok) {
+                    const gemData = await gemRes.json();
+                    const gemText = gemData?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    liveReply = cleanAIOutput(gemText);
+                    if (liveReply) break;
+                }
+            } catch (e) {}
+        }
+    }
+
+    // المحاولة 2: سيرفر الذكاء الاصطناعي الحي (OpenAI-Compatible API) بدون الحاجة لمفتاح
+    if (!liveReply) {
+        try {
+            const apiRes = await fetchWithTimeout(
+                'https://text.pollinations.ai/openai',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'openai',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: question }
+                        ]
+                    })
+                },
+                12000
+            );
+            if (apiRes.ok) {
+                const apiData = await apiRes.json();
+                const apiText = apiData?.choices?.[0]?.message?.content;
+                liveReply = cleanAIOutput(apiText);
+            }
+        } catch (e) {}
+    }
+
+    // المحاولة 3: مسار الاتصال الحي المباشر (GET API)
+    if (!liveReply) {
+        try {
+            const directUrl =
+                'https://text.pollinations.ai/' +
+                encodeURIComponent(question) +
+                '?model=openai&system=' +
+                encodeURIComponent(systemPrompt);
+            const directRes = await fetchWithTimeout(directUrl, { method: 'GET' }, 12000);
+            if (directRes.ok) {
+                const rawText = await directRes.text();
+                liveReply = cleanAIOutput(rawText);
+            }
+        } catch (e) {}
+    }
+
+    botDiv.textContent = liveReply || '⚠️ تعذر الاتصال بالخادم الحي حالياً بسبب ضعف الإنترنت، أعد إرسال سؤالك مرة أخرى.';
     box.scrollTop = box.scrollHeight;
 }
 
