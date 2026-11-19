@@ -632,109 +632,164 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
+<script>
 (function () {
   const SLIDE_INTERVAL_MS = 5000;
   const PASSCODE = 'RORO12';
   const AUDIO_SRC = 'song.mp4';
 
-  const slides = Array.from(
-    document.querySelectorAll('.slide, .presentation-slide, [data-slide], section.slide, .swiper-slide')
-  );
-
-  let currentIndex = 0;
-  let autoTimer = null;
-
-  function showSlide(index) {
-    if (!slides.length) return;
-    currentIndex = ((index % slides.length) + slides.length) % slides.length;
-
-    slides.forEach((slide, i) => {
-      const isActive = i === currentIndex;
-      slide.classList.toggle('active', isActive);
-      slide.classList.toggle('is-active', isActive);
-      slide.classList.toggle('current', isActive);
-      if (slide.style) {
-        slide.style.display = isActive ? '' : 'none';
-      }
-    });
-
-    document.dispatchEvent(
-      new CustomEvent('slidechange', { detail: { index: currentIndex, total: slides.length } })
-    );
-  }
-
-  function startAutoSlides() {
-    if (!slides.length) return;
-    stopAutoSlides();
-    autoTimer = setInterval(() => {
-      showSlide(currentIndex + 1);
-    }, SLIDE_INTERVAL_MS);
-  }
-
-  function stopAutoSlides() {
-    if (autoTimer) {
-      clearInterval(autoTimer);
-      autoTimer = null;
-    }
-  }
-
   const audio = new Audio(AUDIO_SRC);
   audio.preload = 'auto';
   audio.loop = true;
 
-  function promptAndPlayAudio() {
-    const input = window.prompt('أدخل كلمة السر لتشغيل الأغنية:');
+  let slideTimer = null;
+
+  function findButtonByText(text, root = document) {
+    const buttons = Array.from(root.querySelectorAll('button, [role="button"], a'));
+    return buttons.find((el) => (el.textContent || '').trim().includes(text)) || null;
+  }
+
+  function isElementVisible(el) {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
+  }
+
+  function promptAndToggleAudio(btn) {
+    if (!audio.paused) {
+      audio.pause();
+      btn.textContent = '🔒 تشغيل الأغنية';
+      return;
+    }
+
+    const input = window.prompt('أدخل كلمة المرور لتشغيل الأغنية:');
     if (input === null) return;
+
     if (input.trim() === PASSCODE) {
-      audio.play().catch(() => {
-        window.alert('تعذر تشغيل الملف الصوتي، تأكد من وجود song.mp4 في نفس مجلد index.html.');
-      });
+      audio.play()
+        .then(() => {
+          btn.textContent = '🔊 إيقاف الأغنية';
+        })
+        .catch(() => {
+          window.alert('تعذر تشغيل song.mp4، تأكد من وجود الملف بجانب index.html.');
+        });
     } else {
-      window.alert('كلمة السر غير صحيحة.');
+      window.alert('كلمة المرور غير صحيحة.');
     }
   }
 
-  function createUnlockButton() {
-    if (document.getElementById('roro12-audio-btn')) return;
-    const btn = document.createElement('button');
-    btn.id = 'roro12-audio-btn';
-    btn.type = 'button';
-    btn.textContent = '🔒 تشغيل الأغنية بكلمة سر';
-    btn.style.cssText = [
-      'position:fixed',
-      'bottom:16px',
-      'left:16px',
-      'z-index:9999',
-      'padding:10px 16px',
-      'border:none',
+  function injectAudioButtonInPresentationBar() {
+    const endBtn = findButtonByText('إنهاء العرض');
+    if (!endBtn || !endBtn.parentElement) return;
+
+    const bar = endBtn.parentElement;
+    if (bar.querySelector('#roro12-in-presentation-btn')) return;
+
+    const audioBtn = document.createElement('button');
+    audioBtn.id = 'roro12-in-presentation-btn';
+    audioBtn.type = 'button';
+    audioBtn.textContent = audio.paused ? '🔒 تشغيل الأغنية' : '🔊 إيقاف الأغنية';
+    audioBtn.style.cssText = [
+      'padding:8px 14px',
+      'border:1px solid #facc15',
       'border-radius:10px',
-      'background:#111827',
-      'color:#f9fafb',
+      'background:#1e293b',
+      'color:#facc15',
       'font-family:inherit',
       'font-size:14px',
+      'font-weight:700',
       'cursor:pointer',
-      'box-shadow:0 4px 14px rgba(0,0,0,0.25)'
+      'margin-inline:6px',
+      'display:inline-flex',
+      'align-items:center',
+      'gap:6px'
     ].join(';');
-    btn.addEventListener('click', promptAndPlayAudio);
-    document.body.appendChild(btn);
+
+    audioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      promptAndToggleAudio(audioBtn);
+    });
+
+    bar.insertBefore(audioBtn, endBtn);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (slides.length) {
-      showSlide(0);
-      startAutoSlides();
+  function goToNextSlide() {
+    const nextBtn = findButtonByText('التالي');
+    if (nextBtn && isElementVisible(nextBtn)) {
+      if (!nextBtn.disabled) {
+        nextBtn.click();
+      } else {
+        const prevBtn = findButtonByText('السابق');
+        if (prevBtn) {
+          for (let i = 0; i < 6; i++) {
+            if (!prevBtn.disabled) prevBtn.click();
+          }
+        }
+      }
     }
-    createUnlockButton();
+  }
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    injectAudioButtonInPresentationBar();
+    slideTimer = setInterval(() => {
+      const endBtn = findButtonByText('إنهاء العرض');
+      if (!endBtn || !isElementVisible(endBtn)) {
+        stopAutoPlay();
+        audio.pause();
+        audio.currentTime = 0;
+        return;
+      }
+      goToNextSlide();
+    }, SLIDE_INTERVAL_MS);
+  }
+
+  function stopAutoPlay() {
+    if (slideTimer) {
+      clearInterval(slideTimer);
+      slideTimer = null;
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const target = e.target.closest('button, [role="button"], a');
+    if (!target) return;
+    const label = (target.textContent || '').trim();
+
+    if (label.includes('إنهاء العرض')) {
+      stopAutoPlay();
+      audio.pause();
+      audio.currentTime = 0;
+      return;
+    }
+
+    if (label === 'عرض' || (label.includes('عرض') && !label.includes('إنهاء'))) {
+      setTimeout(() => {
+        injectAudioButtonInPresentationBar();
+        startAutoPlay();
+      }, 200);
+    }
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    const endBtn = findButtonByText('إنهاء العرض');
+    if (endBtn && isElementVisible(endBtn)) {
+      injectAudioButtonInPresentationBar();
+      if (!slideTimer) startAutoPlay();
+    } else if (slideTimer) {
+      stopAutoPlay();
+      audio.pause();
+      audio.currentTime = 0;
+    }
   });
 
-  if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    if (slides.length) {
-      showSlide(0);
-      startAutoSlides();
+  document.addEventListener('DOMContentLoaded', () => {
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    const endBtn = findButtonByText('إنهاء العرض');
+    if (endBtn && isElementVisible(endBtn)) {
+      startAutoPlay();
     }
-    createUnlockButton();
-  }
+  });
 })();
 </script>
 </body>
