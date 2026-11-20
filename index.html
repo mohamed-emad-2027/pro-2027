@@ -538,22 +538,22 @@
         </section>
     </main>
 
-    <!-- مساعد البحث الذكي العائم (Smart Assistant) -->
+    <!-- مساعد البحث الذكي العائم (Smart Assistant - Claude) -->
     <div class="ai-assistant-widget">
         <button class="ai-fab" onclick="toggleChatBot()" title="اسأل مساعد البحث الذكي">🤖</button>
         <div class="ai-chat-window" id="aiChatWindow">
             <div class="ai-chat-header">
                 <div>
-                    <strong>🤖 مساعد البحث الذكي</strong>
-                    <span>مدرّب على بيانات بحث البكالوريا 2027</span>
+                    <strong>🤖 مساعد البحث الذكي (Claude)</strong>
+                    <span>متصل بـ Claude • أبحاث البكالوريا 2027</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;">
-                    <button type="button" id="aiKeyBtn" title="إعداد مفتاح Gemini API" style="background:rgba(255,255,255,0.14);color:#fff;border:none;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;">🔑</button>
+                    <button type="button" id="claudeKeyBtn" title="إعداد مفتاح Claude API" style="background:rgba(255,255,255,0.14);color:#fff;border:none;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;">🔑</button>
                     <button onclick="toggleChatBot()">✕</button>
                 </div>
             </div>
             <div class="ai-chat-messages" id="aiChatMessages">
-                <div class="bot-msg">مرحباً بك! أنا المساعد الذكي لمنصة أبحاث <strong>مدرسة الجعفرية الثانوية المشتركة</strong>. اسألني عن نتائج العينة، المقارنة بين العلمي والأدبي، التوصيات، أو فريق العمل!</div>
+                <div class="bot-msg">مرحباً بك! أنا المساعد الذكي (Claude) لمنصة أبحاث <strong>مدرسة الجعفرية الثانوية المشتركة</strong>. اسألني عن نتائج العينة، المقارنة بين العلمي والأدبي، التوصيات، أو فريق العمل!</div>
             </div>
             <div class="ai-quick-chips">
                 <button onclick="askBot('ما هي أهم نتائج العينة؟')">أهم النتائج 📊</button>
@@ -811,146 +811,152 @@
     <script>
     (function () {
       try {
-        const KEY_STORAGE = 'jaafaria_pro2027_key_gemini';
-        const LEGACY_KEYS = [
-          'jaafaria_pro2027_omni_gemini_key',
-          'jaafaria_pro2027_gemini_api_key_v2',
-          'jaafaria_pro2027_gemini_key',
-          'gemini_api_key'
+        const CLAUDE_KEY_STORAGE = 'jaafaria_pro2027_key_claude';
+        const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+        const CLAUDE_MODELS = [
+          'claude-sonnet-4-20250514',
+          'claude-3-7-sonnet-20250219',
+          'claude-3-5-sonnet-20241022',
+          'claude-3-haiku-20240307'
         ];
-        const GEMINI_ENDPOINTS = [
-          { label: 'Gemini 2.5 Flash', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent' },
-          { label: 'Gemini 2.5 Pro', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent' },
-          { label: 'Gemini 2.0 Flash', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent' }
-        ];
-        const SYS_PROMPT =
+        const SYSTEM_PROMPT =
           'أنت مساعد ذكي ودود لمنصة أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة (قائد الفريق ومطور المنصة: المبرمج محمد عماد عباس). أجب بوضوح ودقة وتنظيم باللغة العربية على أسئلة البحث والنتائج والمقارنة العلمية والأدبية والأسئلة العامة.';
 
-        let history = [];
-        let busy = false;
+        let chatHistory = [];
+        let sending = false;
 
-        function readGeminiKey() {
+        function readClaudeKey() {
           try {
-            if (typeof window.JAAFARIA_GEMINI_API_KEY === 'string' && window.JAAFARIA_GEMINI_API_KEY.trim()) {
-              return window.JAAFARIA_GEMINI_API_KEY.trim();
+            if (typeof window.JAAFARIA_CLAUDE_API_KEY === 'string' && window.JAAFARIA_CLAUDE_API_KEY.trim()) {
+              return window.JAAFARIA_CLAUDE_API_KEY.trim();
             }
             for (const st of [window.localStorage, window.sessionStorage]) {
               if (!st) continue;
-              for (const k of [KEY_STORAGE, ...LEGACY_KEYS]) {
-                const v = (st.getItem(k) || '').trim();
-                if (v) return v;
-              }
+              const v = (st.getItem(CLAUDE_KEY_STORAGE) || '').trim();
+              if (v) return v;
             }
           } catch (_) {}
           return '';
         }
 
-        function saveGeminiKey(val) {
+        function saveClaudeKey(val) {
           const clean = (val || '').trim();
           if (!clean) return;
-          window.JAAFARIA_GEMINI_API_KEY = clean;
-          try { window.localStorage?.setItem(KEY_STORAGE, clean); } catch (_) {}
-          try { window.sessionStorage?.setItem(KEY_STORAGE, clean); } catch (_) {}
+          window.JAAFARIA_CLAUDE_API_KEY = clean;
+          try { window.localStorage?.setItem(CLAUDE_KEY_STORAGE, clean); } catch (_) {}
+          try { window.sessionStorage?.setItem(CLAUDE_KEY_STORAGE, clean); } catch (_) {}
         }
 
-        function promptKey(forceEdit) {
+        function promptClaudeKey(forceEdit) {
           try {
-            const existing = readGeminiKey();
+            const existing = readClaudeKey();
             if (existing && !forceEdit) return existing;
-            const entered = window.prompt('أدخل مفتاح Gemini API لتشغيل مساعد البحث الذكي:', existing || '');
+            const entered = window.prompt('أدخل مفتاح Claude API (sk-ant-...):', existing || '');
             if (entered && entered.trim()) {
-              saveGeminiKey(entered.trim());
+              saveClaudeKey(entered.trim());
               return entered.trim();
             }
           } catch (_) {}
           return '';
         }
 
-        function appendChatMsg(text, role) {
+        function appendMsg(text, role) {
           try {
-            const container = document.getElementById('aiChatMessages');
-            if (!container) return null;
+            const box = document.getElementById('aiChatMessages');
+            if (!box) return null;
             const el = document.createElement('div');
             el.className = role === 'user' ? 'user-msg' : 'bot-msg';
             el.style.whiteSpace = 'pre-wrap';
             el.textContent = text;
-            container.appendChild(el);
-            container.scrollTop = container.scrollHeight;
+            box.appendChild(el);
+            box.scrollTop = box.scrollHeight;
             return el;
           } catch (_) {
             return null;
           }
         }
 
-        async function callGemini(endpointObj, apiKey, promptText) {
+        async function callClaudeModel(modelName, apiKey, promptText) {
           const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), 18000);
+          const timer = setTimeout(() => ctrl.abort(), 20000);
           try {
-            const resp = await fetch(`${endpointObj.url}?key=${encodeURIComponent(apiKey)}`, {
+            const messagesPayload = [
+              ...chatHistory.slice(-6),
+              { role: 'user', content: promptText }
+            ];
+            const res = await fetch(CLAUDE_URL, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+              },
               body: JSON.stringify({
-                systemInstruction: { parts: [{ text: SYS_PROMPT }] },
-                contents: [...history.slice(-6), { role: 'user', parts: [{ text: promptText }] }],
-                generationConfig: { temperature: 0.7, maxOutputTokens: 1500 }
+                model: modelName,
+                max_tokens: 1500,
+                system: SYSTEM_PROMPT,
+                messages: messagesPayload
               }),
               signal: ctrl.signal
             });
-            if (!resp.ok) {
-              const errJson = await resp.json().catch(() => null);
-              throw new Error(errJson?.error?.message || `HTTP ${resp.status}`);
+            if (!res.ok) {
+              const errData = await res.json().catch(() => null);
+              throw new Error(errData?.error?.message || `HTTP ${res.status}`);
             }
-            const data = await resp.json();
-            const parts = data?.candidates?.[0]?.content?.parts;
-            const outText = Array.isArray(parts)
-              ? parts.map((p) => (typeof p?.text === 'string' ? p.text : '')).join('\n').trim()
+            const data = await res.json();
+            const outText = Array.isArray(data?.content)
+              ? data.content.map((item) => (typeof item?.text === 'string' ? item.text : '')).join('\n').trim()
               : '';
-            if (!outText) throw new Error('رد فارغ');
+            if (!outText) throw new Error('رد فارغ من Claude');
             return outText;
           } finally {
-            clearTimeout(t);
+            clearTimeout(timer);
           }
         }
 
         window.sendBotMessage = async function () {
-          if (busy) return;
+          if (sending) return;
           const input = document.getElementById('botInput');
           const sendBtn = document.getElementById('botSendBtn');
           if (!input) return;
           const q = (input.value || '').trim();
           if (!q) return;
 
-          const apiKey = promptKey(false);
+          const apiKey = promptClaudeKey(false);
           if (!apiKey) {
-            appendChatMsg('يرجى إدخال مفتاح Gemini API أولاً من زر 🔑 أعلى نافذة المساعد.', 'bot');
+            appendMsg('يرجى إدخال مفتاح Claude API أولاً من زر 🔑 أعلى نافذة المساعد.', 'bot');
             return;
           }
 
-          busy = true;
+          sending = true;
           if (sendBtn) sendBtn.disabled = true;
           input.value = '';
-          appendChatMsg(q, 'user');
-          const statusEl = appendChatMsg('جاري الاتصال بـ Gemini...', 'bot');
+          appendMsg(q, 'user');
+          const statusEl = appendMsg('جاري الاتصال بـ Claude...', 'bot');
 
           const errors = [];
-          for (const ep of GEMINI_ENDPOINTS) {
+          for (const modelName of CLAUDE_MODELS) {
             try {
-              if (statusEl) statusEl.textContent = `جاري الاتصال عبر ${ep.label}...`;
-              const ans = await callGemini(ep, apiKey, q);
-              history.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: ans }] });
-              if (statusEl) statusEl.textContent = ans;
-              busy = false;
+              if (statusEl) statusEl.textContent = `جاري الاتصال عبر ${modelName}...`;
+              const answer = await callClaudeModel(modelName, apiKey, q);
+              chatHistory.push(
+                { role: 'user', content: q },
+                { role: 'assistant', content: answer }
+              );
+              if (statusEl) statusEl.textContent = answer;
+              sending = false;
               if (sendBtn) sendBtn.disabled = false;
               return;
-            } catch (e) {
-              errors.push(`${ep.label}: ${e?.message || 'خطأ'}`);
+            } catch (err) {
+              errors.push(`${modelName}: ${err?.message || 'تعذر الاتصال'}`);
             }
           }
 
           if (statusEl) {
-            statusEl.textContent = `تعذر الحصول على رد الآن.\n${errors.join(' | ')}`;
+            statusEl.textContent = `تعذر الاتصال بـ Claude مباشرة من المتصفح.\n${errors.join(' | ')}`;
           }
-          busy = false;
+          sending = false;
           if (sendBtn) sendBtn.disabled = false;
         };
 
@@ -967,11 +973,11 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-          const keyBtn = document.getElementById('aiKeyBtn');
+          const keyBtn = document.getElementById('claudeKeyBtn');
           if (keyBtn) {
             keyBtn.addEventListener('click', (e) => {
               e.stopPropagation();
-              promptKey(true);
+              promptClaudeKey(true);
             });
           }
         });
