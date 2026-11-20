@@ -632,154 +632,25 @@
     </footer>
 
     <script src="script.js"></script>
-<section id="jaafariaPresentationSection" dir="rtl">
-  <header>
-    <h2>العرض التقديمي — مدرسة الجعفرية الثانوية المشتركة</h2>
-    <p>الصف الثاني البكالوريا | انتقال تلقائي كل 5 ثوانٍ</p>
-    <button type="button" id="openPresentationBtn" onclick="startPresentationMode()">
-      بدء العرض التقديمي
-    </button>
-  </header>
-
-  <div id="presentationStage" hidden>
-    <div>
-      <span id="slideCounter"></span>
-      <span id="autoPlayStatus">التشغيل التلقائي: نشط (5 ثوانٍ)</span>
-    </div>
-
-    <progress id="slideProgressBar" value="0" max="100"></progress>
-
-    <article id="presentationSlide" aria-live="polite"></article>
-
-    <p>
-      <button type="button" id="prevSlideBtn">الشريحة السابقة</button>
-      <button type="button" id="togglePauseBtn">إيقاف مؤقت</button>
-      <button type="button" id="nextSlideBtn">الشريحة التالية</button>
-      <button type="button" id="audioLockBtn" onclick="handleAudioLockClick()">🔒 تشغيل الأغنية (مقفول)</button>
-      <button type="button" id="stopPresentationBtn">إنهاء العرض</button>
-    </p>
-  </div>
-
-  <aside id="belowPresentationUpdates" aria-label="تحديثات ومعلومات تحت العرض">
-    <h3>تحديثات ومعلومات سريعة تحت العرض</h3>
-
-    <nav id="slideQuickJumpNav" aria-label="انتقال سريع للشرائح"></nav>
-
-    <div id="slideQuickNote">
-      <strong>ملاحظة الشريحة الحالية:</strong>
-      <span id="currentSlideNoteText">اضغط على «بدء العرض التقديمي» لتشغيل الشرائح، واستخدم زر القفل داخل العرض لتشغيل الأغنية.</span>
-    </div>
-
-    <details>
-      <summary>ملخص فريق العمل والأدوار البحثية</summary>
-      <ol>
-        <li>محمد عماد عباس</li>
-        <li>فوزي حسين</li>
-        <li>مازن أبو صابر</li>
-        <li>محمد أحمد</li>
-        <li>محمد عماد</li>
-      </ol>
-    </details>
-  </aside>
-
-  <dialog id="audioPasswordDialog" dir="rtl">
-    <form method="dialog">
-      <p>
-        <label for="audioPasswordInput">🔒 كلمة المرور لتشغيل الأغنية</label>
-      </p>
-      <p>
-        <input type="password" id="audioPasswordInput" autocomplete="off">
-      </p>
-      <p>
-        <input type="checkbox" id="togglePasswordCheckbox">
-        <label for="togglePasswordCheckbox">إظهار كلمة المرور</label>
-      </p>
-      <p>
-        <button type="submit" id="confirmPasswordBtn">فتح القفل وتشغيل الأغنية</button>
-        <button type="button" id="cancelPasswordBtn">إلغاء</button>
-      </p>
-      <p id="passwordErrorMsg" hidden>كلمة المرور غير صحيحة، حاول مرة أخرى.</p>
-    </form>
-  </dialog>
-
-  <footer>
-    <p>مدرسة الجعفرية الثانوية المشتركة — الصف الثاني البكالوريا</p>
-    <p>جميع الحقوق محفوظة للمبرمج محمد عماد عباس 2027</p>
-  </footer>
-</section>
-
 <script>
 (function () {
   const SLIDE_DURATION_MS = 5000;
-  const TICK_MS = 50;
-  const CORRECT_PASSWORD = 'RORO12';
+  const AUDIO_PASSWORD = 'RORO12';
 
-  const presentationSlides = [
-    {
-      title: 'منصة أبحاث الصف الثاني البكالوريا',
-      body: 'مشروع بحثي متكامل لطلاب مدرسة الجعفرية الثانوية المشتركة يجمع بين العرض المنظم، البيانات، والمساعد الذكي البحثي.',
-      note: 'مقدمة عامة عن المنصة والهدف البحثي لطلاب الصف الثاني البكالوريا.'
-    },
-    {
-      title: 'فريق العمل وتوزيع الأدوار',
-      body: '1. محمد عماد عباس — 2. فوزي حسين — 3. مازن أبو صابر — 4. محمد أحمد — 5. محمد عماد.',
-      note: 'توضيح ترتيب وأسماء فريق العمل بوضوح أثناء العرض.'
-    },
-    {
-      title: 'منهجية البحث وجمع البيانات',
-      body: 'تصميم الاستبيان الميداني وتجميع آراء عينة الطلاب بدقة لضمان موثوقية النتائج قبل بدء التحليل.',
-      note: 'التركيز على آلية جمع البيانات وضبط الاستبيان.'
-    },
-    {
-      title: 'تحليل البيانات وأهم النتائج',
-      body: 'مراجعة المؤشرات والنتائج الإحصائية المستخلصة من الاستبيان واستخراج أبرز الاستنتاجات الداعمة لموضوع البحث.',
-      note: 'عرض أبرز النتائج الإحصائية والمقارنات المستخرجة.'
-    },
-    {
-      title: 'التوصيات والختام',
-      body: 'تقديم توصيات عملية واضحة بناءً على نتائج البحث مع إتاحة استعراض التفاصيل والأسئلة التفاعلية.',
-      note: 'ختام العرض واستقبال ملاحظات وأسئلة اللجنة.'
-    }
-  ];
-
-  const audioDialog = document.getElementById('audioPasswordDialog');
-  const audioPasswordInput = document.getElementById('audioPasswordInput');
-  const toggleCheckbox = document.getElementById('togglePasswordCheckbox');
-  const confirmBtn = document.getElementById('confirmPasswordBtn');
-  const cancelBtn = document.getElementById('cancelPasswordBtn');
-  const errorMsg = document.getElementById('passwordErrorMsg');
-  const audioLockBtn = document.getElementById('audioLockBtn');
-
-  const presentationStage = document.getElementById('presentationStage');
-  const slideContainer = document.getElementById('presentationSlide');
-  const slideCounter = document.getElementById('slideCounter');
-  const autoPlayStatus = document.getElementById('autoPlayStatus');
-  const slideProgressBar = document.getElementById('slideProgressBar');
-  const prevSlideBtn = document.getElementById('prevSlideBtn');
-  const togglePauseBtn = document.getElementById('togglePauseBtn');
-  const nextSlideBtn = document.getElementById('nextSlideBtn');
-  const stopPresentationBtn = document.getElementById('stopPresentationBtn');
-
-  const slideQuickJumpNav = document.getElementById('slideQuickJumpNav');
-  const currentSlideNoteText = document.getElementById('currentSlideNoteText');
-
-  let currentSlideIndex = 0;
-  let elapsedMs = 0;
-  let timerInterval = null;
-  let isPaused = false;
+  let autoTimer = null;
   let isAudioUnlocked = false;
   let isAudioPlaying = false;
   let audioCtx = null;
   let melodyTimer = null;
 
-  function updateAudioButtonLabel() {
-    if (!audioLockBtn) return;
+  function updateAudioBtnText(btn) {
+    if (!btn) return;
     if (!isAudioUnlocked) {
-      audioLockBtn.textContent = '🔒 تشغيل الأغنية (مقفول)';
+      btn.textContent = '🔒 الأغنية';
     } else if (isAudioPlaying) {
-      audioLockBtn.textContent = '🔊 إيقاف الأغنية';
+      btn.textContent = '🔊 إيقاف الأغنية';
     } else {
-      audioLockBtn.textContent = '🔓 تشغيل الأغنية';
+      btn.textContent = '🔓 تشغيل الأغنية';
     }
   }
 
@@ -790,171 +661,171 @@
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
     const notes = [523.25, 659.25, 783.99, 659.25, 587.33, 698.46, 783.99, 523.25];
-    let noteIndex = 0;
+    let i = 0;
 
-    function playNextNote() {
+    function playNote() {
       if (!isAudioPlaying || !audioCtx) return;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(notes[noteIndex % notes.length], audioCtx.currentTime);
+      osc.frequency.setValueAtTime(notes[i % notes.length], audioCtx.currentTime);
       gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + 0.45);
-      noteIndex++;
+      i++;
     }
 
     isAudioPlaying = true;
-    updateAudioButtonLabel();
-    playNextNote();
+    updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
+    playNote();
     clearInterval(melodyTimer);
-    melodyTimer = setInterval(playNextNote, 500);
+    melodyTimer = setInterval(playNote, 500);
   }
 
   function stopSong() {
     isAudioPlaying = false;
     clearInterval(melodyTimer);
     melodyTimer = null;
-    updateAudioButtonLabel();
+    updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
   }
 
-  window.handleAudioLockClick = function () {
-    if (!isAudioUnlocked) {
-      audioPasswordInput.value = '';
-      audioPasswordInput.type = 'password';
-      toggleCheckbox.checked = false;
-      errorMsg.hidden = true;
-      if (typeof audioDialog.showModal === 'function') {
-        audioDialog.showModal();
-      } else {
-        audioDialog.setAttribute('open', '');
-      }
-      return;
-    }
-    if (isAudioPlaying) {
-      stopSong();
-    } else {
-      startSong();
-    }
-  };
+  function ensurePasswordDialog() {
+    let dialog = document.getElementById('insideAudioPasswordDialog');
+    if (dialog) return dialog;
 
-  function updateStatusLabel() {
-    autoPlayStatus.textContent = isPaused
-      ? 'التشغيل التلقائي: متوقف مؤقتاً'
-      : 'التشغيل التلقائي: نشط (5 ثوانٍ)';
-    togglePauseBtn.textContent = isPaused ? 'استئناف العرض' : 'إيقاف مؤقت';
-  }
+    dialog = document.createElement('dialog');
+    dialog.id = 'insideAudioPasswordDialog';
+    dialog.dir = 'rtl';
+    dialog.innerHTML = `
+      <form method="dialog">
+        <p><label for="insideAudioPassInput">🔒 كلمة المرور لتشغيل الأغنية</label></p>
+        <p><input type="password" id="insideAudioPassInput" autocomplete="off"></p>
+        <p>
+          <input type="checkbox" id="insideShowPassCheckbox">
+          <label for="insideShowPassCheckbox">إظهار كلمة المرور</label>
+        </p>
+        <p>
+          <button type="submit" id="insideConfirmPassBtn">تأكيد</button>
+          <button type="button" id="insideCancelPassBtn">إلغاء</button>
+        </p>
+        <p id="insidePassError" hidden>كلمة المرور غير صحيحة.</p>
+      </form>
+    `;
+    document.body.appendChild(dialog);
 
-  function renderSlide(index, resetProgress = true) {
-    currentSlideIndex = (index + presentationSlides.length) % presentationSlides.length;
-    const currentSlide = presentationSlides[currentSlideIndex];
-    slideContainer.innerHTML = '<h3>' + currentSlide.title + '</h3><p>' + currentSlide.body + '</p>';
-    slideCounter.textContent = 'الشريحة ' + (currentSlideIndex + 1) + ' من ' + presentationSlides.length;
-    currentSlideNoteText.textContent = currentSlide.note;
-    if (resetProgress) {
-      elapsedMs = 0;
-      slideProgressBar.value = 0;
-    }
-  }
+    const passInput = document.getElementById('insideAudioPassInput');
+    const showCheckbox = document.getElementById('insideShowPassCheckbox');
+    const confirmBtn = document.getElementById('insideConfirmPassBtn');
+    const cancelBtn = document.getElementById('insideCancelPassBtn');
+    const errEl = document.getElementById('insidePassError');
 
-  function startSlideLoop() {
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      if (isPaused || presentationStage.hidden) return;
-      elapsedMs += TICK_MS;
-      const percent = Math.min(100, (elapsedMs / SLIDE_DURATION_MS) * 100);
-      slideProgressBar.value = percent;
-
-      if (elapsedMs >= SLIDE_DURATION_MS) {
-        renderSlide(currentSlideIndex + 1, true);
-      }
-    }, TICK_MS);
-  }
-
-  window.startPresentationMode = function () {
-    isPaused = false;
-    updateStatusLabel();
-    updateAudioButtonLabel();
-    presentationStage.hidden = false;
-    renderSlide(0, true);
-    startSlideLoop();
-  };
-
-  function stopPresentationMode() {
-    clearInterval(timerInterval);
-    timerInterval = null;
-    elapsedMs = 0;
-    slideProgressBar.value = 0;
-    stopSong();
-    presentationStage.hidden = true;
-    currentSlideNoteText.textContent = 'تم إنهاء العرض. يمكنك إعادة تشغيله في أي وقت.';
-  }
-
-  function closeAudioDialog() {
-    if (typeof audioDialog.close === 'function') {
-      audioDialog.close();
-    } else {
-      audioDialog.removeAttribute('open');
-    }
-  }
-
-  toggleCheckbox.addEventListener('change', () => {
-    audioPasswordInput.type = toggleCheckbox.checked ? 'text' : 'password';
-  });
-
-  confirmBtn.addEventListener('click', (event) => {
-    event.preventDefault();
-    if (audioPasswordInput.value === CORRECT_PASSWORD) {
-      isAudioUnlocked = true;
-      closeAudioDialog();
-      startSong();
-    } else {
-      errorMsg.hidden = false;
-    }
-  });
-
-  cancelBtn.addEventListener('click', () => {
-    closeAudioDialog();
-  });
-
-  prevSlideBtn.addEventListener('click', () => {
-    renderSlide(currentSlideIndex - 1, true);
-  });
-
-  nextSlideBtn.addEventListener('click', () => {
-    renderSlide(currentSlideIndex + 1, true);
-  });
-
-  togglePauseBtn.addEventListener('click', () => {
-    isPaused = !isPaused;
-    updateStatusLabel();
-  });
-
-  stopPresentationBtn.addEventListener('click', stopPresentationMode);
-
-  document.addEventListener('keydown', (event) => {
-    if (presentationStage.hidden) return;
-    if (event.key === 'ArrowLeft') renderSlide(currentSlideIndex + 1, true);
-    if (event.key === 'ArrowRight') renderSlide(currentSlideIndex - 1, true);
-    if (event.key === 'Escape') stopPresentationMode();
-  });
-
-  slideQuickJumpNav.innerHTML = '';
-  presentationSlides.forEach((slide, idx) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = (idx + 1) + '. ' + slide.title;
-    btn.addEventListener('click', () => {
-      if (presentationStage.hidden) {
-        window.startPresentationMode();
-      }
-      renderSlide(idx, true);
+    showCheckbox.addEventListener('change', () => {
+      passInput.type = showCheckbox.checked ? 'text' : 'password';
     });
-    slideQuickJumpNav.appendChild(btn);
+
+    confirmBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (passInput.value === AUDIO_PASSWORD) {
+        isAudioUnlocked = true;
+        if (typeof dialog.close === 'function') dialog.close();
+        else dialog.removeAttribute('open');
+        startSong();
+      } else {
+        errEl.hidden = false;
+      }
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    });
+
+    return dialog;
+  }
+
+  function openAudioPasswordModal() {
+    const dialog = ensurePasswordDialog();
+    const passInput = document.getElementById('insideAudioPassInput');
+    const showCheckbox = document.getElementById('insideShowPassCheckbox');
+    const errEl = document.getElementById('insidePassError');
+    passInput.value = '';
+    passInput.type = 'password';
+    showCheckbox.checked = false;
+    errEl.hidden = true;
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+  }
+
+  function findNextButton() {
+    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+    return buttons.find((el) => {
+      const txt = (el.textContent || '').trim();
+      return txt.includes('التالي') && !txt.includes('إنهاء');
+    });
+  }
+
+  function findStopButton() {
+    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+    return buttons.find((el) => (el.textContent || '').trim().includes('إنهاء العرض'));
+  }
+
+  function attachInsidePresentationControls() {
+    const stopBtn = findStopButton();
+    if (!stopBtn || !stopBtn.parentElement) return;
+
+    const bar = stopBtn.parentElement;
+    if (!document.getElementById('insidePresentationAudioBtn')) {
+      const audioBtn = document.createElement('button');
+      audioBtn.type = 'button';
+      audioBtn.id = 'insidePresentationAudioBtn';
+      updateAudioBtnText(audioBtn);
+      audioBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!isAudioUnlocked) {
+          openAudioPasswordModal();
+        } else if (isAudioPlaying) {
+          stopSong();
+        } else {
+          startSong();
+        }
+      });
+      bar.insertBefore(audioBtn, stopBtn);
+
+      stopBtn.addEventListener('click', () => {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        stopSong();
+      });
+    }
+
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => {
+      const activeStop = findStopButton();
+      const nextBtn = findNextButton();
+      if (!activeStop || !nextBtn) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        return;
+      }
+      const dlg = document.getElementById('insideAudioPasswordDialog');
+      if (dlg && dlg.hasAttribute('open')) return;
+      nextBtn.click();
+    }, SLIDE_DURATION_MS);
+  }
+
+  document.addEventListener('click', () => {
+    setTimeout(attachInsidePresentationControls, 120);
   });
+
+  const observer = new MutationObserver(() => {
+    if (findStopButton() && !document.getElementById('insidePresentationAudioBtn')) {
+      attachInsidePresentationControls();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
 </body>
