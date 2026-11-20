@@ -638,8 +638,36 @@
   const SONG_FILE_SRC = 'song.mp4';
 
   let autoTimer = null;
+  let exitWatcherTimer = null;
+  let isPresentationActive = false;
   let isAudioPlaying = false;
   let songMediaEl = null;
+
+  function scrubAssistantMediaButtons() {
+    const candidates = document.querySelectorAll(
+      '.ai-chat-window *, .ai-chat-header *, .ai-assistant-widget *, button, a, span, div, [role="button"]'
+    );
+    candidates.forEach((el) => {
+      if (!el || el.id === 'insidePresentationAudioBtn') return;
+      if (el.closest && el.closest('#presentationOverlay, .pres-top-bar, .pres-controls')) return;
+      if (el.querySelector && el.querySelector('button, a, span, div')) {
+        const ownText = Array.from(el.childNodes)
+          .filter((n) => n.nodeType === Node.TEXT_NODE)
+          .map((n) => (n.textContent || '').trim())
+          .join(' ');
+        if (!/تشغيل الفيديو|إيقاف الفيديو|إلغاء الفيديو|أغنية|الأغنية|موسيقى|فيديو|🎵|🎶|🔊/i.test(ownText)) {
+          return;
+        }
+      }
+      const txt = (el.textContent || '').trim();
+      if (
+        txt.length <= 35 &&
+        /تشغيل الفيديو|إيقاف الفيديو|إلغاء الفيديو|أغنية|الأغنية|موسيقى|فيديو|🎵|🎶|🔊/i.test(txt)
+      ) {
+        el.remove();
+      }
+    });
+  }
 
   function getSongMediaElement() {
     if (songMediaEl) return songMediaEl;
@@ -649,6 +677,9 @@
     );
     if (existingMedia) {
       songMediaEl = existingMedia.tagName === 'SOURCE' ? existingMedia.parentElement : existingMedia;
+      songMediaEl.autoplay = false;
+      songMediaEl.pause();
+      try { songMediaEl.currentTime = 0; } catch (_) {}
       return songMediaEl;
     }
 
@@ -656,7 +687,8 @@
     media.id = 'jaafariaSongMp4';
     media.src = SONG_FILE_SRC;
     media.loop = true;
-    media.preload = 'auto';
+    media.autoplay = false;
+    media.preload = 'none';
     media.playsInline = true;
     media.hidden = true;
     document.body.appendChild(media);
@@ -664,24 +696,51 @@
     return songMediaEl;
   }
 
+  function forceSilentOnPageLoad() {
+    isPresentationActive = false;
+    isAudioPlaying = false;
+    const media = getSongMediaElement();
+    if (media) {
+      media.autoplay = false;
+      media.pause();
+      try { media.currentTime = 0; } catch (_) {}
+    }
+    document.querySelectorAll('video, audio').forEach((m) => {
+      m.autoplay = false;
+      m.pause();
+      try { m.currentTime = 0; } catch (_) {}
+    });
+  }
+
   function updateAudioBtnText(btn) {
     if (!btn) return;
-    btn.textContent = isAudioPlaying ? '🔊 إيقاف الأغنية' : '🎵 تشغيل الأغنية';
+    btn.textContent = isAudioPlaying ? '🔊 إيقاف الفيديو' : '🎵 تشغيل الفيديو';
   }
 
   function startSongMp4() {
+    if (!isPresentationActive) return;
     const media = getSongMediaElement();
     if (!media) return;
+    media.muted = false;
     media.play().then(() => {
+      if (!isPresentationActive) {
+        stopSongMp4(true);
+        return;
+      }
       isAudioPlaying = true;
       updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
     }).catch(() => {});
   }
 
-  function stopSongMp4() {
+  function stopSongMp4(resetTime = true) {
     const media = getSongMediaElement();
     if (media) {
       media.pause();
+      if (resetTime) {
+        try {
+          media.currentTime = 0;
+        } catch (err) {}
+      }
     }
     isAudioPlaying = false;
     updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
@@ -691,20 +750,112 @@
     const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
     return buttons.find((el) => {
       const txt = (el.textContent || '').trim();
-      return txt.includes('التالي') && !txt.includes('إنهاء');
+      return txt.includes('التالي') && !txt.includes('إنهاء') && !txt.includes('إلغاء');
     });
   }
 
   function findStopButton() {
     const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-    return buttons.find((el) => (el.textContent || '').trim().includes('إنهاء العرض'));
+    return buttons.find((el) => {
+      const txt = (el.textContent || '').trim();
+      if (
+        !txt.includes('إنهاء العرض') &&
+        !txt.includes('إغلاق العرض') &&
+        !txt.includes('إلغاء العرض') &&
+        txt !== '×' &&
+        txt !== '✕'
+      ) {
+        return false;
+      }
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
   }
 
-  function attachInsidePresentationControls() {
+  function isPresentationOpenInDOM() {
+    const overlay = document.getElementById('presentationOverlay');
+    if (overlay) {
+      const st = window.getComputedStyle(overlay);
+      if (st.display !== 'none' && st.visibility !== 'hidden' && Number(st.opacity) !== 0) {
+        return true;
+      }
+    }
+    return Boolean(findStopButton());
+  }
+
+  function isPresentationTriggerElement(target) {
+    if (!target || !target.closest) return false;
+    const trigger = target.closest('button, a, [role="button"]');
+    if (!trigger) return false;
+    if (trigger.id === 'openPresBtn') return true;
+    const txt = (trigger.textContent || '').trim();
+    return txt === 'عرض' || txt === '🎬 عرض' || txt.includes('بدء العرض');
+  }
+
+  function isPresentationCancelElement(target) {
+    if (!target || !target.closest) return false;
+    const btn = target.closest('button, a, [role="button"]');
+    if (!btn) return false;
+    const txt = (btn.textContent || '').trim();
+    return (
+      btn.id === 'closePresBtn' ||
+      txt.includes('إنهاء العرض') ||
+      txt.includes('إغلاق العرض') ||
+      txt.includes('إلغاء العرض')
+    );
+  }
+
+  function exitPresentationAndStopMedia() {
+    isPresentationActive = false;
+    clearInterval(autoTimer);
+    autoTimer = null;
+    clearInterval(exitWatcherTimer);
+    exitWatcherTimer = null;
+    stopSongMp4(true);
+  }
+
+  function startExitWatcher() {
+    clearInterval(exitWatcherTimer);
+    exitWatcherTimer = setInterval(() => {
+      if (!isPresentationActive) {
+        clearInterval(exitWatcherTimer);
+        exitWatcherTimer = null;
+        return;
+      }
+      if (!isPresentationOpenInDOM()) {
+        exitPresentationAndStopMedia();
+      }
+    }, 250);
+  }
+
+  function startAutoSlides() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => {
+      if (!isPresentationActive || !isPresentationOpenInDOM()) {
+        exitPresentationAndStopMedia();
+        return;
+      }
+      const nextBtn = findNextButton();
+      if (nextBtn) nextBtn.click();
+    }, SLIDE_DURATION_MS);
+  }
+
+  function enterPresentationMode(shouldStartSong) {
+    isPresentationActive = true;
+    attachInsidePresentationControls(shouldStartSong);
+    startAutoSlides();
+    startExitWatcher();
+    if (shouldStartSong) {
+      startSongMp4();
+    }
+  }
+
+  function attachInsidePresentationControls(shouldStartSongFromClick) {
     const stopBtn = findStopButton();
     if (!stopBtn || !stopBtn.parentElement) return;
 
     const bar = stopBtn.parentElement;
+
     if (!document.getElementById('insidePresentationAudioBtn')) {
       const audioBtn = document.createElement('button');
       audioBtn.type = 'button';
@@ -713,46 +864,90 @@
       audioBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (isAudioPlaying) {
-          stopSongMp4();
+          stopSongMp4(false);
         } else {
+          isPresentationActive = true;
           startSongMp4();
         }
       });
       bar.insertBefore(audioBtn, stopBtn);
-
-      stopBtn.addEventListener('click', () => {
-        clearInterval(autoTimer);
-        autoTimer = null;
-        stopSongMp4();
-      });
-
-      // تشغيل الأغنية تلقائياً فور فتح العرض بدون كلمة مرور
-      startSongMp4();
     }
 
-    clearInterval(autoTimer);
-    autoTimer = setInterval(() => {
-      const activeStop = findStopButton();
-      const nextBtn = findNextButton();
-      if (!activeStop || !nextBtn) {
-        clearInterval(autoTimer);
-        autoTimer = null;
-        return;
-      }
-      nextBtn.click();
-    }, SLIDE_DURATION_MS);
+    if (!stopBtn.dataset.exitBound) {
+      stopBtn.dataset.exitBound = 'true';
+      stopBtn.addEventListener('click', () => {
+        exitPresentationAndStopMedia();
+      });
+    }
+
+    if (shouldStartSongFromClick && !isAudioPlaying) {
+      startSongMp4();
+    }
   }
 
-  document.addEventListener('click', () => {
-    setTimeout(attachInsidePresentationControls, 120);
+  const origOpen = window.openPresentation;
+  window.openPresentation = function () {
+    if (typeof origOpen === 'function') origOpen.apply(this, arguments);
+    setTimeout(() => enterPresentationMode(true), 60);
+  };
+
+  const origClose = window.closePresentation;
+  window.closePresentation = function () {
+    if (typeof origClose === 'function') origClose.apply(this, arguments);
+    exitPresentationAndStopMedia();
+  };
+
+  document.addEventListener('click', (event) => {
+    if (isPresentationCancelElement(event.target)) {
+      exitPresentationAndStopMedia();
+      setTimeout(exitPresentationAndStopMedia, 60);
+      return;
+    }
+
+    if (isPresentationTriggerElement(event.target)) {
+      isPresentationActive = true;
+      startSongMp4();
+      setTimeout(() => {
+        enterPresentationMode(true);
+        scrubAssistantMediaButtons();
+      }, 120);
+      return;
+    }
+
+    setTimeout(scrubAssistantMediaButtons, 80);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && (isPresentationActive || isPresentationOpenInDOM())) {
+      exitPresentationAndStopMedia();
+      setTimeout(exitPresentationAndStopMedia, 60);
+    }
   });
 
   const observer = new MutationObserver(() => {
-    if (findStopButton() && !document.getElementById('insidePresentationAudioBtn')) {
-      attachInsidePresentationControls();
+    scrubAssistantMediaButtons();
+    const openNow = isPresentationOpenInDOM();
+    if (openNow && isPresentationActive && !document.getElementById('insidePresentationAudioBtn')) {
+      attachInsidePresentationControls(false);
+    } else if (!openNow && isPresentationActive) {
+      exitPresentationAndStopMedia();
     }
   });
-  observer.observe(document.body, { childList: true, subtree: true });
+
+  forceSilentOnPageLoad();
+  document.addEventListener('DOMContentLoaded', () => {
+    forceSilentOnPageLoad();
+    scrubAssistantMediaButtons();
+    if (document.body) {
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+  });
+  window.addEventListener('load', () => {
+    forceSilentOnPageLoad();
+    scrubAssistantMediaButtons();
+  });
+
+  setInterval(scrubAssistantMediaButtons, 400);
 })();
 </script>
 </body>
