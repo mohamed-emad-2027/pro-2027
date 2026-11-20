@@ -636,12 +636,35 @@
 (function () {
   const SLIDE_DURATION_MS = 5000;
   const AUDIO_PASSWORD = 'RORO12';
+  const SONG_FILE_SRC = 'song.mp4';
 
   let autoTimer = null;
   let isAudioUnlocked = false;
   let isAudioPlaying = false;
-  let audioCtx = null;
-  let melodyTimer = null;
+  let songMediaEl = null;
+
+  function getSongMediaElement() {
+    if (songMediaEl) return songMediaEl;
+
+    const existingMedia = document.querySelector(
+      'video[src*="song.mp4"], audio[src*="song.mp4"], source[src*="song.mp4"]'
+    );
+    if (existingMedia) {
+      songMediaEl = existingMedia.tagName === 'SOURCE' ? existingMedia.parentElement : existingMedia;
+      return songMediaEl;
+    }
+
+    const media = document.createElement('video');
+    media.id = 'jaafariaSongMp4';
+    media.src = SONG_FILE_SRC;
+    media.loop = true;
+    media.preload = 'auto';
+    media.playsInline = true;
+    media.hidden = true;
+    document.body.appendChild(media);
+    songMediaEl = media;
+    return songMediaEl;
+  }
 
   function updateAudioBtnText(btn) {
     if (!btn) return;
@@ -654,41 +677,21 @@
     }
   }
 
-  function startSong() {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    if (!audioCtx) audioCtx = new AudioCtx();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    const notes = [523.25, 659.25, 783.99, 659.25, 587.33, 698.46, 783.99, 523.25];
-    let i = 0;
-
-    function playNote() {
-      if (!isAudioPlaying || !audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(notes[i % notes.length], audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.45);
-      i++;
-    }
-
-    isAudioPlaying = true;
-    updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-    playNote();
-    clearInterval(melodyTimer);
-    melodyTimer = setInterval(playNote, 500);
+  function startSongMp4() {
+    const media = getSongMediaElement();
+    if (!media) return;
+    media.play().then(() => {
+      isAudioPlaying = true;
+      updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
+    }).catch(() => {});
   }
 
-  function stopSong() {
+  function stopSongMp4() {
+    const media = getSongMediaElement();
+    if (media) {
+      media.pause();
+    }
     isAudioPlaying = false;
-    clearInterval(melodyTimer);
-    melodyTimer = null;
     updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
   }
 
@@ -732,7 +735,7 @@
         isAudioUnlocked = true;
         if (typeof dialog.close === 'function') dialog.close();
         else dialog.removeAttribute('open');
-        startSong();
+        startSongMp4();
       } else {
         errEl.hidden = false;
       }
@@ -787,9 +790,9 @@
         if (!isAudioUnlocked) {
           openAudioPasswordModal();
         } else if (isAudioPlaying) {
-          stopSong();
+          stopSongMp4();
         } else {
-          startSong();
+          startSongMp4();
         }
       });
       bar.insertBefore(audioBtn, stopBtn);
@@ -797,7 +800,7 @@
       stopBtn.addEventListener('click', () => {
         clearInterval(autoTimer);
         autoTimer = null;
-        stopSong();
+        stopSongMp4();
       });
     }
 
