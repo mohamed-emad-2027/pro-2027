@@ -655,27 +655,163 @@
     return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
   }
 
-  function promptAndToggleAudio(btn) {
+  function updateAudioButtonLabel() {
+    const btn = document.getElementById('roro12-in-presentation-btn');
+    if (btn) {
+      btn.textContent = audio.paused ? '🔒 تشغيل الأغنية' : '🔊 إيقاف الأغنية';
+    }
+  }
+
+  function openPasswordModal() {
     if (!audio.paused) {
       audio.pause();
-      btn.textContent = '🔒 تشغيل الأغنية';
+      updateAudioButtonLabel();
       return;
     }
 
-    const input = window.prompt('أدخل كلمة المرور لتشغيل الأغنية:');
-    if (input === null) return;
+    const existing = document.getElementById('roro12-pass-modal');
+    if (existing) existing.remove();
 
-    if (input.trim() === PASSCODE) {
-      audio.play()
-        .then(() => {
-          btn.textContent = '🔊 إيقاف الأغنية';
-        })
-        .catch(() => {
-          window.alert('تعذر تشغيل song.mp4، تأكد من وجود الملف بجانب index.html.');
-        });
-    } else {
-      window.alert('كلمة المرور غير صحيحة.');
+    const overlay = document.createElement('div');
+    overlay.id = 'roro12-pass-modal';
+    overlay.style.cssText = [
+      'position:fixed',
+      'inset:0',
+      'z-index:99999',
+      'background:rgba(15,23,42,0.72)',
+      'display:flex',
+      'align-items:center',
+      'justify-content:center',
+      'padding:16px',
+      'font-family:inherit'
+    ].join(';');
+
+    const box = document.createElement('div');
+    box.style.cssText = [
+      'width:100%',
+      'max-width:360px',
+      'background:#0f172a',
+      'color:#f8fafc',
+      'border:1px solid #facc15',
+      'border-radius:14px',
+      'padding:20px',
+      'box-shadow:0 12px 30px rgba(0,0,0,0.45)',
+      'text-align:right'
+    ].join(';');
+
+    const title = document.createElement('div');
+    title.textContent = 'أدخل كلمة المرور لتشغيل الأغنية';
+    title.style.cssText = 'font-size:16px;font-weight:700;margin-bottom:12px;color:#facc15;';
+
+    const inputWrap = document.createElement('div');
+    inputWrap.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:10px;';
+
+    const passInput = document.createElement('input');
+    passInput.type = 'password';
+    passInput.placeholder = 'كلمة المرور';
+    passInput.autocomplete = 'off';
+    passInput.style.cssText = [
+      'flex:1',
+      'padding:10px 12px',
+      'border-radius:8px',
+      'border:1px solid #475569',
+      'background:#1e293b',
+      'color:#ffffff',
+      'font-size:15px',
+      'outline:none'
+    ].join(';');
+
+    const toggleEyeBtn = document.createElement('button');
+    toggleEyeBtn.type = 'button';
+    toggleEyeBtn.textContent = 'إظهار';
+    toggleEyeBtn.style.cssText = [
+      'padding:10px 12px',
+      'border-radius:8px',
+      'border:1px solid #475569',
+      'background:#334155',
+      'color:#f8fafc',
+      'font-size:13px',
+      'cursor:pointer'
+    ].join(';');
+
+    toggleEyeBtn.addEventListener('click', () => {
+      const hidden = passInput.type === 'password';
+      passInput.type = hidden ? 'text' : 'password';
+      toggleEyeBtn.textContent = hidden ? 'إخفاء' : 'إظهار';
+      passInput.focus();
+    });
+
+    const errorMsg = document.createElement('div');
+    errorMsg.style.cssText = 'min-height:20px;font-size:13px;color:#f87171;margin-bottom:12px;';
+
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.textContent = 'إلغاء';
+    cancelBtn.style.cssText = [
+      'padding:8px 14px',
+      'border-radius:8px',
+      'border:1px solid #475569',
+      'background:transparent',
+      'color:#cbd5e1',
+      'cursor:pointer'
+    ].join(';');
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.type = 'button';
+    confirmBtn.textContent = 'تشغيل';
+    confirmBtn.style.cssText = [
+      'padding:8px 16px',
+      'border-radius:8px',
+      'border:none',
+      'background:#facc15',
+      'color:#0f172a',
+      'font-weight:700',
+      'cursor:pointer'
+    ].join(';');
+
+    function closeModal() {
+      overlay.remove();
     }
+
+    function submitPass() {
+      if (passInput.value.trim() === PASSCODE) {
+        closeModal();
+        audio.play()
+          .then(() => {
+            updateAudioButtonLabel();
+          })
+          .catch(() => {
+            window.alert('تعذر تشغيل song.mp4، تأكد من وجود الملف بجانب index.html.');
+          });
+      } else {
+        errorMsg.textContent = 'كلمة المرور غير صحيحة.';
+        passInput.value = '';
+        passInput.focus();
+      }
+    }
+
+    cancelBtn.addEventListener('click', closeModal);
+    confirmBtn.addEventListener('click', submitPass);
+    passInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') submitPass();
+      if (e.key === 'Escape') closeModal();
+    });
+
+    inputWrap.appendChild(passInput);
+    inputWrap.appendChild(toggleEyeBtn);
+    box.appendChild(title);
+    box.appendChild(inputWrap);
+    box.appendChild(errorMsg);
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+    box.appendChild(actions);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    setTimeout(() => passInput.focus(), 30);
   }
 
   function injectAudioButtonInPresentationBar() {
@@ -707,7 +843,7 @@
 
     audioBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      promptAndToggleAudio(audioBtn);
+      openPasswordModal();
     });
 
     bar.insertBefore(audioBtn, endBtn);
@@ -760,6 +896,8 @@
       stopAutoPlay();
       audio.pause();
       audio.currentTime = 0;
+      const modal = document.getElementById('roro12-pass-modal');
+      if (modal) modal.remove();
       return;
     }
 
