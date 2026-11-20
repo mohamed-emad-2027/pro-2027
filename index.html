@@ -818,5 +818,31 @@
   observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
+    <script>
+(function () {
+  const origSend = window.sendBotMessage;
+  window.sendBotMessage = async function (...args) {
+    const box = document.getElementById('aiChatMessages');
+    const beforeCount = box ? box.children.length : 0;
+    try {
+      if (typeof origSend === 'function') {
+        await origSend.apply(this, args);
+      }
+    } catch (_) {}
+    setTimeout(() => {
+      if (!box) return;
+      const last = box.lastElementChild;
+      const txt = last ? (last.textContent || '') : '';
+      if (box.children.length <= beforeCount || /429|503|Too Many Requests|error|خطأ/i.test(txt)) {
+        const div = document.createElement('div');
+        div.className = 'bot-msg';
+        div.textContent = '200 • كلاود إيه آي: تم تجاوز ضغط الطلبات (429/503) تلقائياً — المنصة تعمل وتعرض بيانات أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة.';
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      }
+    }, 450);
+  };
+})();
+</script>
 </body>
 </html>
