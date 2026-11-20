@@ -886,7 +886,7 @@ async function askBot(question) {
                         contents: [{ parts: [{ text: systemPrompt + '\n\nسياق المحادثة:\n' + recentMemory }] }]
                     })
                 },
-                customSavedKey ? 1500 : 1200
+                customSavedKey ? 15000 : 12000
             );
             if (gemRes.ok) {
                 const gemData = await gemRes.json();
