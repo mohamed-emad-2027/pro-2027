@@ -818,18 +818,13 @@
   observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
-    <script>
+ <script>
 (function () {
-  if (window.__JAAFARIA_PRO2027_LIVE_AI__) return;
-  window.__JAAFARIA_PRO2027_LIVE_AI__ = true;
+  if (window.__JAAFARIA_PRO2027_LIGHT_AI__) return;
+  window.__JAAFARIA_PRO2027_LIGHT_AI__ = true;
 
-  const STORAGE_KEYS = {
-    gemini: 'jaafaria_pro2027_key_gemini',
-    claude: 'jaafaria_pro2027_key_claude',
-    openai: 'jaafaria_pro2027_key_openai'
-  };
-
-  const LEGACY_GEMINI_KEYS = [
+  const GEM_KEY_NAME = 'jaafaria_pro2027_key_gemini';
+  const LEGACY_KEYS = [
     'jaafaria_pro2027_omni_gemini_key',
     'jaafaria_pro2027_gemini_api_key_v2',
     'jaafaria_pro2027_gemini_key',
@@ -840,213 +835,85 @@
     'google_api_key'
   ];
 
-  // روابط حقيقية مباشرة لنماذج Gemini API الرسمية (تبديل تلقائي عند الفشل)
-  const LIVE_GEMINI_LINKS = [
+  const MODELS = [
     {
-      label: 'Google Gemini 2.5 Flash',
-      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+      name: 'Gemini 2.5 Flash',
+      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
     },
     {
-      label: 'Google Gemini 2.5 Pro',
-      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent'
+      name: 'Gemini 2.5 Pro',
+      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent'
     },
     {
-      label: 'Google Gemini 2.0 Flash',
-      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+      name: 'Gemini 2.0 Flash',
+      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
     }
   ];
 
-  const LIVE_PROVIDER_LINKS = {
-    claude: 'https://api.anthropic.com/v1/messages',
-    openai: 'https://api.openai.com/v1/chat/completions'
-  };
+  const SYSTEM_MSG =
+    'أنت مساعد ذكي ودود ودقيق لمنصة أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة. أجب على الأسئلة البحثية والمنهجية والعامة والخارجية بوضوح ودقة وتنظيم باللغة العربية.';
 
-  const SYSTEM_PROMPT = [
-    'أنت مساعد ذكي ودود ودقيق متصل بمنصة أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة.',
-    'تفاعل مع المستخدم بشكل طبيعي وسلس ومريح كمحادثة ذكية مباشرة؛ ردّ على التحيات والأسئلة الودية أو اليومية بروح طيبة ومختصرة، وأجب على الأسئلة البحثية والمنهجية والعامة والخارجية بدقة ووضوح وتنظيم باللغة العربية.',
-    'اجعل الإجابة واضحة وسهلة القراءة ومباشرة دون تكلف.'
-  ].join(' ');
+  let turns = [];
+  let sending = false;
 
-  let conversation = [];
-  let running = false;
-
-  function readStore(store, key) {
+  function getStoredKey() {
     try {
-      return store ? (store.getItem(key) || '').trim() : '';
-    } catch (_) {
-      return '';
-    }
-  }
-
-  function writeStore(store, key, val) {
-    try {
-      if (store) store.setItem(key, (val || '').trim());
-    } catch (_) {}
-  }
-
-  function getKey(provider) {
-    try {
-      if (provider === 'gemini') {
-        if (typeof window.JAAFARIA_GEMINI_API_KEY === 'string' && window.JAAFARIA_GEMINI_API_KEY.trim()) {
-          return window.JAAFARIA_GEMINI_API_KEY.trim();
-        }
-        for (const st of [window.localStorage, window.sessionStorage]) {
-          for (const k of [STORAGE_KEYS.gemini, ...LEGACY_GEMINI_KEYS]) {
-            const v = readStore(st, k);
-            if (v) return v;
-          }
-          if (st) {
-            for (let i = 0; i < st.length; i++) {
-              const name = st.key(i) || '';
-              const v = readStore(st, name);
-              if (/api|key|gemini/i.test(name) && v.startsWith('AIza')) return v;
-            }
-          }
-        }
-        return '';
+      if (typeof window.JAAFARIA_GEMINI_API_KEY === 'string' && window.JAAFARIA_GEMINI_API_KEY.trim()) {
+        return window.JAAFARIA_GEMINI_API_KEY.trim();
       }
-
-      return (
-        readStore(window.localStorage, STORAGE_KEYS[provider]) ||
-        readStore(window.sessionStorage, STORAGE_KEYS[provider])
-      );
-    } catch (_) {
-      return '';
-    }
+      for (const st of [window.localStorage, window.sessionStorage]) {
+        if (!st) continue;
+        for (const k of [GEM_KEY_NAME, ...LEGACY_KEYS]) {
+          const val = (st.getItem(k) || '').trim();
+          if (val) return val;
+        }
+        for (let i = 0; i < st.length; i++) {
+          const name = st.key(i) || '';
+          const val = (st.getItem(name) || '').trim();
+          if (/api|key|gemini/i.test(name) && val.startsWith('AIza')) return val;
+        }
+      }
+    } catch (_) {}
+    return '';
   }
 
-  function saveKey(provider, val) {
+  function saveStoredKey(val) {
     try {
       const clean = (val || '').trim();
       if (!clean) return;
-      if (provider === 'gemini') window.JAAFARIA_GEMINI_API_KEY = clean;
-      writeStore(window.localStorage, STORAGE_KEYS[provider], clean);
-      writeStore(window.sessionStorage, STORAGE_KEYS[provider], clean);
+      window.JAAFARIA_GEMINI_API_KEY = clean;
+      try { window.localStorage?.setItem(GEM_KEY_NAME, clean); } catch (_) {}
+      try { window.sessionStorage?.setItem(GEM_KEY_NAME, clean); } catch (_) {}
     } catch (_) {}
   }
 
-  function ensureGeminiKey() {
+  function askKey(forceEdit) {
     try {
-      const existing = getKey('gemini');
-      if (existing) return existing;
-      const entered = window.prompt('أدخل مفتاح Gemini API لربط المساعد الذكي مباشرة:', '');
-      if (entered && entered.trim()) {
-        const clean = entered.trim();
-        saveKey('gemini', clean);
-        return clean;
+      const cur = getStoredKey();
+      if (cur && !forceEdit) return cur;
+      const input = window.prompt('أدخل مفتاح Gemini API:', cur || '');
+      if (input && input.trim()) {
+        saveStoredKey(input.trim());
+        return input.trim();
       }
-      return '';
-    } catch (_) {
-      return '';
-    }
-  }
-
-  function openKeysManager() {
-    try {
-      const g = window.prompt('مفتاح Gemini API:', getKey('gemini') || '');
-      if (g !== null && g.trim()) saveKey('gemini', g.trim());
-
-      const c = window.prompt('مفتاح Claude (اختياري):', getKey('claude') || '');
-      if (c !== null && c.trim()) saveKey('claude', c.trim());
-
-      const o = window.prompt('مفتاح OpenAI (اختياري):', getKey('openai') || '');
-      if (o !== null && o.trim()) saveKey('openai', o.trim());
     } catch (_) {}
+    return '';
   }
 
-  function cleanAnswer(raw) {
-    return String(raw || '')
-      .replace(/\r\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  }
-
-  function injectStyles() {
-    try {
-      if (document.getElementById('jp-live-ai-style')) return;
-      const style = document.createElement('style');
-      style.id = 'jp-live-ai-style';
-      style.textContent = `
-        .jpl-msg {
-          display: flex;
-          flex-direction: column;
-          gap: 5px;
-          margin: 10px 0;
-          animation: jplFade 0.2s ease-out;
-        }
-        .jpl-user {
-          align-self: flex-start;
-          max-width: 90%;
-          background: linear-gradient(135deg, #1d4ed8, #2563eb);
-          color: #ffffff;
-          padding: 10px 14px;
-          border-radius: 14px 14px 4px 14px;
-          font-size: 14px;
-          line-height: 1.75;
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
-        .jpl-bot {
-          align-self: stretch;
-          background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(15, 23, 42, 0.96));
-          border: 1px solid rgba(148, 163, 184, 0.22);
-          color: #f8fafc;
-          padding: 13px 15px;
-          border-radius: 14px 14px 14px 4px;
-          font-size: 14px;
-          line-height: 1.85;
-          white-space: pre-wrap;
-          word-break: break-word;
-        }
-        .jpl-meta {
-          font-size: 11px;
-          color: #cbd5e1;
-          opacity: 0.85;
-          padding: 0 4px;
-        }
-        .jpl-btn {
-          background: rgba(255, 255, 255, 0.08);
-          color: #f8fafc;
-          border: 1px solid rgba(255, 255, 255, 0.16);
-          border-radius: 7px;
-          padding: 4px 9px;
-          font-size: 11.5px;
-          cursor: pointer;
-        }
-        .jpl-btn:hover {
-          background: rgba(255, 255, 255, 0.18);
-        }
-        .jpl-loading {
-          color: #93c5fd;
-          font-size: 12.5px;
-        }
-        @keyframes jplFade {
-          from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `;
-      document.head.appendChild(style);
-    } catch (_) {}
-  }
-
-  async function callLiveGemini(linkCfg, apiKey, promptText) {
-    if (!apiKey) throw new Error('مفتاح Gemini غير متوفر');
+  async function queryModel(modelItem, apiKey, promptText) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 22000);
+    const timer = setTimeout(() => controller.abort(), 18000);
     try {
-      const res = await fetch(`${linkCfg.url}?key=${encodeURIComponent(apiKey)}`, {
+      const res = await fetch(`${modelItem.endpoint}?key=${encodeURIComponent(apiKey)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          systemInstruction: { parts: [{ text: SYSTEM_MSG }] },
           contents: [
-            ...conversation.slice(-8),
+            ...turns.slice(-6),
             { role: 'user', parts: [{ text: promptText }] }
           ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048
-          }
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
         }),
         signal: controller.signal
       });
@@ -1056,147 +923,44 @@
       }
       const data = await res.json();
       const parts = data?.candidates?.[0]?.content?.parts;
-      const text = cleanAnswer(
-        Array.isArray(parts) ? parts.map((p) => (typeof p?.text === 'string' ? p.text : '')).join('\n') : ''
-      );
-      if (!text) throw new Error('رد فارغ');
-      return { text, sourceName: linkCfg.label };
+      const text = Array.isArray(parts)
+        ? parts.map((p) => (typeof p?.text === 'string' ? p.text : '')).join('\n').trim()
+        : '';
+      if (!text) throw new Error('لم يرد النموذج بنص');
+      return { text, modelName: modelItem.name };
     } finally {
       clearTimeout(timer);
     }
   }
 
-  async function callLiveClaude(apiKey, promptText) {
-    if (!apiKey) throw new Error('مفتاح Claude غير متوفر');
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 22000);
-    try {
-      const res = await fetch(LIVE_PROVIDER_LINKS.claude, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-7-sonnet-20250219',
-          max_tokens: 2048,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: promptText }]
-        }),
-        signal: controller.signal
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(err?.error?.message || `HTTP ${res.status}`);
-      }
-      const data = await res.json();
-      const text = cleanAnswer(
-        Array.isArray(data?.content) ? data.content.map((item) => item?.text || '').join('\n') : ''
-      );
-      if (!text) throw new Error('رد فارغ');
-      return { text, sourceName: 'Claude' };
-    } finally {
-      clearTimeout(timer);
+  async function runSmartQuery(promptText, onTry) {
+    const apiKey = askKey(false);
+    if (!apiKey) {
+      throw new Error('أدخل مفتاح Gemini API أولاً لتشغيل المساعد.');
     }
-  }
-
-  async function callLiveOpenAI(apiKey, promptText) {
-    if (!apiKey) throw new Error('مفتاح OpenAI غير متوفر');
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 22000);
-    try {
-      const res = await fetch(LIVE_PROVIDER_LINKS.openai, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            { role: 'user', content: promptText }
-          ],
-          temperature: 0.7
-        }),
-        signal: controller.signal
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(err?.error?.message || `HTTP ${res.status}`);
-      }
-      const data = await res.json();
-      const text = cleanAnswer(data?.choices?.[0]?.message?.content || '');
-      if (!text) throw new Error('رد فارغ');
-      return { text, sourceName: 'OpenAI' };
-    } finally {
-      clearTimeout(timer);
-    }
-  }
-
-  async function askLiveAI(question, onStep) {
-    const gemKey = getKey('gemini') || ensureGeminiKey();
-    const claudeKey = getKey('claude');
-    const openaiKey = getKey('openai');
-    const errors = [];
-
-    if (gemKey) {
-      for (const linkCfg of LIVE_GEMINI_LINKS) {
-        try {
-          if (onStep) onStep(linkCfg.label);
-          const out = await callLiveGemini(linkCfg, gemKey, question);
-          conversation.push(
-            { role: 'user', parts: [{ text: question }] },
-            { role: 'model', parts: [{ text: out.text }] }
-          );
-          return out;
-        } catch (err) {
-          errors.push(`${linkCfg.label}: ${err?.message || 'تعذر الاتصال'}`);
-        }
-      }
-    }
-
-    if (claudeKey) {
+    const errs = [];
+    for (const m of MODELS) {
       try {
-        if (onStep) onStep('Claude');
-        const out = await callLiveClaude(claudeKey, question);
-        conversation.push(
-          { role: 'user', parts: [{ text: question }] },
+        if (onTry) onTry(m.name);
+        const out = await queryModel(m, apiKey, promptText);
+        turns.push(
+          { role: 'user', parts: [{ text: promptText }] },
           { role: 'model', parts: [{ text: out.text }] }
         );
         return out;
-      } catch (err) {
-        errors.push(`Claude: ${err?.message || 'تعذر الاتصال'}`);
+      } catch (e) {
+        errs.push(`${m.name}: ${e?.message || 'خطأ'}`);
       }
     }
-
-    if (openaiKey) {
-      try {
-        if (onStep) onStep('OpenAI');
-        const out = await callLiveOpenAI(openaiKey, question);
-        conversation.push(
-          { role: 'user', parts: [{ text: question }] },
-          { role: 'model', parts: [{ text: out.text }] }
-        );
-        return out;
-      } catch (err) {
-        errors.push(`OpenAI: ${err?.message || 'تعذر الاتصال'}`);
-      }
-    }
-
-    throw new Error(
-      `تعذر إتمام الاتصال الآن.\n${errors.length ? errors.join(' | ') : 'يرجى إدخال مفتاح API صالح.'}`
-    );
+    throw new Error(`تعذر الحصول على رد الآن.\n${errs.join(' | ')}`);
   }
 
-  function findAssistantBox() {
+  function findBox() {
     try {
-      const els = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, div, span, p'));
-      const heading = els.find((el) => (el.textContent || '').includes('مساعد البحث الذكي'));
-      if (!heading) return null;
-
-      let cur = heading;
+      const all = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, div, span, p'));
+      const title = all.find((el) => (el.textContent || '').includes('مساعد البحث الذكي'));
+      if (!title) return null;
+      let cur = title;
       for (let i = 0; i < 10 && cur; i++) {
         const hasInput = Boolean(cur.querySelector('textarea, input[type="text"], input:not([type])'));
         const hasSend = Array.from(cur.querySelectorAll('button')).some((b) =>
@@ -1205,204 +969,149 @@
         if (hasInput && hasSend) return cur;
         cur = cur.parentElement;
       }
-      return null;
-    } catch (_) {
-      return null;
-    }
+    } catch (_) {}
+    return null;
   }
 
-  function findChatViewport(box, inputEl) {
+  function findLog(box, inputEl) {
     try {
-      const areas = Array.from(box.querySelectorAll('div, section, article, ul, ol')).filter((el) => {
+      const candidates = Array.from(box.querySelectorAll('div, section, article, ul, ol')).filter((el) => {
         if (el === box || el.contains(inputEl)) return false;
         const r = el.getBoundingClientRect();
-        return r.height >= 70 && r.width >= 120;
+        return r.height >= 60 && r.width >= 100;
       });
-      areas.sort((a, b) => b.getBoundingClientRect().height - a.getBoundingClientRect().height);
-      return areas[0] || box;
+      candidates.sort((a, b) => b.getBoundingClientRect().height - a.getBoundingClientRect().height);
+      return candidates[0] || box;
     } catch (_) {
       return box;
     }
   }
 
-  function ensureBar(box, viewport) {
-    try {
-      if (box.querySelector('[data-jpl-bar="1"]')) return;
-      const bar = document.createElement('div');
-      bar.dataset.jplBar = '1';
-      bar.dir = 'rtl';
-      bar.style.cssText = [
-        'display:flex',
-        'flex-wrap:wrap',
-        'align-items:center',
-        'justify-content:space-between',
-        'gap:8px',
-        'margin:6px 0 8px 0',
-        'padding:6px 10px',
-        'border-radius:8px',
-        'background:rgba(15,23,42,0.65)',
-        'border:1px solid rgba(255,255,255,0.1)',
-        'font-size:12px'
-      ].join(';');
+  function appendBubble(logEl, text, isUser) {
+    const row = document.createElement('div');
+    row.dir = 'rtl';
+    row.style.cssText = 'margin:8px 0;display:flex;flex-direction:column;gap:3px;';
 
-      const badge = document.createElement('span');
-      badge.dataset.jplBadge = '1';
+    const tag = document.createElement('div');
+    tag.style.cssText = 'font-size:11px;opacity:0.78;';
+    tag.textContent = isUser ? 'أنت' : 'مساعد البحث الذكي';
 
-      function refreshBadge() {
-        const active = Boolean(getKey('gemini') || getKey('claude') || getKey('openai'));
-        badge.textContent = active
-          ? '● متصل مباشرة بـ Gemini API وجاهز لأي سؤال'
-          : '○ اضغط "المفاتيح" لربط مفتاح API';
-        badge.style.color = active ? '#86efac' : '#fde68a';
-      }
-      refreshBadge();
+    const box = document.createElement('div');
+    box.style.cssText = isUser
+      ? 'align-self:flex-start;max-width:90%;background:#2563eb;color:#fff;padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;'
+      : 'align-self:stretch;background:#111827;color:#f9fafb;border:1px solid rgba(255,255,255,0.14);padding:11px 13px;border-radius:10px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;';
+    box.textContent = text;
 
-      const group = document.createElement('div');
-      group.style.cssText = 'display:flex;align-items:center;gap:6px;';
-
-      const keysBtn = document.createElement('button');
-      keysBtn.type = 'button';
-      keysBtn.className = 'jpl-btn';
-      keysBtn.textContent = 'المفاتيح';
-      keysBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openKeysManager();
-        refreshBadge();
-      });
-
-      const clearBtn = document.createElement('button');
-      clearBtn.type = 'button';
-      clearBtn.className = 'jpl-btn';
-      clearBtn.textContent = 'محادثة جديدة';
-      clearBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        conversation = [];
-        viewport.querySelectorAll('.jpl-msg').forEach((n) => n.remove());
-      });
-
-      group.appendChild(keysBtn);
-      group.appendChild(clearBtn);
-      bar.appendChild(badge);
-      bar.appendChild(group);
-
-      if (viewport.parentElement) {
-        viewport.parentElement.insertBefore(bar, viewport);
-      } else {
-        box.prepend(bar);
-      }
-    } catch (_) {}
-  }
-
-  function addBubble(viewport, text, isUser) {
-    const wrap = document.createElement('div');
-    wrap.className = 'jpl-msg';
-    wrap.dir = 'rtl';
-
-    const meta = document.createElement('div');
-    meta.className = 'jpl-meta';
-    meta.textContent = isUser ? 'أنت' : 'مساعد البحث الذكي';
-
-    const bubble = document.createElement('div');
-    bubble.className = isUser ? 'jpl-user' : 'jpl-bot';
-    bubble.textContent = text;
-
-    wrap.appendChild(meta);
-    wrap.appendChild(bubble);
-    viewport.appendChild(wrap);
-    viewport.scrollTop = viewport.scrollHeight;
+    row.appendChild(tag);
+    row.appendChild(box);
+    logEl.appendChild(row);
+    logEl.scrollTop = logEl.scrollHeight;
 
     return {
-      loading(label) {
-        bubble.innerHTML = `<span class="jpl-loading">جاري الاتصال عبر ${label}...</span>`;
-        viewport.scrollTop = viewport.scrollHeight;
+      status(mName) {
+        box.textContent = `جاري الاتصال عبر ${mName}...`;
+        logEl.scrollTop = logEl.scrollHeight;
       },
-      done(answer, sourceName) {
-        if (sourceName) meta.textContent = `مساعد البحث الذكي • ${sourceName}`;
-        bubble.textContent = answer;
-        viewport.scrollTop = viewport.scrollHeight;
+      answer(ans, mName) {
+        if (mName) tag.textContent = `مساعد البحث الذكي • ${mName}`;
+        box.textContent = ans;
+        logEl.scrollTop = logEl.scrollHeight;
       }
     };
   }
 
-  function bindLiveAssistant() {
+  function setupAssistant() {
     try {
-      injectStyles();
-      const box = findAssistantBox();
+      const box = findBox();
       if (!box) return;
 
       const inputEl = Array.from(box.querySelectorAll('textarea, input')).find((el) => {
-        const type = (el.getAttribute('type') || 'text').toLowerCase();
-        return type !== 'password' && type !== 'checkbox' && type !== 'radio' && type !== 'hidden';
+        const t = (el.getAttribute('type') || 'text').toLowerCase();
+        return t !== 'password' && t !== 'checkbox' && t !== 'radio' && t !== 'hidden';
       });
-
       const sendBtn = Array.from(box.querySelectorAll('button')).find((b) =>
         (b.textContent || '').trim().includes('إرسال')
       );
-
       if (!inputEl || !sendBtn) return;
 
-      const viewport = findChatViewport(box, inputEl);
-      ensureBar(box, viewport);
+      const logEl = findLog(box, inputEl);
 
-      const badge = box.querySelector('[data-jpl-badge="1"]');
-      if (badge) {
-        const active = Boolean(getKey('gemini') || getKey('claude') || getKey('openai'));
-        badge.textContent = active
-          ? '● متصل مباشرة بـ Gemini API وجاهز لأي سؤال'
-          : '○ اضغط "المفاتيح" لربط مفتاح API';
-        badge.style.color = active ? '#86efac' : '#fde68a';
+      if (!box.querySelector('[data-jplight-bar="1"]')) {
+        const bar = document.createElement('div');
+        bar.dataset.jplightBar = '1';
+        bar.dir = 'rtl';
+        bar.style.cssText = 'display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;';
+
+        const keyBtn = document.createElement('button');
+        keyBtn.type = 'button';
+        keyBtn.textContent = 'المفاتيح';
+        keyBtn.style.cssText =
+          'background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:4px 9px;font-size:11.5px;cursor:pointer;';
+        keyBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          askKey(true);
+        });
+
+        const clrBtn = document.createElement('button');
+        clrBtn.type = 'button';
+        clrBtn.textContent = 'مسح المحادثة';
+        clrBtn.style.cssText =
+          'background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:4px 9px;font-size:11.5px;cursor:pointer;';
+        clrBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          turns = [];
+          logEl.innerHTML = '';
+        });
+
+        bar.appendChild(keyBtn);
+        bar.appendChild(clrBtn);
+        if (logEl.parentElement) {
+          logEl.parentElement.insertBefore(bar, logEl);
+        } else {
+          box.prepend(bar);
+        }
       }
 
-      if (sendBtn.dataset.jplBound === '1' && inputEl.dataset.jplBound === '1') return;
-      sendBtn.dataset.jplBound = '1';
-      inputEl.dataset.jplBound = '1';
+      if (sendBtn.dataset.jplightBound === '1' && inputEl.dataset.jplightBound === '1') return;
+      sendBtn.dataset.jplightBound = '1';
+      inputEl.dataset.jplightBound = '1';
 
-      async function onSend(e) {
+      async function handleSend(e) {
         if (e) {
           e.preventDefault();
           e.stopImmediatePropagation();
         }
-        if (running) return;
-
+        if (sending) return;
         const q = (inputEl.value || '').trim();
         if (!q) return;
 
-        running = true;
+        sending = true;
         sendBtn.disabled = true;
         inputEl.value = '';
 
-        addBubble(viewport, q, true);
-        const aiBubble = addBubble(viewport, '', false);
-        aiBubble.loading(LIVE_GEMINI_LINKS[0].label);
+        appendBubble(logEl, q, true);
+        const reply = appendBubble(logEl, '', false);
+        reply.status(MODELS[0].name);
 
         try {
-          const out = await askLiveAI(q, (currentLabel) => aiBubble.loading(currentLabel));
-          aiBubble.done(out.text, out.sourceName);
+          const res = await runSmartQuery(q, (mName) => reply.status(mName));
+          reply.answer(res.text, res.modelName);
         } catch (err) {
-          aiBubble.done(
-            (err && err.message) || 'تعذر إتمام الرد الآن، يرجى التحقق من المفتاح والاتصال.',
-            'تنبيه'
-          );
+          reply.answer((err && err.message) || 'تعذر الرد الآن.', 'تنبيه');
         } finally {
-          running = false;
+          sending = false;
           sendBtn.disabled = false;
-          if (badge && (getKey('gemini') || getKey('claude') || getKey('openai'))) {
-            badge.textContent = '● متصل مباشرة بـ Gemini API وجاهز لأي سؤال';
-            badge.style.color = '#86efac';
-          }
           inputEl.focus();
         }
       }
 
-      sendBtn.addEventListener('click', onSend, true);
+      sendBtn.addEventListener('click', handleSend, true);
       inputEl.addEventListener(
         'keydown',
         (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            onSend(e);
-          }
+          if (e.key === 'Enter' && !e.shiftKey) handleSend(e);
         },
         true
       );
@@ -1413,28 +1122,24 @@
     'click',
     (e) => {
       try {
-        const btn = e.target && e.target.closest ? e.target.closest('button, a, [role="button"]') : null;
-        if (!btn) return;
-        if (/reset|إعادة/i.test((btn.textContent || '').trim())) {
-          conversation = [];
-          const box = findAssistantBox();
+        const b = e.target && e.target.closest ? e.target.closest('button, a, [role="button"]') : null;
+        if (b && /reset|إعادة/i.test((b.textContent || '').trim())) {
+          turns = [];
+          const box = findBox();
           if (box) {
-            box.querySelectorAll('[data-jpl-bound]').forEach((el) => delete el.dataset.jplBound);
+            box.querySelectorAll('[data-jplight-bound]').forEach((el) => delete el.dataset.jplightBound);
           }
-          setTimeout(bindLiveAssistant, 120);
+          setTimeout(setupAssistant, 120);
         }
       } catch (_) {}
     },
     true
   );
 
-  const observer = new MutationObserver(() => bindLiveAssistant());
-  observer.observe(document.body, { childList: true, subtree: true });
-
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindLiveAssistant, { once: true });
+    document.addEventListener('DOMContentLoaded', () => setTimeout(setupAssistant, 150), { once: true });
   } else {
-    bindLiveAssistant();
+    setTimeout(setupAssistant, 150);
   }
 })();
 </script>
