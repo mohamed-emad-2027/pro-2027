@@ -700,7 +700,15 @@
     return buttons.find((el) => (el.textContent || '').trim().includes('إنهاء العرض'));
   }
 
-  function attachInsidePresentationControls() {
+  function isPresentationTriggerElement(target) {
+    if (!target || !target.closest) return false;
+    const trigger = target.closest('button, a, [role="button"]');
+    if (!trigger) return false;
+    const txt = (trigger.textContent || '').trim();
+    return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
+  }
+
+  function attachInsidePresentationControls(shouldStartSongFromClick) {
     const stopBtn = findStopButton();
     if (!stopBtn || !stopBtn.parentElement) return;
 
@@ -725,8 +733,9 @@
         autoTimer = null;
         stopSongMp4();
       });
+    }
 
-      // تشغيل الأغنية تلقائياً فور فتح العرض بدون كلمة مرور
+    if (shouldStartSongFromClick && !isAudioPlaying) {
       startSongMp4();
     }
 
@@ -743,13 +752,16 @@
     }, SLIDE_DURATION_MS);
   }
 
-  document.addEventListener('click', () => {
-    setTimeout(attachInsidePresentationControls, 120);
+  document.addEventListener('click', (event) => {
+    const clickedPresentationBtn = isPresentationTriggerElement(event.target);
+    setTimeout(() => {
+      attachInsidePresentationControls(clickedPresentationBtn);
+    }, 120);
   });
 
   const observer = new MutationObserver(() => {
     if (findStopButton() && !document.getElementById('insidePresentationAudioBtn')) {
-      attachInsidePresentationControls();
+      attachInsidePresentationControls(false);
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
