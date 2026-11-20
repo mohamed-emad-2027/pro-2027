@@ -875,7 +875,7 @@ async function askBot(question) {
     if (activeGeminiKey) {
         try {
             const gemRes = await fetchWithTimeout(
-                'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent'
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
                 {
                     method: 'POST',
                     headers: {
