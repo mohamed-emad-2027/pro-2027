@@ -643,17 +643,6 @@
   let isAudioPlaying = false;
   let songMediaEl = null;
 
-  function scrubAssistantMediaButtons() {
-    document.querySelectorAll('button, a, [role="button"]').forEach((el) => {
-      if (el.id === 'insidePresentationAudioBtn') return;
-      if (el.closest && el.closest('#presentationOverlay, .pres-top-bar, .pres-controls')) return;
-      const txt = (el.textContent || '').trim();
-      if (/تشغيل الفيديو|إيقاف الفيديو|إلغاء الفيديو|أغنية|الأغنية|موسيقى|فيديو/i.test(txt)) {
-        el.remove();
-      }
-    });
-  }
-
   function getSongMediaElement() {
     if (songMediaEl) return songMediaEl;
 
@@ -685,7 +674,6 @@
   function startSongMp4() {
     const media = getSongMediaElement();
     if (!media) return;
-    media.muted = false;
     media.play().then(() => {
       isAudioPlaying = true;
       updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
@@ -710,7 +698,7 @@
     const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
     return buttons.find((el) => {
       const txt = (el.textContent || '').trim();
-      return txt.includes('التالي') && !txt.includes('إنهاء') && !txt.includes('إلغاء');
+      return txt.includes('التالي') && !txt.includes('إنهاء');
     });
   }
 
@@ -718,13 +706,7 @@
     const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
     return buttons.find((el) => {
       const txt = (el.textContent || '').trim();
-      if (
-        !txt.includes('إنهاء العرض') &&
-        !txt.includes('إغلاق العرض') &&
-        !txt.includes('إلغاء العرض') &&
-        txt !== '×' &&
-        txt !== '✕'
-      ) {
+      if (!txt.includes('إنهاء العرض') && !txt.includes('إغلاق العرض') && txt !== '×' && txt !== '✕') {
         return false;
       }
       const rect = el.getBoundingClientRect();
@@ -736,22 +718,8 @@
     if (!target || !target.closest) return false;
     const trigger = target.closest('button, a, [role="button"]');
     if (!trigger) return false;
-    if (trigger.id === 'openPresBtn') return true;
     const txt = (trigger.textContent || '').trim();
-    return txt === 'عرض' || txt === '🎬 عرض' || txt.includes('بدء العرض');
-  }
-
-  function isPresentationCancelElement(target) {
-    if (!target || !target.closest) return false;
-    const btn = target.closest('button, a, [role="button"]');
-    if (!btn) return false;
-    const txt = (btn.textContent || '').trim();
-    return (
-      btn.id === 'closePresBtn' ||
-      txt.includes('إنهاء العرض') ||
-      txt.includes('إغلاق العرض') ||
-      txt.includes('إلغاء العرض')
-    );
+    return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
   }
 
   function exitPresentationAndStopMedia() {
@@ -808,7 +776,7 @@
       });
     }
 
-    if (shouldStartSongFromClick) {
+    if (shouldStartSongFromClick && !isAudioPlaying) {
       startSongMp4();
     }
 
@@ -827,30 +795,19 @@
   }
 
   document.addEventListener('click', (event) => {
-    if (isPresentationCancelElement(event.target)) {
-      setTimeout(exitPresentationAndStopMedia, 40);
-      return;
-    }
-
     const clickedPresentationBtn = isPresentationTriggerElement(event.target);
-    if (clickedPresentationBtn) {
-      startSongMp4();
-    }
-
     setTimeout(() => {
       attachInsidePresentationControls(clickedPresentationBtn);
-      scrubAssistantMediaButtons();
     }, 120);
   });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isPresentationActive) {
-      setTimeout(exitPresentationAndStopMedia, 60);
+      setTimeout(exitPresentationAndStopMedia, 100);
     }
   });
 
   const observer = new MutationObserver(() => {
-    scrubAssistantMediaButtons();
     const hasStop = Boolean(findStopButton());
     if (hasStop && !document.getElementById('insidePresentationAudioBtn')) {
       attachInsidePresentationControls(false);
@@ -858,16 +815,7 @@
       exitPresentationAndStopMedia();
     }
   });
-
-  document.addEventListener('DOMContentLoaded', scrubAssistantMediaButtons);
-  if (document.body) {
-    observer.observe(document.body, { childList: true, subtree: true });
-    scrubAssistantMediaButtons();
-  } else {
-    document.addEventListener('DOMContentLoaded', () => {
-      observer.observe(document.body, { childList: true, subtree: true });
-    });
-  }
+  observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
 </body>
