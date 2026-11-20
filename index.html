@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> منصة أبحاث البكالوريا 2027 | مدرسة الجعفرية الثانوية المشتركه</title>
+    <title>منصة أبحاث البكالوريا 2027 | مدرسة الجعفرية الثانوية المشتركه</title>
     <meta name="description" content="منصة بحثية تفاعلية لطلاب الصف الثاني البكالوريا بمدرسة جعفرية الثانوية المشتركة حول تأثير الذكاء الاصطناعي التوليدي على التحصيل الدراسي.">
     <meta property="og:site_name" content="منصة أبحاث البكالوريا 2027">
     <meta property="og:title" content="منصة أبحاث البكالوريا 2027 | مدرسة الجعفرية الثانوية المشتركه">
@@ -73,7 +73,7 @@
             </div>
             <h1 class="hero-title">تأثير أدوات الذكاء الاصطناعي التوليدي على <span class="gradient-text">التحصيل الدراسي</span> لطلاب البكالوريا</h1>
             <p class="hero-desc">دراسة ميدانية وتحليلية متكاملة حول توازن توظيف تقنيات الذكاء الاصطناعي بين تعميق الفهم الرقمي ومخاطر الاعتماد الكلي — الصف الثاني البكالوريا.</p>
-            
+
             <div class="hero-cta">
                 <button class="btn-primary" onclick="switchTab('analytics')">استكشف الإحصاءات والمحاكي 📊</button>
                 <button class="btn-secondary" onclick="switchTab('team')">تصفح الأبحاث الفردية (5) 📑</button>
@@ -107,7 +107,7 @@
 
     <!-- المحتوى الرئيسي -->
     <main class="main-wrapper">
-        
+
         <!-- 1. قسم المقدمة والخطة -->
         <section id="home" class="section active">
             <div class="bento-grid">
@@ -308,7 +308,7 @@
                     <button type="button" class="reset-mini-btn" onclick="resetSurveyData()" title="إعادة العينة إلى 100 طالب">↺ إعادة ضبط العينة</button>
                 </div>
                 <p class="sim-desc">أضف استجابتك الآن وشاهد تحديث الرسوم البيانية وعداد العينة في نفس اللحظة (محفوظة تلقائياً):</p>
-                
+
                 <form class="survey-form" onsubmit="submitLiveSurvey(event)">
                     <div class="form-group">
                         <label>1. الغرض الأساسي من استخدامك لأدوات الذكاء الاصطناعي:</label>
@@ -354,7 +354,7 @@
                     <h3>محاكي التوازن المعرفي (اختبر نمط استخدامك الشخصي للذكاء الاصطناعي)</h3>
                 </div>
                 <p class="sim-desc">حرّك المؤشرات التالية لتكتشف تصنيفك البحثي وفق معايير دراستنا:</p>
-                
+
                 <div class="sim-controls">
                     <div class="control-group">
                         <label>ساعات الاستخدام الأسبوعي في المذاكرة: <strong id="hoursVal">5 ساعات</strong></label>
@@ -547,7 +547,10 @@
                     <strong>🤖 مساعد البحث الذكي</strong>
                     <span>مدرّب على بيانات بحث البكالوريا 2027</span>
                 </div>
-                <button onclick="toggleChatBot()">✕</button>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <button type="button" id="aiKeyBtn" title="إعداد مفتاح Gemini API" style="background:rgba(255,255,255,0.14);color:#fff;border:none;border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;">🔑</button>
+                    <button onclick="toggleChatBot()">✕</button>
+                </div>
             </div>
             <div class="ai-chat-messages" id="aiChatMessages">
                 <div class="bot-msg">مرحباً بك! أنا المساعد الذكي لمنصة أبحاث <strong>مدرسة الجعفرية الثانوية المشتركة</strong>. اسألني عن نتائج العينة، المقارنة بين العلمي والأدبي، التوصيات، أو فريق العمل!</div>
@@ -559,7 +562,7 @@
             </div>
             <div class="ai-chat-input">
                 <input type="text" id="botInput" placeholder="اكتب سؤالك هنا..." onkeypress="if(event.key==='Enter') sendBotMessage()">
-                <button onclick="sendBotMessage()">إرسال</button>
+                <button id="botSendBtn" onclick="sendBotMessage()">إرسال</button>
             </div>
         </div>
     </div>
@@ -632,191 +635,348 @@
     </footer>
 
     <script src="script.js"></script>
-<script>
-(function () {
-  const SLIDE_DURATION_MS = 5000;
-  const SONG_FILE_SRC = 'song.mp4';
+    <script>
+    (function () {
+      try {
+        const SLIDE_DURATION_MS = 5000;
+        const SONG_FILE_SRC = 'song.mp4';
 
-  let autoTimer = null;
-  let exitWatcherTimer = null;
-  let isPresentationActive = false;
-  let isAudioPlaying = false;
-  let songMediaEl = null;
+        let autoTimer = null;
+        let exitWatcherTimer = null;
+        let isPresentationActive = false;
+        let isAudioPlaying = false;
+        let songMediaEl = null;
 
-  function getSongMediaElement() {
-    if (songMediaEl) return songMediaEl;
-
-    const existingMedia = document.querySelector(
-      'video[src*="song.mp4"], audio[src*="song.mp4"], source[src*="song.mp4"]'
-    );
-    if (existingMedia) {
-      songMediaEl = existingMedia.tagName === 'SOURCE' ? existingMedia.parentElement : existingMedia;
-      return songMediaEl;
-    }
-
-    const media = document.createElement('video');
-    media.id = 'jaafariaSongMp4';
-    media.src = SONG_FILE_SRC;
-    media.loop = true;
-    media.preload = 'auto';
-    media.playsInline = true;
-    media.hidden = true;
-    document.body.appendChild(media);
-    songMediaEl = media;
-    return songMediaEl;
-  }
-
-  function updateAudioBtnText(btn) {
-    if (!btn) return;
-    btn.textContent = isAudioPlaying ? '🔊 إيقاف الفيديو' : '🎵 تشغيل الفيديو';
-  }
-
-  function startSongMp4() {
-    const media = getSongMediaElement();
-    if (!media) return;
-    media.play().then(() => {
-      isAudioPlaying = true;
-      updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-    }).catch(() => {});
-  }
-
-  function stopSongMp4(resetTime = true) {
-    const media = getSongMediaElement();
-    if (media) {
-      media.pause();
-      if (resetTime) {
-        try {
-          media.currentTime = 0;
-        } catch (err) {}
-      }
-    }
-    isAudioPlaying = false;
-    updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-  }
-
-  function findNextButton() {
-    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-    return buttons.find((el) => {
-      const txt = (el.textContent || '').trim();
-      return txt.includes('التالي') && !txt.includes('إنهاء');
-    });
-  }
-
-  function findStopButton() {
-    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-    return buttons.find((el) => {
-      const txt = (el.textContent || '').trim();
-      if (!txt.includes('إنهاء العرض') && !txt.includes('إغلاق العرض') && txt !== '×' && txt !== '✕') {
-        return false;
-      }
-      const rect = el.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
-    });
-  }
-
-  function isPresentationTriggerElement(target) {
-    if (!target || !target.closest) return false;
-    const trigger = target.closest('button, a, [role="button"]');
-    if (!trigger) return false;
-    const txt = (trigger.textContent || '').trim();
-    return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
-  }
-
-  function exitPresentationAndStopMedia() {
-    isPresentationActive = false;
-    clearInterval(autoTimer);
-    autoTimer = null;
-    clearInterval(exitWatcherTimer);
-    exitWatcherTimer = null;
-    stopSongMp4(true);
-  }
-
-  function startExitWatcher() {
-    clearInterval(exitWatcherTimer);
-    exitWatcherTimer = setInterval(() => {
-      if (!isPresentationActive) {
-        clearInterval(exitWatcherTimer);
-        exitWatcherTimer = null;
-        return;
-      }
-      const stopBtn = findStopButton();
-      if (!stopBtn) {
-        exitPresentationAndStopMedia();
-      }
-    }, 300);
-  }
-
-  function attachInsidePresentationControls(shouldStartSongFromClick) {
-    const stopBtn = findStopButton();
-    if (!stopBtn || !stopBtn.parentElement) return;
-
-    isPresentationActive = true;
-    const bar = stopBtn.parentElement;
-
-    if (!document.getElementById('insidePresentationAudioBtn')) {
-      const audioBtn = document.createElement('button');
-      audioBtn.type = 'button';
-      audioBtn.id = 'insidePresentationAudioBtn';
-      updateAudioBtnText(audioBtn);
-      audioBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (isAudioPlaying) {
-          stopSongMp4(false);
-        } else {
-          startSongMp4();
+        function getSongMediaElement() {
+          if (songMediaEl) return songMediaEl;
+          try {
+            const existingMedia = document.querySelector(
+              'video[src*="song.mp4"], audio[src*="song.mp4"], source[src*="song.mp4"]'
+            );
+            if (existingMedia) {
+              songMediaEl = existingMedia.tagName === 'SOURCE' ? existingMedia.parentElement : existingMedia;
+              return songMediaEl;
+            }
+            const media = document.createElement('video');
+            media.id = 'jaafariaSongMp4';
+            media.src = SONG_FILE_SRC;
+            media.loop = true;
+            media.preload = 'auto';
+            media.playsInline = true;
+            media.hidden = true;
+            document.body.appendChild(media);
+            songMediaEl = media;
+            return songMediaEl;
+          } catch (_) {
+            return null;
+          }
         }
-      });
-      bar.insertBefore(audioBtn, stopBtn);
-    }
 
-    if (!stopBtn.dataset.exitBound) {
-      stopBtn.dataset.exitBound = 'true';
-      stopBtn.addEventListener('click', () => {
-        exitPresentationAndStopMedia();
-      });
-    }
+        function updateAudioBtnText(btn) {
+          if (!btn) return;
+          btn.textContent = isAudioPlaying ? '🔊 إيقاف الفيديو' : '🎵 تشغيل الفيديو';
+        }
 
-    if (shouldStartSongFromClick && !isAudioPlaying) {
-      startSongMp4();
-    }
+        function startSongMp4() {
+          const media = getSongMediaElement();
+          if (!media) return;
+          try {
+            media.play().then(() => {
+              isAudioPlaying = true;
+              updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
+            }).catch(() => {});
+          } catch (_) {}
+        }
 
-    startExitWatcher();
+        function stopSongMp4(resetTime = true) {
+          const media = getSongMediaElement();
+          if (media) {
+            try {
+              media.pause();
+              if (resetTime) media.currentTime = 0;
+            } catch (_) {}
+          }
+          isAudioPlaying = false;
+          updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
+        }
 
-    clearInterval(autoTimer);
-    autoTimer = setInterval(() => {
-      const activeStop = findStopButton();
-      const nextBtn = findNextButton();
-      if (!isPresentationActive || !activeStop || !nextBtn) {
-        exitPresentationAndStopMedia();
-        return;
-      }
-      nextBtn.click();
-    }, SLIDE_DURATION_MS);
-  }
+        function findNextButton() {
+          try {
+            const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+            return buttons.find((el) => {
+              const txt = (el.textContent || '').trim();
+              return txt.includes('التالي') && !txt.includes('إنهاء');
+            });
+          } catch (_) {
+            return null;
+          }
+        }
 
-  document.addEventListener('click', (event) => {
-    const clickedPresentationBtn = isPresentationTriggerElement(event.target);
-    setTimeout(() => {
-      attachInsidePresentationControls(clickedPresentationBtn);
-    }, 120);
-  });
+        function findStopButton() {
+          try {
+            const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+            return buttons.find((el) => {
+              const txt = (el.textContent || '').trim();
+              if (!txt.includes('إنهاء العرض') && !txt.includes('إغلاق العرض') && txt !== '×' && txt !== '✕') {
+                return false;
+              }
+              const rect = el.getBoundingClientRect();
+              return rect.width > 0 && rect.height > 0;
+            });
+          } catch (_) {
+            return null;
+          }
+        }
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && isPresentationActive) {
-      setTimeout(exitPresentationAndStopMedia, 100);
-    }
-  });
+        function isPresentationTriggerElement(target) {
+          if (!target || !target.closest) return false;
+          const trigger = target.closest('button, a, [role="button"]');
+          if (!trigger) return false;
+          const txt = (trigger.textContent || '').trim();
+          return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
+        }
 
-  const observer = new MutationObserver(() => {
-    const hasStop = Boolean(findStopButton());
-    if (hasStop && !document.getElementById('insidePresentationAudioBtn')) {
-      attachInsidePresentationControls(false);
-    } else if (!hasStop && isPresentationActive) {
-      exitPresentationAndStopMedia();
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-})();
-</script>
+        function exitPresentationAndStopMedia() {
+          isPresentationActive = false;
+          if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+          if (exitWatcherTimer) { clearInterval(exitWatcherTimer); exitWatcherTimer = null; }
+          stopSongMp4(true);
+        }
+
+        function startExitWatcher() {
+          if (exitWatcherTimer) clearInterval(exitWatcherTimer);
+          exitWatcherTimer = setInterval(() => {
+            if (!isPresentationActive) {
+              clearInterval(exitWatcherTimer);
+              exitWatcherTimer = null;
+              return;
+            }
+            if (!findStopButton()) exitPresentationAndStopMedia();
+          }, 400);
+        }
+
+        function attachInsidePresentationControls(shouldStartSongFromClick) {
+          const stopBtn = findStopButton();
+          if (!stopBtn || !stopBtn.parentElement) return;
+
+          isPresentationActive = true;
+          const bar = stopBtn.parentElement;
+
+          if (!document.getElementById('insidePresentationAudioBtn')) {
+            const audioBtn = document.createElement('button');
+            audioBtn.type = 'button';
+            audioBtn.id = 'insidePresentationAudioBtn';
+            updateAudioBtnText(audioBtn);
+            audioBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (isAudioPlaying) stopSongMp4(false);
+              else startSongMp4();
+            });
+            bar.insertBefore(audioBtn, stopBtn);
+          }
+
+          if (!stopBtn.dataset.exitBound) {
+            stopBtn.dataset.exitBound = 'true';
+            stopBtn.addEventListener('click', exitPresentationAndStopMedia);
+          }
+
+          if (shouldStartSongFromClick && !isAudioPlaying) startSongMp4();
+          startExitWatcher();
+
+          if (autoTimer) clearInterval(autoTimer);
+          autoTimer = setInterval(() => {
+            const activeStop = findStopButton();
+            const nextBtn = findNextButton();
+            if (!isPresentationActive || !activeStop || !nextBtn) {
+              exitPresentationAndStopMedia();
+              return;
+            }
+            nextBtn.click();
+          }, SLIDE_DURATION_MS);
+        }
+
+        document.addEventListener('click', (event) => {
+          const clickedPresentationBtn = isPresentationTriggerElement(event.target);
+          setTimeout(() => attachInsidePresentationControls(clickedPresentationBtn), 150);
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && isPresentationActive) {
+            setTimeout(exitPresentationAndStopMedia, 120);
+          }
+        });
+      } catch (_) {}
+    })();
+    </script>
+    <script>
+    (function () {
+      try {
+        const KEY_STORAGE = 'jaafaria_pro2027_key_gemini';
+        const LEGACY_KEYS = [
+          'jaafaria_pro2027_omni_gemini_key',
+          'jaafaria_pro2027_gemini_api_key_v2',
+          'jaafaria_pro2027_gemini_key',
+          'gemini_api_key'
+        ];
+        const GEMINI_ENDPOINTS = [
+          { label: 'Gemini 2.5 Flash', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent' },
+          { label: 'Gemini 2.5 Pro', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent' },
+          { label: 'Gemini 2.0 Flash', url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent' }
+        ];
+        const SYS_PROMPT =
+          'أنت مساعد ذكي ودود لمنصة أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة (قائد الفريق ومطور المنصة: المبرمج محمد عماد عباس). أجب بوضوح ودقة وتنظيم باللغة العربية على أسئلة البحث والنتائج والمقارنة العلمية والأدبية والأسئلة العامة.';
+
+        let history = [];
+        let busy = false;
+
+        function readGeminiKey() {
+          try {
+            if (typeof window.JAAFARIA_GEMINI_API_KEY === 'string' && window.JAAFARIA_GEMINI_API_KEY.trim()) {
+              return window.JAAFARIA_GEMINI_API_KEY.trim();
+            }
+            for (const st of [window.localStorage, window.sessionStorage]) {
+              if (!st) continue;
+              for (const k of [KEY_STORAGE, ...LEGACY_KEYS]) {
+                const v = (st.getItem(k) || '').trim();
+                if (v) return v;
+              }
+            }
+          } catch (_) {}
+          return '';
+        }
+
+        function saveGeminiKey(val) {
+          const clean = (val || '').trim();
+          if (!clean) return;
+          window.JAAFARIA_GEMINI_API_KEY = clean;
+          try { window.localStorage?.setItem(KEY_STORAGE, clean); } catch (_) {}
+          try { window.sessionStorage?.setItem(KEY_STORAGE, clean); } catch (_) {}
+        }
+
+        function promptKey(forceEdit) {
+          try {
+            const existing = readGeminiKey();
+            if (existing && !forceEdit) return existing;
+            const entered = window.prompt('أدخل مفتاح Gemini API لتشغيل مساعد البحث الذكي:', existing || '');
+            if (entered && entered.trim()) {
+              saveGeminiKey(entered.trim());
+              return entered.trim();
+            }
+          } catch (_) {}
+          return '';
+        }
+
+        function appendChatMsg(text, role) {
+          try {
+            const container = document.getElementById('aiChatMessages');
+            if (!container) return null;
+            const el = document.createElement('div');
+            el.className = role === 'user' ? 'user-msg' : 'bot-msg';
+            el.style.whiteSpace = 'pre-wrap';
+            el.textContent = text;
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+            return el;
+          } catch (_) {
+            return null;
+          }
+        }
+
+        async function callGemini(endpointObj, apiKey, promptText) {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 18000);
+          try {
+            const resp = await fetch(`${endpointObj.url}?key=${encodeURIComponent(apiKey)}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                systemInstruction: { parts: [{ text: SYS_PROMPT }] },
+                contents: [...history.slice(-6), { role: 'user', parts: [{ text: promptText }] }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 1500 }
+              }),
+              signal: ctrl.signal
+            });
+            if (!resp.ok) {
+              const errJson = await resp.json().catch(() => null);
+              throw new Error(errJson?.error?.message || `HTTP ${resp.status}`);
+            }
+            const data = await resp.json();
+            const parts = data?.candidates?.[0]?.content?.parts;
+            const outText = Array.isArray(parts)
+              ? parts.map((p) => (typeof p?.text === 'string' ? p.text : '')).join('\n').trim()
+              : '';
+            if (!outText) throw new Error('رد فارغ');
+            return outText;
+          } finally {
+            clearTimeout(t);
+          }
+        }
+
+        window.sendBotMessage = async function () {
+          if (busy) return;
+          const input = document.getElementById('botInput');
+          const sendBtn = document.getElementById('botSendBtn');
+          if (!input) return;
+          const q = (input.value || '').trim();
+          if (!q) return;
+
+          const apiKey = promptKey(false);
+          if (!apiKey) {
+            appendChatMsg('يرجى إدخال مفتاح Gemini API أولاً من زر 🔑 أعلى نافذة المساعد.', 'bot');
+            return;
+          }
+
+          busy = true;
+          if (sendBtn) sendBtn.disabled = true;
+          input.value = '';
+          appendChatMsg(q, 'user');
+          const statusEl = appendChatMsg('جاري الاتصال بـ Gemini...', 'bot');
+
+          const errors = [];
+          for (const ep of GEMINI_ENDPOINTS) {
+            try {
+              if (statusEl) statusEl.textContent = `جاري الاتصال عبر ${ep.label}...`;
+              const ans = await callGemini(ep, apiKey, q);
+              history.push({ role: 'user', parts: [{ text: q }] }, { role: 'model', parts: [{ text: ans }] });
+              if (statusEl) statusEl.textContent = ans;
+              busy = false;
+              if (sendBtn) sendBtn.disabled = false;
+              return;
+            } catch (e) {
+              errors.push(`${ep.label}: ${e?.message || 'خطأ'}`);
+            }
+          }
+
+          if (statusEl) {
+            statusEl.textContent = `تعذر الحصول على رد الآن.\n${errors.join(' | ')}`;
+          }
+          busy = false;
+          if (sendBtn) sendBtn.disabled = false;
+        };
+
+        window.askBot = function (question) {
+          const win = document.getElementById('aiChatWindow');
+          const input = document.getElementById('botInput');
+          if (win && !win.classList.contains('open') && typeof window.toggleChatBot === 'function') {
+            window.toggleChatBot();
+          }
+          if (input) {
+            input.value = question;
+            window.sendBotMessage();
+          }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+          const keyBtn = document.getElementById('aiKeyBtn');
+          if (keyBtn) {
+            keyBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              promptKey(true);
+            });
+          }
+        });
+      } catch (_) {}
+    })();
+    </script>
 </body>
 </html>
