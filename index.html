@@ -638,6 +638,8 @@
   const SONG_FILE_SRC = 'song.mp4';
 
   let autoTimer = null;
+  let exitWatcherTimer = null;
+  let isPresentationActive = false;
   let isAudioPlaying = false;
   let songMediaEl = null;
 
@@ -666,7 +668,7 @@
 
   function updateAudioBtnText(btn) {
     if (!btn) return;
-    btn.textContent = isAudioPlaying ? '🔊 إيقاف الأغنية' : '🎵 تشغيل الأغنية';
+    btn.textContent = isAudioPlaying ? '🔊 إيقاف الفيديو' : '🎵 تشغيل الفيديو';
   }
 
   function startSongMp4() {
@@ -678,10 +680,15 @@
     }).catch(() => {});
   }
 
-  function stopSongMp4() {
+  function stopSongMp4(resetTime = true) {
     const media = getSongMediaElement();
     if (media) {
       media.pause();
+      if (resetTime) {
+        try {
+          media.currentTime = 0;
+        } catch (err) {}
+      }
     }
     isAudioPlaying = false;
     updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
@@ -697,14 +704,55 @@
 
   function findStopButton() {
     const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-    return buttons.find((el) => (el.textContent || '').trim().includes('إنهاء العرض'));
+    return buttons.find((el) => {
+      const txt = (el.textContent || '').trim();
+      if (!txt.includes('إنهاء العرض') && !txt.includes('إغلاق العرض') && txt !== '×' && txt !== '✕') {
+        return false;
+      }
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
   }
 
-  function attachInsidePresentationControls() {
+  function isPresentationTriggerElement(target) {
+    if (!target || !target.closest) return false;
+    const trigger = target.closest('button, a, [role="button"]');
+    if (!trigger) return false;
+    const txt = (trigger.textContent || '').trim();
+    return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
+  }
+
+  function exitPresentationAndStopMedia() {
+    isPresentationActive = false;
+    clearInterval(autoTimer);
+    autoTimer = null;
+    clearInterval(exitWatcherTimer);
+    exitWatcherTimer = null;
+    stopSongMp4(true);
+  }
+
+  function startExitWatcher() {
+    clearInterval(exitWatcherTimer);
+    exitWatcherTimer = setInterval(() => {
+      if (!isPresentationActive) {
+        clearInterval(exitWatcherTimer);
+        exitWatcherTimer = null;
+        return;
+      }
+      const stopBtn = findStopButton();
+      if (!stopBtn) {
+        exitPresentationAndStopMedia();
+      }
+    }, 300);
+  }
+
+  function attachInsidePresentationControls(shouldStartSongFromClick) {
     const stopBtn = findStopButton();
     if (!stopBtn || !stopBtn.parentElement) return;
 
+    isPresentationActive = true;
     const bar = stopBtn.parentElement;
+
     if (!document.getElementById('insidePresentationAudioBtn')) {
       const audioBtn = document.createElement('button');
       audioBtn.type = 'button';
@@ -713,43 +761,58 @@
       audioBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (isAudioPlaying) {
-          stopSongMp4();
+          stopSongMp4(false);
         } else {
           startSongMp4();
         }
       });
       bar.insertBefore(audioBtn, stopBtn);
+    }
 
+    if (!stopBtn.dataset.exitBound) {
+      stopBtn.dataset.exitBound = 'true';
       stopBtn.addEventListener('click', () => {
-        clearInterval(autoTimer);
-        autoTimer = null;
-        stopSongMp4();
+        exitPresentationAndStopMedia();
       });
+    }
 
-      // تشغيل الأغنية تلقائياً فور فتح العرض بدون كلمة مرور
+    if (shouldStartSongFromClick && !isAudioPlaying) {
       startSongMp4();
     }
+
+    startExitWatcher();
 
     clearInterval(autoTimer);
     autoTimer = setInterval(() => {
       const activeStop = findStopButton();
       const nextBtn = findNextButton();
-      if (!activeStop || !nextBtn) {
-        clearInterval(autoTimer);
-        autoTimer = null;
+      if (!isPresentationActive || !activeStop || !nextBtn) {
+        exitPresentationAndStopMedia();
         return;
       }
       nextBtn.click();
     }, SLIDE_DURATION_MS);
   }
 
-  document.addEventListener('click', () => {
-    setTimeout(attachInsidePresentationControls, 120);
+  document.addEventListener('click', (event) => {
+    const clickedPresentationBtn = isPresentationTriggerElement(event.target);
+    setTimeout(() => {
+      attachInsidePresentationControls(clickedPresentationBtn);
+    }, 120);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isPresentationActive) {
+      setTimeout(exitPresentationAndStopMedia, 100);
+    }
   });
 
   const observer = new MutationObserver(() => {
-    if (findStopButton() && !document.getElementById('insidePresentationAudioBtn')) {
-      attachInsidePresentationControls();
+    const hasStop = Boolean(findStopButton());
+    if (hasStop && !document.getElementById('insidePresentationAudioBtn')) {
+      attachInsidePresentationControls(false);
+    } else if (!hasStop && isPresentationActive) {
+      exitPresentationAndStopMedia();
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
