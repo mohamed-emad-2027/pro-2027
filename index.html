@@ -632,301 +632,328 @@
     </footer>
 
     <script src="script.js"></script>
+<section id="jaafariaPresentationSection" dir="rtl">
+  <header>
+    <h2>العرض التقديمي — مدرسة الجعفرية الثانوية المشتركة</h2>
+    <p>الصف الثاني البكالوريا | انتقال تلقائي كل 5 ثوانٍ</p>
+    <button type="button" id="openPresentationBtn" onclick="startPresentationMode()">
+      بدء العرض التقديمي
+    </button>
+  </header>
+
+  <div id="presentationStage" hidden>
+    <div>
+      <span id="slideCounter"></span>
+      <span id="autoPlayStatus">التشغيل التلقائي: نشط (5 ثوانٍ)</span>
+    </div>
+
+    <progress id="slideProgressBar" value="0" max="100"></progress>
+
+    <article id="presentationSlide" aria-live="polite"></article>
+
+    <p>
+      <button type="button" id="prevSlideBtn">الشريحة السابقة</button>
+      <button type="button" id="togglePauseBtn">إيقاف مؤقت</button>
+      <button type="button" id="nextSlideBtn">الشريحة التالية</button>
+      <button type="button" id="audioLockBtn" onclick="handleAudioLockClick()">🔒 تشغيل الأغنية (مقفول)</button>
+      <button type="button" id="stopPresentationBtn">إنهاء العرض</button>
+    </p>
+  </div>
+
+  <aside id="belowPresentationUpdates" aria-label="تحديثات ومعلومات تحت العرض">
+    <h3>تحديثات ومعلومات سريعة تحت العرض</h3>
+
+    <nav id="slideQuickJumpNav" aria-label="انتقال سريع للشرائح"></nav>
+
+    <div id="slideQuickNote">
+      <strong>ملاحظة الشريحة الحالية:</strong>
+      <span id="currentSlideNoteText">اضغط على «بدء العرض التقديمي» لتشغيل الشرائح، واستخدم زر القفل داخل العرض لتشغيل الأغنية.</span>
+    </div>
+
+    <details>
+      <summary>ملخص فريق العمل والأدوار البحثية</summary>
+      <ol>
+        <li>محمد عماد عباس</li>
+        <li>فوزي حسين</li>
+        <li>مازن أبو صابر</li>
+        <li>محمد أحمد</li>
+        <li>محمد عماد</li>
+      </ol>
+    </details>
+  </aside>
+
+  <dialog id="audioPasswordDialog" dir="rtl">
+    <form method="dialog">
+      <p>
+        <label for="audioPasswordInput">🔒 كلمة المرور لتشغيل الأغنية</label>
+      </p>
+      <p>
+        <input type="password" id="audioPasswordInput" autocomplete="off">
+      </p>
+      <p>
+        <input type="checkbox" id="togglePasswordCheckbox">
+        <label for="togglePasswordCheckbox">إظهار كلمة المرور</label>
+      </p>
+      <p>
+        <button type="submit" id="confirmPasswordBtn">فتح القفل وتشغيل الأغنية</button>
+        <button type="button" id="cancelPasswordBtn">إلغاء</button>
+      </p>
+      <p id="passwordErrorMsg" hidden>كلمة المرور غير صحيحة، حاول مرة أخرى.</p>
+    </form>
+  </dialog>
+
+  <footer>
+    <p>مدرسة الجعفرية الثانوية المشتركة — الصف الثاني البكالوريا</p>
+    <p>جميع الحقوق محفوظة للمبرمج محمد عماد عباس 2027</p>
+  </footer>
+</section>
+
 <script>
 (function () {
-  const SLIDE_INTERVAL_MS = 5000;
-  const PASSCODE = 'RORO12';
-  const AUDIO_SRC = 'song.mp4';
+  const SLIDE_DURATION_MS = 5000;
+  const TICK_MS = 50;
+  const CORRECT_PASSWORD = 'RORO12';
 
-  const audio = new Audio(AUDIO_SRC);
-  audio.preload = 'auto';
-  audio.loop = true;
+  const presentationSlides = [
+    {
+      title: 'منصة أبحاث الصف الثاني البكالوريا',
+      body: 'مشروع بحثي متكامل لطلاب مدرسة الجعفرية الثانوية المشتركة يجمع بين العرض المنظم، البيانات، والمساعد الذكي البحثي.',
+      note: 'مقدمة عامة عن المنصة والهدف البحثي لطلاب الصف الثاني البكالوريا.'
+    },
+    {
+      title: 'فريق العمل وتوزيع الأدوار',
+      body: '1. محمد عماد عباس — 2. فوزي حسين — 3. مازن أبو صابر — 4. محمد أحمد — 5. محمد عماد.',
+      note: 'توضيح ترتيب وأسماء فريق العمل بوضوح أثناء العرض.'
+    },
+    {
+      title: 'منهجية البحث وجمع البيانات',
+      body: 'تصميم الاستبيان الميداني وتجميع آراء عينة الطلاب بدقة لضمان موثوقية النتائج قبل بدء التحليل.',
+      note: 'التركيز على آلية جمع البيانات وضبط الاستبيان.'
+    },
+    {
+      title: 'تحليل البيانات وأهم النتائج',
+      body: 'مراجعة المؤشرات والنتائج الإحصائية المستخلصة من الاستبيان واستخراج أبرز الاستنتاجات الداعمة لموضوع البحث.',
+      note: 'عرض أبرز النتائج الإحصائية والمقارنات المستخرجة.'
+    },
+    {
+      title: 'التوصيات والختام',
+      body: 'تقديم توصيات عملية واضحة بناءً على نتائج البحث مع إتاحة استعراض التفاصيل والأسئلة التفاعلية.',
+      note: 'ختام العرض واستقبال ملاحظات وأسئلة اللجنة.'
+    }
+  ];
 
-  let slideTimer = null;
+  const audioDialog = document.getElementById('audioPasswordDialog');
+  const audioPasswordInput = document.getElementById('audioPasswordInput');
+  const toggleCheckbox = document.getElementById('togglePasswordCheckbox');
+  const confirmBtn = document.getElementById('confirmPasswordBtn');
+  const cancelBtn = document.getElementById('cancelPasswordBtn');
+  const errorMsg = document.getElementById('passwordErrorMsg');
+  const audioLockBtn = document.getElementById('audioLockBtn');
 
-  function findButtonByText(text, root = document) {
-    const buttons = Array.from(root.querySelectorAll('button, [role="button"], a'));
-    return buttons.find((el) => (el.textContent || '').trim().includes(text)) || null;
-  }
+  const presentationStage = document.getElementById('presentationStage');
+  const slideContainer = document.getElementById('presentationSlide');
+  const slideCounter = document.getElementById('slideCounter');
+  const autoPlayStatus = document.getElementById('autoPlayStatus');
+  const slideProgressBar = document.getElementById('slideProgressBar');
+  const prevSlideBtn = document.getElementById('prevSlideBtn');
+  const togglePauseBtn = document.getElementById('togglePauseBtn');
+  const nextSlideBtn = document.getElementById('nextSlideBtn');
+  const stopPresentationBtn = document.getElementById('stopPresentationBtn');
 
-  function isElementVisible(el) {
-    if (!el) return false;
-    const style = window.getComputedStyle(el);
-    return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
-  }
+  const slideQuickJumpNav = document.getElementById('slideQuickJumpNav');
+  const currentSlideNoteText = document.getElementById('currentSlideNoteText');
+
+  let currentSlideIndex = 0;
+  let elapsedMs = 0;
+  let timerInterval = null;
+  let isPaused = false;
+  let isAudioUnlocked = false;
+  let isAudioPlaying = false;
+  let audioCtx = null;
+  let melodyTimer = null;
 
   function updateAudioButtonLabel() {
-    const btn = document.getElementById('roro12-in-presentation-btn');
-    if (btn) {
-      btn.textContent = audio.paused ? '🔒 تشغيل الأغنية' : '🔊 إيقاف الأغنية';
+    if (!audioLockBtn) return;
+    if (!isAudioUnlocked) {
+      audioLockBtn.textContent = '🔒 تشغيل الأغنية (مقفول)';
+    } else if (isAudioPlaying) {
+      audioLockBtn.textContent = '🔊 إيقاف الأغنية';
+    } else {
+      audioLockBtn.textContent = '🔓 تشغيل الأغنية';
     }
   }
 
-  function openPasswordModal() {
-    if (!audio.paused) {
-      audio.pause();
-      updateAudioButtonLabel();
+  function startSong() {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!audioCtx) audioCtx = new AudioCtx();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const notes = [523.25, 659.25, 783.99, 659.25, 587.33, 698.46, 783.99, 523.25];
+    let noteIndex = 0;
+
+    function playNextNote() {
+      if (!isAudioPlaying || !audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(notes[noteIndex % notes.length], audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.45);
+      noteIndex++;
+    }
+
+    isAudioPlaying = true;
+    updateAudioButtonLabel();
+    playNextNote();
+    clearInterval(melodyTimer);
+    melodyTimer = setInterval(playNextNote, 500);
+  }
+
+  function stopSong() {
+    isAudioPlaying = false;
+    clearInterval(melodyTimer);
+    melodyTimer = null;
+    updateAudioButtonLabel();
+  }
+
+  window.handleAudioLockClick = function () {
+    if (!isAudioUnlocked) {
+      audioPasswordInput.value = '';
+      audioPasswordInput.type = 'password';
+      toggleCheckbox.checked = false;
+      errorMsg.hidden = true;
+      if (typeof audioDialog.showModal === 'function') {
+        audioDialog.showModal();
+      } else {
+        audioDialog.setAttribute('open', '');
+      }
       return;
     }
-
-    const existing = document.getElementById('roro12-pass-modal');
-    if (existing) existing.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'roro12-pass-modal';
-    overlay.style.cssText = [
-      'position:fixed',
-      'inset:0',
-      'z-index:99999',
-      'background:rgba(15,23,42,0.72)',
-      'display:flex',
-      'align-items:center',
-      'justify-content:center',
-      'padding:16px',
-      'font-family:inherit'
-    ].join(';');
-
-    const box = document.createElement('div');
-    box.style.cssText = [
-      'width:100%',
-      'max-width:360px',
-      'background:#0f172a',
-      'color:#f8fafc',
-      'border:1px solid #facc15',
-      'border-radius:14px',
-      'padding:20px',
-      'box-shadow:0 12px 30px rgba(0,0,0,0.45)',
-      'text-align:right'
-    ].join(';');
-
-    const title = document.createElement('div');
-    title.textContent = 'أدخل كلمة المرور لتشغيل الأغنية';
-    title.style.cssText = 'font-size:16px;font-weight:700;margin-bottom:12px;color:#facc15;';
-
-    const inputWrap = document.createElement('div');
-    inputWrap.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:10px;';
-
-    const passInput = document.createElement('input');
-    passInput.type = 'password';
-    passInput.placeholder = 'كلمة المرور';
-    passInput.autocomplete = 'off';
-    passInput.style.cssText = [
-      'flex:1',
-      'padding:10px 12px',
-      'border-radius:8px',
-      'border:1px solid #475569',
-      'background:#1e293b',
-      'color:#ffffff',
-      'font-size:15px',
-      'outline:none'
-    ].join(';');
-
-    const toggleEyeBtn = document.createElement('button');
-    toggleEyeBtn.type = 'button';
-    toggleEyeBtn.textContent = 'إظهار';
-    toggleEyeBtn.style.cssText = [
-      'padding:10px 12px',
-      'border-radius:8px',
-      'border:1px solid #475569',
-      'background:#334155',
-      'color:#f8fafc',
-      'font-size:13px',
-      'cursor:pointer'
-    ].join(';');
-
-    toggleEyeBtn.addEventListener('click', () => {
-      const hidden = passInput.type === 'password';
-      passInput.type = hidden ? 'text' : 'password';
-      toggleEyeBtn.textContent = hidden ? 'إخفاء' : 'إظهار';
-      passInput.focus();
-    });
-
-    const errorMsg = document.createElement('div');
-    errorMsg.style.cssText = 'min-height:20px;font-size:13px;color:#f87171;margin-bottom:12px;';
-
-    const actions = document.createElement('div');
-    actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.textContent = 'إلغاء';
-    cancelBtn.style.cssText = [
-      'padding:8px 14px',
-      'border-radius:8px',
-      'border:1px solid #475569',
-      'background:transparent',
-      'color:#cbd5e1',
-      'cursor:pointer'
-    ].join(';');
-
-    const confirmBtn = document.createElement('button');
-    confirmBtn.type = 'button';
-    confirmBtn.textContent = 'تشغيل';
-    confirmBtn.style.cssText = [
-      'padding:8px 16px',
-      'border-radius:8px',
-      'border:none',
-      'background:#facc15',
-      'color:#0f172a',
-      'font-weight:700',
-      'cursor:pointer'
-    ].join(';');
-
-    function closeModal() {
-      overlay.remove();
+    if (isAudioPlaying) {
+      stopSong();
+    } else {
+      startSong();
     }
+  };
 
-    function submitPass() {
-      if (passInput.value.trim() === PASSCODE) {
-        closeModal();
-        audio.play()
-          .then(() => {
-            updateAudioButtonLabel();
-          })
-          .catch(() => {
-            window.alert('تعذر تشغيل song.mp4، تأكد من وجود الملف بجانب index.html.');
-          });
-      } else {
-        errorMsg.textContent = 'كلمة المرور غير صحيحة.';
-        passInput.value = '';
-        passInput.focus();
+  function updateStatusLabel() {
+    autoPlayStatus.textContent = isPaused
+      ? 'التشغيل التلقائي: متوقف مؤقتاً'
+      : 'التشغيل التلقائي: نشط (5 ثوانٍ)';
+    togglePauseBtn.textContent = isPaused ? 'استئناف العرض' : 'إيقاف مؤقت';
+  }
+
+  function renderSlide(index, resetProgress = true) {
+    currentSlideIndex = (index + presentationSlides.length) % presentationSlides.length;
+    const currentSlide = presentationSlides[currentSlideIndex];
+    slideContainer.innerHTML = '<h3>' + currentSlide.title + '</h3><p>' + currentSlide.body + '</p>';
+    slideCounter.textContent = 'الشريحة ' + (currentSlideIndex + 1) + ' من ' + presentationSlides.length;
+    currentSlideNoteText.textContent = currentSlide.note;
+    if (resetProgress) {
+      elapsedMs = 0;
+      slideProgressBar.value = 0;
+    }
+  }
+
+  function startSlideLoop() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      if (isPaused || presentationStage.hidden) return;
+      elapsedMs += TICK_MS;
+      const percent = Math.min(100, (elapsedMs / SLIDE_DURATION_MS) * 100);
+      slideProgressBar.value = percent;
+
+      if (elapsedMs >= SLIDE_DURATION_MS) {
+        renderSlide(currentSlideIndex + 1, true);
       }
-    }
-
-    cancelBtn.addEventListener('click', closeModal);
-    confirmBtn.addEventListener('click', submitPass);
-    passInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') submitPass();
-      if (e.key === 'Escape') closeModal();
-    });
-
-    inputWrap.appendChild(passInput);
-    inputWrap.appendChild(toggleEyeBtn);
-    box.appendChild(title);
-    box.appendChild(inputWrap);
-    box.appendChild(errorMsg);
-    actions.appendChild(cancelBtn);
-    actions.appendChild(confirmBtn);
-    box.appendChild(actions);
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-
-    setTimeout(() => passInput.focus(), 30);
+    }, TICK_MS);
   }
 
-  function injectAudioButtonInPresentationBar() {
-    const endBtn = findButtonByText('إنهاء العرض');
-    if (!endBtn || !endBtn.parentElement) return;
+  window.startPresentationMode = function () {
+    isPaused = false;
+    updateStatusLabel();
+    updateAudioButtonLabel();
+    presentationStage.hidden = false;
+    renderSlide(0, true);
+    startSlideLoop();
+  };
 
-    const bar = endBtn.parentElement;
-    if (bar.querySelector('#roro12-in-presentation-btn')) return;
-
-    const audioBtn = document.createElement('button');
-    audioBtn.id = 'roro12-in-presentation-btn';
-    audioBtn.type = 'button';
-    audioBtn.textContent = audio.paused ? '🔒 تشغيل الأغنية' : '🔊 إيقاف الأغنية';
-    audioBtn.style.cssText = [
-      'padding:8px 14px',
-      'border:1px solid #facc15',
-      'border-radius:10px',
-      'background:#1e293b',
-      'color:#facc15',
-      'font-family:inherit',
-      'font-size:14px',
-      'font-weight:700',
-      'cursor:pointer',
-      'margin-inline:6px',
-      'display:inline-flex',
-      'align-items:center',
-      'gap:6px'
-    ].join(';');
-
-    audioBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openPasswordModal();
-    });
-
-    bar.insertBefore(audioBtn, endBtn);
+  function stopPresentationMode() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    elapsedMs = 0;
+    slideProgressBar.value = 0;
+    stopSong();
+    presentationStage.hidden = true;
+    currentSlideNoteText.textContent = 'تم إنهاء العرض. يمكنك إعادة تشغيله في أي وقت.';
   }
 
-  function goToNextSlide() {
-    const nextBtn = findButtonByText('التالي');
-    if (nextBtn && isElementVisible(nextBtn)) {
-      if (!nextBtn.disabled) {
-        nextBtn.click();
-      } else {
-        const prevBtn = findButtonByText('السابق');
-        if (prevBtn) {
-          for (let i = 0; i < 6; i++) {
-            if (!prevBtn.disabled) prevBtn.click();
-          }
-        }
-      }
+  function closeAudioDialog() {
+    if (typeof audioDialog.close === 'function') {
+      audioDialog.close();
+    } else {
+      audioDialog.removeAttribute('open');
     }
   }
 
-  function startAutoPlay() {
-    stopAutoPlay();
-    injectAudioButtonInPresentationBar();
-    slideTimer = setInterval(() => {
-      const endBtn = findButtonByText('إنهاء العرض');
-      if (!endBtn || !isElementVisible(endBtn)) {
-        stopAutoPlay();
-        audio.pause();
-        audio.currentTime = 0;
-        return;
-      }
-      goToNextSlide();
-    }, SLIDE_INTERVAL_MS);
-  }
+  toggleCheckbox.addEventListener('change', () => {
+    audioPasswordInput.type = toggleCheckbox.checked ? 'text' : 'password';
+  });
 
-  function stopAutoPlay() {
-    if (slideTimer) {
-      clearInterval(slideTimer);
-      slideTimer = null;
-    }
-  }
-
-  document.addEventListener('click', (e) => {
-    const target = e.target.closest('button, [role="button"], a');
-    if (!target) return;
-    const label = (target.textContent || '').trim();
-
-    if (label.includes('إنهاء العرض')) {
-      stopAutoPlay();
-      audio.pause();
-      audio.currentTime = 0;
-      const modal = document.getElementById('roro12-pass-modal');
-      if (modal) modal.remove();
-      return;
-    }
-
-    if (label === 'عرض' || (label.includes('عرض') && !label.includes('إنهاء'))) {
-      setTimeout(() => {
-        injectAudioButtonInPresentationBar();
-        startAutoPlay();
-      }, 200);
-    }
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    const endBtn = findButtonByText('إنهاء العرض');
-    if (endBtn && isElementVisible(endBtn)) {
-      injectAudioButtonInPresentationBar();
-      if (!slideTimer) startAutoPlay();
-    } else if (slideTimer) {
-      stopAutoPlay();
-      audio.pause();
-      audio.currentTime = 0;
+  confirmBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    if (audioPasswordInput.value === CORRECT_PASSWORD) {
+      isAudioUnlocked = true;
+      closeAudioDialog();
+      startSong();
+    } else {
+      errorMsg.hidden = false;
     }
   });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
-    const endBtn = findButtonByText('إنهاء العرض');
-    if (endBtn && isElementVisible(endBtn)) {
-      startAutoPlay();
-    }
+  cancelBtn.addEventListener('click', () => {
+    closeAudioDialog();
+  });
+
+  prevSlideBtn.addEventListener('click', () => {
+    renderSlide(currentSlideIndex - 1, true);
+  });
+
+  nextSlideBtn.addEventListener('click', () => {
+    renderSlide(currentSlideIndex + 1, true);
+  });
+
+  togglePauseBtn.addEventListener('click', () => {
+    isPaused = !isPaused;
+    updateStatusLabel();
+  });
+
+  stopPresentationBtn.addEventListener('click', stopPresentationMode);
+
+  document.addEventListener('keydown', (event) => {
+    if (presentationStage.hidden) return;
+    if (event.key === 'ArrowLeft') renderSlide(currentSlideIndex + 1, true);
+    if (event.key === 'ArrowRight') renderSlide(currentSlideIndex - 1, true);
+    if (event.key === 'Escape') stopPresentationMode();
+  });
+
+  slideQuickJumpNav.innerHTML = '';
+  presentationSlides.forEach((slide, idx) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = (idx + 1) + '. ' + slide.title;
+    btn.addEventListener('click', () => {
+      if (presentationStage.hidden) {
+        window.startPresentationMode();
+      }
+      renderSlide(idx, true);
+    });
+    slideQuickJumpNav.appendChild(btn);
   });
 })();
 </script>
