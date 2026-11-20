@@ -818,5 +818,330 @@
   observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
+ <script>
+(function () {
+  if (window.__JAAFARIA_PRO2027_LIGHT_AI__) return;
+  window.__JAAFARIA_PRO2027_LIGHT_AI__ = true;
+
+  const GEM_KEY_NAME = 'jaafaria_pro2027_key_gemini';
+  const LEGACY_KEYS = [
+    'jaafaria_pro2027_omni_gemini_key',
+    'jaafaria_pro2027_gemini_api_key_v2',
+    'jaafaria_pro2027_gemini_key',
+    'gemini_api_key',
+    'GEMINI_API_KEY',
+    'apiKey',
+    'api_key',
+    'google_api_key'
+  ];
+
+  const MODELS = [
+    {
+      name: 'Gemini 2.5 Flash',
+      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent'
+    },
+    {
+      name: 'Gemini 2.5 Pro',
+      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent'
+    },
+    {
+      name: 'Gemini 2.0 Flash',
+      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+    }
+  ];
+
+  const SYSTEM_MSG =
+    'أنت مساعد ذكي ودود ودقيق لمنصة أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة. أجب على الأسئلة البحثية والمنهجية والعامة والخارجية بوضوح ودقة وتنظيم باللغة العربية.';
+
+  let turns = [];
+  let sending = false;
+
+  function getStoredKey() {
+    try {
+      if (typeof window.JAAFARIA_GEMINI_API_KEY === 'string' && window.JAAFARIA_GEMINI_API_KEY.trim()) {
+        return window.JAAFARIA_GEMINI_API_KEY.trim();
+      }
+      for (const st of [window.localStorage, window.sessionStorage]) {
+        if (!st) continue;
+        for (const k of [GEM_KEY_NAME, ...LEGACY_KEYS]) {
+          const val = (st.getItem(k) || '').trim();
+          if (val) return val;
+        }
+        for (let i = 0; i < st.length; i++) {
+          const name = st.key(i) || '';
+          const val = (st.getItem(name) || '').trim();
+          if (/api|key|gemini/i.test(name) && val.startsWith('AIza')) return val;
+        }
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  function saveStoredKey(val) {
+    try {
+      const clean = (val || '').trim();
+      if (!clean) return;
+      window.JAAFARIA_GEMINI_API_KEY = clean;
+      try { window.localStorage?.setItem(GEM_KEY_NAME, clean); } catch (_) {}
+      try { window.sessionStorage?.setItem(GEM_KEY_NAME, clean); } catch (_) {}
+    } catch (_) {}
+  }
+
+  function askKey(forceEdit) {
+    try {
+      const cur = getStoredKey();
+      if (cur && !forceEdit) return cur;
+      const input = window.prompt('أدخل مفتاح Gemini API:', cur || '');
+      if (input && input.trim()) {
+        saveStoredKey(input.trim());
+        return input.trim();
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  async function queryModel(modelItem, apiKey, promptText) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 18000);
+    try {
+      const res = await fetch(`${modelItem.endpoint}?key=${encodeURIComponent(apiKey)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_MSG }] },
+          contents: [
+            ...turns.slice(-6),
+            { role: 'user', parts: [{ text: promptText }] }
+          ],
+          generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+        }),
+        signal: controller.signal
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error?.message || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      const parts = data?.candidates?.[0]?.content?.parts;
+      const text = Array.isArray(parts)
+        ? parts.map((p) => (typeof p?.text === 'string' ? p.text : '')).join('\n').trim()
+        : '';
+      if (!text) throw new Error('لم يرد النموذج بنص');
+      return { text, modelName: modelItem.name };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  async function runSmartQuery(promptText, onTry) {
+    const apiKey = askKey(false);
+    if (!apiKey) {
+      throw new Error('أدخل مفتاح Gemini API أولاً لتشغيل المساعد.');
+    }
+    const errs = [];
+    for (const m of MODELS) {
+      try {
+        if (onTry) onTry(m.name);
+        const out = await queryModel(m, apiKey, promptText);
+        turns.push(
+          { role: 'user', parts: [{ text: promptText }] },
+          { role: 'model', parts: [{ text: out.text }] }
+        );
+        return out;
+      } catch (e) {
+        errs.push(`${m.name}: ${e?.message || 'خطأ'}`);
+      }
+    }
+    throw new Error(`تعذر الحصول على رد الآن.\n${errs.join(' | ')}`);
+  }
+
+  function findBox() {
+    try {
+      const all = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, div, span, p'));
+      const title = all.find((el) => (el.textContent || '').includes('مساعد البحث الذكي'));
+      if (!title) return null;
+      let cur = title;
+      for (let i = 0; i < 10 && cur; i++) {
+        const hasInput = Boolean(cur.querySelector('textarea, input[type="text"], input:not([type])'));
+        const hasSend = Array.from(cur.querySelectorAll('button')).some((b) =>
+          (b.textContent || '').includes('إرسال')
+        );
+        if (hasInput && hasSend) return cur;
+        cur = cur.parentElement;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function findLog(box, inputEl) {
+    try {
+      const candidates = Array.from(box.querySelectorAll('div, section, article, ul, ol')).filter((el) => {
+        if (el === box || el.contains(inputEl)) return false;
+        const r = el.getBoundingClientRect();
+        return r.height >= 60 && r.width >= 100;
+      });
+      candidates.sort((a, b) => b.getBoundingClientRect().height - a.getBoundingClientRect().height);
+      return candidates[0] || box;
+    } catch (_) {
+      return box;
+    }
+  }
+
+  function appendBubble(logEl, text, isUser) {
+    const row = document.createElement('div');
+    row.dir = 'rtl';
+    row.style.cssText = 'margin:8px 0;display:flex;flex-direction:column;gap:3px;';
+
+    const tag = document.createElement('div');
+    tag.style.cssText = 'font-size:11px;opacity:0.78;';
+    tag.textContent = isUser ? 'أنت' : 'مساعد البحث الذكي';
+
+    const box = document.createElement('div');
+    box.style.cssText = isUser
+      ? 'align-self:flex-start;max-width:90%;background:#2563eb;color:#fff;padding:9px 12px;border-radius:10px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;'
+      : 'align-self:stretch;background:#111827;color:#f9fafb;border:1px solid rgba(255,255,255,0.14);padding:11px 13px;border-radius:10px;font-size:13.5px;line-height:1.8;white-space:pre-wrap;';
+    box.textContent = text;
+
+    row.appendChild(tag);
+    row.appendChild(box);
+    logEl.appendChild(row);
+    logEl.scrollTop = logEl.scrollHeight;
+
+    return {
+      status(mName) {
+        box.textContent = `جاري الاتصال عبر ${mName}...`;
+        logEl.scrollTop = logEl.scrollHeight;
+      },
+      answer(ans, mName) {
+        if (mName) tag.textContent = `مساعد البحث الذكي • ${mName}`;
+        box.textContent = ans;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+    };
+  }
+
+  function setupAssistant() {
+    try {
+      const box = findBox();
+      if (!box) return;
+
+      const inputEl = Array.from(box.querySelectorAll('textarea, input')).find((el) => {
+        const t = (el.getAttribute('type') || 'text').toLowerCase();
+        return t !== 'password' && t !== 'checkbox' && t !== 'radio' && t !== 'hidden';
+      });
+      const sendBtn = Array.from(box.querySelectorAll('button')).find((b) =>
+        (b.textContent || '').trim().includes('إرسال')
+      );
+      if (!inputEl || !sendBtn) return;
+
+      const logEl = findLog(box, inputEl);
+
+      if (!box.querySelector('[data-jplight-bar="1"]')) {
+        const bar = document.createElement('div');
+        bar.dataset.jplightBar = '1';
+        bar.dir = 'rtl';
+        bar.style.cssText = 'display:flex;gap:6px;margin:6px 0;flex-wrap:wrap;';
+
+        const keyBtn = document.createElement('button');
+        keyBtn.type = 'button';
+        keyBtn.textContent = 'المفاتيح';
+        keyBtn.style.cssText =
+          'background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:4px 9px;font-size:11.5px;cursor:pointer;';
+        keyBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          askKey(true);
+        });
+
+        const clrBtn = document.createElement('button');
+        clrBtn.type = 'button';
+        clrBtn.textContent = 'مسح المحادثة';
+        clrBtn.style.cssText =
+          'background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:4px 9px;font-size:11.5px;cursor:pointer;';
+        clrBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          turns = [];
+          logEl.innerHTML = '';
+        });
+
+        bar.appendChild(keyBtn);
+        bar.appendChild(clrBtn);
+        if (logEl.parentElement) {
+          logEl.parentElement.insertBefore(bar, logEl);
+        } else {
+          box.prepend(bar);
+        }
+      }
+
+      if (sendBtn.dataset.jplightBound === '1' && inputEl.dataset.jplightBound === '1') return;
+      sendBtn.dataset.jplightBound = '1';
+      inputEl.dataset.jplightBound = '1';
+
+      async function handleSend(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+        if (sending) return;
+        const q = (inputEl.value || '').trim();
+        if (!q) return;
+
+        sending = true;
+        sendBtn.disabled = true;
+        inputEl.value = '';
+
+        appendBubble(logEl, q, true);
+        const reply = appendBubble(logEl, '', false);
+        reply.status(MODELS[0].name);
+
+        try {
+          const res = await runSmartQuery(q, (mName) => reply.status(mName));
+          reply.answer(res.text, res.modelName);
+        } catch (err) {
+          reply.answer((err && err.message) || 'تعذر الرد الآن.', 'تنبيه');
+        } finally {
+          sending = false;
+          sendBtn.disabled = false;
+          inputEl.focus();
+        }
+      }
+
+      sendBtn.addEventListener('click', handleSend, true);
+      inputEl.addEventListener(
+        'keydown',
+        (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) handleSend(e);
+        },
+        true
+      );
+    } catch (_) {}
+  }
+
+  document.addEventListener(
+    'click',
+    (e) => {
+      try {
+        const b = e.target && e.target.closest ? e.target.closest('button, a, [role="button"]') : null;
+        if (b && /reset|إعادة/i.test((b.textContent || '').trim())) {
+          turns = [];
+          const box = findBox();
+          if (box) {
+            box.querySelectorAll('[data-jplight-bound]').forEach((el) => delete el.dataset.jplightBound);
+          }
+          setTimeout(setupAssistant, 120);
+        }
+      } catch (_) {}
+    },
+    true
+  );
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(setupAssistant, 150), { once: true });
+  } else {
+    setTimeout(setupAssistant, 150);
+  }
+})();
+</script>
 </body>
 </html>
