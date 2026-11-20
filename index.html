@@ -635,11 +635,9 @@
 <script>
 (function () {
   const SLIDE_DURATION_MS = 5000;
-  const AUDIO_PASSWORD = 'RORO12';
   const SONG_FILE_SRC = 'song.mp4';
 
   let autoTimer = null;
-  let isAudioUnlocked = false;
   let isAudioPlaying = false;
   let songMediaEl = null;
 
@@ -668,13 +666,7 @@
 
   function updateAudioBtnText(btn) {
     if (!btn) return;
-    if (!isAudioUnlocked) {
-      btn.textContent = '🔒 الأغنية';
-    } else if (isAudioPlaying) {
-      btn.textContent = '🔊 إيقاف الأغنية';
-    } else {
-      btn.textContent = '🔓 تشغيل الأغنية';
-    }
+    btn.textContent = isAudioPlaying ? '🔊 إيقاف الأغنية' : '🎵 تشغيل الأغنية';
   }
 
   function startSongMp4() {
@@ -693,73 +685,6 @@
     }
     isAudioPlaying = false;
     updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-  }
-
-  function ensurePasswordDialog() {
-    let dialog = document.getElementById('insideAudioPasswordDialog');
-    if (dialog) return dialog;
-
-    dialog = document.createElement('dialog');
-    dialog.id = 'insideAudioPasswordDialog';
-    dialog.dir = 'rtl';
-    dialog.innerHTML = `
-      <form method="dialog">
-        <p><label for="insideAudioPassInput">🔒 كلمة المرور لتشغيل الأغنية</label></p>
-        <p><input type="password" id="insideAudioPassInput" autocomplete="off"></p>
-        <p>
-          <input type="checkbox" id="insideShowPassCheckbox">
-          <label for="insideShowPassCheckbox">إظهار كلمة المرور</label>
-        </p>
-        <p>
-          <button type="submit" id="insideConfirmPassBtn">تأكيد</button>
-          <button type="button" id="insideCancelPassBtn">إلغاء</button>
-        </p>
-        <p id="insidePassError" hidden>كلمة المرور غير صحيحة.</p>
-      </form>
-    `;
-    document.body.appendChild(dialog);
-
-    const passInput = document.getElementById('insideAudioPassInput');
-    const showCheckbox = document.getElementById('insideShowPassCheckbox');
-    const confirmBtn = document.getElementById('insideConfirmPassBtn');
-    const cancelBtn = document.getElementById('insideCancelPassBtn');
-    const errEl = document.getElementById('insidePassError');
-
-    showCheckbox.addEventListener('change', () => {
-      passInput.type = showCheckbox.checked ? 'text' : 'password';
-    });
-
-    confirmBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (passInput.value === AUDIO_PASSWORD) {
-        isAudioUnlocked = true;
-        if (typeof dialog.close === 'function') dialog.close();
-        else dialog.removeAttribute('open');
-        startSongMp4();
-      } else {
-        errEl.hidden = false;
-      }
-    });
-
-    cancelBtn.addEventListener('click', () => {
-      if (typeof dialog.close === 'function') dialog.close();
-      else dialog.removeAttribute('open');
-    });
-
-    return dialog;
-  }
-
-  function openAudioPasswordModal() {
-    const dialog = ensurePasswordDialog();
-    const passInput = document.getElementById('insideAudioPassInput');
-    const showCheckbox = document.getElementById('insideShowPassCheckbox');
-    const errEl = document.getElementById('insidePassError');
-    passInput.value = '';
-    passInput.type = 'password';
-    showCheckbox.checked = false;
-    errEl.hidden = true;
-    if (typeof dialog.showModal === 'function') dialog.showModal();
-    else dialog.setAttribute('open', '');
   }
 
   function findNextButton() {
@@ -787,9 +712,7 @@
       updateAudioBtnText(audioBtn);
       audioBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (!isAudioUnlocked) {
-          openAudioPasswordModal();
-        } else if (isAudioPlaying) {
+        if (isAudioPlaying) {
           stopSongMp4();
         } else {
           startSongMp4();
@@ -802,6 +725,9 @@
         autoTimer = null;
         stopSongMp4();
       });
+
+      // تشغيل الأغنية تلقائياً فور فتح العرض بدون كلمة مرور
+      startSongMp4();
     }
 
     clearInterval(autoTimer);
@@ -813,8 +739,6 @@
         autoTimer = null;
         return;
       }
-      const dlg = document.getElementById('insideAudioPasswordDialog');
-      if (dlg && dlg.hasAttribute('open')) return;
       nextBtn.click();
     }, SLIDE_DURATION_MS);
   }
