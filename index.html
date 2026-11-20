@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="ar" dir="rtl" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة أبحاث البكالوريا 2027 | مدرسة الجعفرية الثانوية المشتركه</title>
+    <title> منصة أبحاث البكالوريا 2027 | مدرسة الجعفرية الثانوية المشتركه</title>
     <meta name="description" content="منصة بحثية تفاعلية لطلاب الصف الثاني البكالوريا بمدرسة جعفرية الثانوية المشتركة حول تأثير الذكاء الاصطناعي التوليدي على التحصيل الدراسي.">
     <meta property="og:site_name" content="منصة أبحاث البكالوريا 2027">
     <meta property="og:title" content="منصة أبحاث البكالوريا 2027 | مدرسة الجعفرية الثانوية المشتركه">
@@ -73,7 +73,7 @@
             </div>
             <h1 class="hero-title">تأثير أدوات الذكاء الاصطناعي التوليدي على <span class="gradient-text">التحصيل الدراسي</span> لطلاب البكالوريا</h1>
             <p class="hero-desc">دراسة ميدانية وتحليلية متكاملة حول توازن توظيف تقنيات الذكاء الاصطناعي بين تعميق الفهم الرقمي ومخاطر الاعتماد الكلي — الصف الثاني البكالوريا.</p>
-
+            
             <div class="hero-cta">
                 <button class="btn-primary" onclick="switchTab('analytics')">استكشف الإحصاءات والمحاكي 📊</button>
                 <button class="btn-secondary" onclick="switchTab('team')">تصفح الأبحاث الفردية (5) 📑</button>
@@ -107,7 +107,7 @@
 
     <!-- المحتوى الرئيسي -->
     <main class="main-wrapper">
-
+        
         <!-- 1. قسم المقدمة والخطة -->
         <section id="home" class="section active">
             <div class="bento-grid">
@@ -308,7 +308,7 @@
                     <button type="button" class="reset-mini-btn" onclick="resetSurveyData()" title="إعادة العينة إلى 100 طالب">↺ إعادة ضبط العينة</button>
                 </div>
                 <p class="sim-desc">أضف استجابتك الآن وشاهد تحديث الرسوم البيانية وعداد العينة في نفس اللحظة (محفوظة تلقائياً):</p>
-
+                
                 <form class="survey-form" onsubmit="submitLiveSurvey(event)">
                     <div class="form-group">
                         <label>1. الغرض الأساسي من استخدامك لأدوات الذكاء الاصطناعي:</label>
@@ -354,7 +354,7 @@
                     <h3>محاكي التوازن المعرفي (اختبر نمط استخدامك الشخصي للذكاء الاصطناعي)</h3>
                 </div>
                 <p class="sim-desc">حرّك المؤشرات التالية لتكتشف تصنيفك البحثي وفق معايير دراستنا:</p>
-
+                
                 <div class="sim-controls">
                     <div class="control-group">
                         <label>ساعات الاستخدام الأسبوعي في المذاكرة: <strong id="hoursVal">5 ساعات</strong></label>
@@ -538,19 +538,19 @@
         </section>
     </main>
 
-    <!-- مساعد البحث الذكي العائم (كلاود إيه آي • 200) -->
+    <!-- مساعد البحث الذكي العائم (Smart Assistant) -->
     <div class="ai-assistant-widget">
-        <button class="ai-fab" onclick="toggleChatBot()" title="اسأل مساعد كلاود إيه آي">🤖</button>
+        <button class="ai-fab" onclick="toggleChatBot()" title="اسأل مساعد البحث الذكي">🤖</button>
         <div class="ai-chat-window" id="aiChatWindow">
             <div class="ai-chat-header">
                 <div>
-                    <strong>🤖 كلاود إيه آي</strong>
-                    <span id="claudeStatusBadge">200 • حل ذاتي للأخطاء ورد فوري</span>
+                    <strong>🤖 مساعد البحث الذكي</strong>
+                    <span>مدرّب على بيانات بحث البكالوريا 2027</span>
                 </div>
                 <button onclick="toggleChatBot()">✕</button>
             </div>
             <div class="ai-chat-messages" id="aiChatMessages">
-                <div class="bot-msg">أهلاً بك في <strong>كلاود إيه آي</strong> لمنصة أبحاث <strong>مدرسة الجعفرية الثانوية المشتركة</strong> (200). أجاوب لوحدي وأعالج أي خطأ تلقائياً في أسئلة العينة (100 طالب، 78% استخدام أسبوعي)، المقارنة العلمية والأدبية، التوصيات، فريق العمل، أو أي استفسار عام.</div>
+                <div class="bot-msg">مرحباً بك! أنا المساعد الذكي لمنصة أبحاث <strong>مدرسة الجعفرية الثانوية المشتركة</strong>. اسألني عن نتائج العينة، المقارنة بين العلمي والأدبي، التوصيات، أو فريق العمل!</div>
             </div>
             <div class="ai-quick-chips">
                 <button onclick="askBot('ما هي أهم نتائج العينة؟')">أهم النتائج 📊</button>
@@ -559,7 +559,7 @@
             </div>
             <div class="ai-chat-input">
                 <input type="text" id="botInput" placeholder="اكتب سؤالك هنا..." onkeypress="if(event.key==='Enter') sendBotMessage()">
-                <button id="botSendBtn" onclick="sendBotMessage()">إرسال</button>
+                <button onclick="sendBotMessage()">إرسال</button>
             </div>
         </div>
     </div>
@@ -632,351 +632,191 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-    (function () {
-      try {
-        const SLIDE_DURATION_MS = 5000;
-        const SONG_FILE_SRC = 'song.mp4';
+<script>
+(function () {
+  const SLIDE_DURATION_MS = 5000;
+  const SONG_FILE_SRC = 'song.mp4';
 
-        let autoTimer = null;
-        let exitWatcherTimer = null;
-        let isPresentationActive = false;
-        let isAudioPlaying = false;
-        let songMediaEl = null;
-        let cancelBannerTimer = null;
+  let autoTimer = null;
+  let exitWatcherTimer = null;
+  let isPresentationActive = false;
+  let isAudioPlaying = false;
+  let songMediaEl = null;
 
-        function getSongMediaElement() {
-          if (songMediaEl) return songMediaEl;
-          try {
-            const existingMedia = document.querySelector(
-              'video[src*="song.mp4"], audio[src*="song.mp4"], source[src*="song.mp4"]'
-            );
-            if (existingMedia) {
-              songMediaEl = existingMedia.tagName === 'SOURCE' ? existingMedia.parentElement : existingMedia;
-              return songMediaEl;
-            }
-            const media = document.createElement('video');
-            media.id = 'jaafariaSongMp4';
-            media.src = SONG_FILE_SRC;
-            media.loop = true;
-            media.preload = 'auto';
-            media.playsInline = true;
-            media.hidden = true;
-            document.body.appendChild(media);
-            songMediaEl = media;
-            return songMediaEl;
-          } catch (_) {
-            return null;
-          }
+  function getSongMediaElement() {
+    if (songMediaEl) return songMediaEl;
+
+    const existingMedia = document.querySelector(
+      'video[src*="song.mp4"], audio[src*="song.mp4"], source[src*="song.mp4"]'
+    );
+    if (existingMedia) {
+      songMediaEl = existingMedia.tagName === 'SOURCE' ? existingMedia.parentElement : existingMedia;
+      return songMediaEl;
+    }
+
+    const media = document.createElement('video');
+    media.id = 'jaafariaSongMp4';
+    media.src = SONG_FILE_SRC;
+    media.loop = true;
+    media.preload = 'auto';
+    media.playsInline = true;
+    media.hidden = true;
+    document.body.appendChild(media);
+    songMediaEl = media;
+    return songMediaEl;
+  }
+
+  function updateAudioBtnText(btn) {
+    if (!btn) return;
+    btn.textContent = isAudioPlaying ? '🔊 إيقاف الفيديو' : '🎵 تشغيل الفيديو';
+  }
+
+  function startSongMp4() {
+    const media = getSongMediaElement();
+    if (!media) return;
+    media.play().then(() => {
+      isAudioPlaying = true;
+      updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
+    }).catch(() => {});
+  }
+
+  function stopSongMp4(resetTime = true) {
+    const media = getSongMediaElement();
+    if (media) {
+      media.pause();
+      if (resetTime) {
+        try {
+          media.currentTime = 0;
+        } catch (err) {}
+      }
+    }
+    isAudioPlaying = false;
+    updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
+  }
+
+  function findNextButton() {
+    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+    return buttons.find((el) => {
+      const txt = (el.textContent || '').trim();
+      return txt.includes('التالي') && !txt.includes('إنهاء');
+    });
+  }
+
+  function findStopButton() {
+    const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+    return buttons.find((el) => {
+      const txt = (el.textContent || '').trim();
+      if (!txt.includes('إنهاء العرض') && !txt.includes('إغلاق العرض') && txt !== '×' && txt !== '✕') {
+        return false;
+      }
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
+  }
+
+  function isPresentationTriggerElement(target) {
+    if (!target || !target.closest) return false;
+    const trigger = target.closest('button, a, [role="button"]');
+    if (!trigger) return false;
+    const txt = (trigger.textContent || '').trim();
+    return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
+  }
+
+  function exitPresentationAndStopMedia() {
+    isPresentationActive = false;
+    clearInterval(autoTimer);
+    autoTimer = null;
+    clearInterval(exitWatcherTimer);
+    exitWatcherTimer = null;
+    stopSongMp4(true);
+  }
+
+  function startExitWatcher() {
+    clearInterval(exitWatcherTimer);
+    exitWatcherTimer = setInterval(() => {
+      if (!isPresentationActive) {
+        clearInterval(exitWatcherTimer);
+        exitWatcherTimer = null;
+        return;
+      }
+      const stopBtn = findStopButton();
+      if (!stopBtn) {
+        exitPresentationAndStopMedia();
+      }
+    }, 300);
+  }
+
+  function attachInsidePresentationControls(shouldStartSongFromClick) {
+    const stopBtn = findStopButton();
+    if (!stopBtn || !stopBtn.parentElement) return;
+
+    isPresentationActive = true;
+    const bar = stopBtn.parentElement;
+
+    if (!document.getElementById('insidePresentationAudioBtn')) {
+      const audioBtn = document.createElement('button');
+      audioBtn.type = 'button';
+      audioBtn.id = 'insidePresentationAudioBtn';
+      updateAudioBtnText(audioBtn);
+      audioBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isAudioPlaying) {
+          stopSongMp4(false);
+        } else {
+          startSongMp4();
         }
+      });
+      bar.insertBefore(audioBtn, stopBtn);
+    }
 
-        function ensureCancelBanner() {
-          let banner = document.getElementById('songCancelBanner');
-          if (!banner) {
-            banner = document.createElement('div');
-            banner.id = 'songCancelBanner';
-            banner.textContent = 'إلغاء الفيديو';
-            banner.style.cssText = [
-              'position:fixed',
-              'bottom:22px',
-              'left:50%',
-              'transform:translateX(-50%)',
-              'background:#0f2942',
-              'color:#ffd700',
-              'border:1px solid rgba(212,175,55,0.65)',
-              'padding:10px 22px',
-              'border-radius:999px',
-              'font-family:"Cairo",sans-serif',
-              'font-weight:800',
-              'font-size:15px',
-              'z-index:2147483647',
-              'box-shadow:0 10px 28px rgba(0,0,0,0.35)',
-              'display:none',
-              'pointer-events:none'
-            ].join(';');
-            document.body.appendChild(banner);
-          }
-          return banner;
-        }
+    if (!stopBtn.dataset.exitBound) {
+      stopBtn.dataset.exitBound = 'true';
+      stopBtn.addEventListener('click', () => {
+        exitPresentationAndStopMedia();
+      });
+    }
 
-        function showCancelVideoNotice() {
-          try {
-            const banner = ensureCancelBanner();
-            banner.textContent = 'إلغاء الفيديو';
-            banner.style.display = 'block';
-            if (cancelBannerTimer) clearTimeout(cancelBannerTimer);
-            cancelBannerTimer = setTimeout(() => {
-              banner.style.display = 'none';
-            }, 2600);
-          } catch (_) {}
-        }
+    if (shouldStartSongFromClick && !isAudioPlaying) {
+      startSongMp4();
+    }
 
-        function updateAudioBtnText(btn) {
-          if (!btn) return;
-          btn.textContent = isAudioPlaying ? '🔊 إلغاء الفيديو' : '🎵 تشغيل الفيديو';
-        }
+    startExitWatcher();
 
-        function startSongMp4() {
-          const media = getSongMediaElement();
-          if (!media) return;
-          try {
-            const p = media.play();
-            if (p && typeof p.then === 'function') {
-              p.then(() => {
-                isAudioPlaying = true;
-                updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-              }).catch(() => {
-                isAudioPlaying = true;
-                updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-              });
-            } else {
-              isAudioPlaying = true;
-              updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-            }
-          } catch (_) {}
-        }
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => {
+      const activeStop = findStopButton();
+      const nextBtn = findNextButton();
+      if (!isPresentationActive || !activeStop || !nextBtn) {
+        exitPresentationAndStopMedia();
+        return;
+      }
+      nextBtn.click();
+    }, SLIDE_DURATION_MS);
+  }
 
-        function stopSongMp4(resetTime = true, showNotice = true) {
-          const media = getSongMediaElement();
-          if (media) {
-            try {
-              media.pause();
-              if (resetTime) media.currentTime = 0;
-            } catch (_) {}
-          }
-          isAudioPlaying = false;
-          updateAudioBtnText(document.getElementById('insidePresentationAudioBtn'));
-          if (showNotice) showCancelVideoNotice();
-        }
+  document.addEventListener('click', (event) => {
+    const clickedPresentationBtn = isPresentationTriggerElement(event.target);
+    setTimeout(() => {
+      attachInsidePresentationControls(clickedPresentationBtn);
+    }, 120);
+  });
 
-        function findNextButton() {
-          try {
-            const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-            return buttons.find((el) => {
-              const txt = (el.textContent || '').trim();
-              return txt.includes('التالي') && !txt.includes('إنهاء');
-            });
-          } catch (_) {
-            return null;
-          }
-        }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isPresentationActive) {
+      setTimeout(exitPresentationAndStopMedia, 100);
+    }
+  });
 
-        function findStopButton() {
-          try {
-            const buttons = Array.from(document.querySelectorAll('button, a, [role="button"]'));
-            return buttons.find((el) => {
-              const txt = (el.textContent || '').trim();
-              if (!txt.includes('إنهاء العرض') && !txt.includes('إغلاق العرض') && txt !== '×' && txt !== '✕') {
-                return false;
-              }
-              const rect = el.getBoundingClientRect();
-              return rect.width > 0 && rect.height > 0;
-            });
-          } catch (_) {
-            return null;
-          }
-        }
-
-        function isPresentationTriggerElement(target) {
-          if (!target || !target.closest) return false;
-          const trigger = target.closest('button, a, [role="button"]');
-          if (!trigger) return false;
-          const txt = (trigger.textContent || '').trim();
-          return txt === 'عرض' || txt.includes('عرض') || txt.includes('بدء العرض');
-        }
-
-        function exitPresentationAndStopMedia() {
-          const wasActive = isPresentationActive || isAudioPlaying;
-          isPresentationActive = false;
-          if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
-          if (exitWatcherTimer) { clearInterval(exitWatcherTimer); exitWatcherTimer = null; }
-          stopSongMp4(true, wasActive);
-        }
-
-        function startExitWatcher() {
-          if (exitWatcherTimer) clearInterval(exitWatcherTimer);
-          exitWatcherTimer = setInterval(() => {
-            if (!isPresentationActive) {
-              clearInterval(exitWatcherTimer);
-              exitWatcherTimer = null;
-              return;
-            }
-            if (!findStopButton()) exitPresentationAndStopMedia();
-          }, 350);
-        }
-
-        function attachInsidePresentationControls(shouldStartSongFromClick) {
-          const stopBtn = findStopButton();
-          if (!stopBtn || !stopBtn.parentElement) return;
-
-          isPresentationActive = true;
-          const bar = stopBtn.parentElement;
-
-          if (!document.getElementById('insidePresentationAudioBtn')) {
-            const audioBtn = document.createElement('button');
-            audioBtn.type = 'button';
-            audioBtn.id = 'insidePresentationAudioBtn';
-            updateAudioBtnText(audioBtn);
-            audioBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              if (isAudioPlaying) {
-                stopSongMp4(false, true);
-              } else {
-                startSongMp4();
-              }
-            });
-            bar.insertBefore(audioBtn, stopBtn);
-          }
-
-          if (!stopBtn.dataset.exitBound) {
-            stopBtn.dataset.exitBound = 'true';
-            stopBtn.addEventListener('click', () => {
-              exitPresentationAndStopMedia();
-            });
-          }
-
-          if (shouldStartSongFromClick) {
-            startSongMp4();
-          }
-
-          startExitWatcher();
-
-          if (autoTimer) clearInterval(autoTimer);
-          autoTimer = setInterval(() => {
-            const activeStop = findStopButton();
-            const nextBtn = findNextButton();
-            if (!isPresentationActive || !activeStop || !nextBtn) {
-              exitPresentationAndStopMedia();
-              return;
-            }
-            nextBtn.click();
-          }, SLIDE_DURATION_MS);
-        }
-
-        document.addEventListener('click', (event) => {
-          const clickedPresentationBtn = isPresentationTriggerElement(event.target);
-          if (clickedPresentationBtn) {
-            startSongMp4();
-          }
-          setTimeout(() => attachInsidePresentationControls(clickedPresentationBtn), 140);
-        });
-
-        document.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape' && (isPresentationActive || isAudioPlaying)) {
-            setTimeout(exitPresentationAndStopMedia, 100);
-          }
-        });
-      } catch (_) {}
-    })();
-    </script>
-    <script>
-    (function () {
-      try {
-        function ensureChatContainer() {
-          let box = document.getElementById('aiChatMessages');
-          if (!box) {
-            const win = document.getElementById('aiChatWindow') || document.body;
-            box = document.createElement('div');
-            box.id = 'aiChatMessages';
-            box.className = 'ai-chat-messages';
-            win.appendChild(box);
-          }
-          return box;
-        }
-
-        function appendMsg(text, role) {
-          try {
-            const box = ensureChatContainer();
-            const el = document.createElement('div');
-            el.className = role === 'user' ? 'user-msg' : 'bot-msg';
-            el.style.whiteSpace = 'pre-wrap';
-            el.textContent = String(text || '');
-            box.appendChild(el);
-            box.scrollTop = box.scrollHeight;
-            return el;
-          } catch (_) {
-            return null;
-          }
-        }
-
-        function autoHealAnswer(rawQuery) {
-          const clean = String(rawQuery ?? '').trim();
-          const low = clean.toLowerCase();
-
-          if (!clean || clean.length < 2) {
-            return '[200 • كلاود إيه آي • حل تلقائي] تم استيعاب الإدخال المختصر تلقائياً. اكتب سؤالك عن نتائج أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة، أو المقارنة العلمية والأدبية، أو التوصيات، أو أي سؤال عام وسأجيبك مباشرة.';
-          }
-          if (/قائد|محمد عماد|مبرمج|منص/.test(clean)) {
-            return '[200 • كلاود إيه آي] قائد الفريق ومطور المنصة هو المبرمج محمد عماد عباس (الصف الثاني البكالوريا - مدرسة الجعفرية الثانوية المشتركة)، وتولّى بناء المنصة التفاعلية والمحور الأول.';
-          }
-          if (/نتائج|عينة|100|إحصاء|نسب|أسبوعي|78/.test(clean)) {
-            return '[200 • كلاود إيه آي] أبرز نتائج العينة (100 طالب بعد استطلاعية 20 طالباً): 78% يستخدمون الذكاء الاصطناعي أسبوعياً، 40% لحل الواجبات، 35% لشرح الدروس، 45% يراجعون أحياناً، و30% ينقلون دون مراجعة.';
-          }
-          if (/علمي|أدبي|مقارنة|فرق|شعبة/.test(clean)) {
-            return '[200 • كلاود إيه آي] في المقارنة الفئوية: طلاب الشعبة العلمية يوظفون الذكاء الاصطناعي بنسبة 68% في البرمجة وحل المعادلات، بينما طلاب الشعبة الأدبية يوظفونه بنسبة 72% في التلخيص والترجمة وصياغة المقالات.';
-          }
-          if (/فريق|أعضاء|فوزي|مازن|محمد أحمد|أسماء/.test(clean)) {
-            return '[200 • كلاود إيه آي] أعضاء فريق الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة: المبرمج محمد عماد عباس، المبرمج فوزي حسين، المبرمج مازن أبو صابر، المبرمج محمد أحمد، والمبرمج محمد عماد.';
-          }
-          if (/توصيات|نصائح|هلوسة|مراجع|خاتمة/.test(clean)) {
-            return '[200 • كلاود إيه آي] التوصيات الأساسية: استخدام الذكاء الاصطناعي كـ "معلم مساعد" لشرح المفاهيم، التحقق من المصادر لتفادي هلوسة المعلومات (62% أحياناً)، وتجنب النقل المباشر دون تفكير نقدي.';
-          }
-          if (/سلام|مرحبا|أهلا|ازيك|كيف حالك|hi|hello/.test(low)) {
-            return '[200 • كلاود إيه آي] أهلاً بك يا محمد! جاهز (200) لأي سؤال أو خطأ وأجاوب عليه تلقائياً بخصوص أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة أو أي موضوع عام.';
-          }
-          return `[200 • كلاود إيه آي • رد ذاتي] بخصوص "${clean}": الإجابة المباشرة متاحة عبر محاور البحث الخمسة والنتائج التفاعلية في المنصة، ولو واجهت أي خطأ أو تفاصيل إضافية اكتبها وسأوضحها لك خطوة بخطوة.`;
-        }
-
-        window.sendBotMessage = function (overrideText) {
-          const btn = document.getElementById('botSendBtn');
-          try {
-            const input = document.getElementById('botInput');
-            const query = typeof overrideText === 'string'
-              ? overrideText.trim()
-              : (input ? String(input.value || '').trim() : '');
-
-            if (input && typeof overrideText !== 'string') {
-              input.value = '';
-            }
-
-            const displayedUser = query || 'سؤال سريع';
-            appendMsg(displayedUser, 'user');
-            const reply = autoHealAnswer(query);
-            appendMsg(reply, 'bot');
-          } catch (err) {
-            try {
-              const fallbackMsg = `[200 • كلاود إيه آي • معالجة خطأ تلقائية] تم تجاوز الخطأ (${err && err.message ? err.message : 'إدخال غير متوقع'}) وتقديم الرد تلقائياً: منصة أبحاث الصف الثاني البكالوريا بمدرسة الجعفرية الثانوية المشتركة تعمل بكامل أقسامها.`;
-              appendMsg(fallbackMsg, 'bot');
-            } catch (_) {}
-          } finally {
-            try {
-              if (btn) btn.disabled = false;
-            } catch (_) {}
-          }
-        };
-
-        window.askBot = function (question) {
-          try {
-            const win = document.getElementById('aiChatWindow');
-            if (win && !win.classList.contains('open') && typeof window.toggleChatBot === 'function') {
-              window.toggleChatBot();
-            }
-            window.sendBotMessage(question || '');
-          } catch (_) {
-            window.sendBotMessage(question || '');
-          }
-        };
-
-        window.addEventListener('error', function (event) {
-          try {
-            const win = document.getElementById('aiChatWindow');
-            if (!win || !win.classList.contains('open')) return;
-            const errText = event && event.message ? event.message : 'خطأ في الصفحة';
-            appendMsg(`[200 • كلاود إيه آي • معالجة خطأ ذاتية] تم رصد خطأ (${errText}) ومعالجته تلقائياً دون توقف المنصة.`, 'bot');
-          } catch (_) {}
-        });
-      } catch (_) {}
-    })();
-    </script>
+  const observer = new MutationObserver(() => {
+    const hasStop = Boolean(findStopButton());
+    if (hasStop && !document.getElementById('insidePresentationAudioBtn')) {
+      attachInsidePresentationControls(false);
+    } else if (!hasStop && isPresentationActive) {
+      exitPresentationAndStopMedia();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 </body>
 </html>
