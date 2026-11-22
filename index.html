@@ -950,22 +950,22 @@
   setInterval(scrubAssistantMediaButtons, 400);
 })();
 </script>
- <!-- الرابط العميق لفيسبوك (ذهبي في أسود - فوق سطر الحقوق) + تنقل التبويبات -->
+ <!-- الرابط العميق لفيسبوك (أسود وذهبي + أيقونة زرقاء + نسخ سريع فوق سطر الحقوق) -->
 <script>
 (function () {
   const FB_WEB_URL = "https://www.facebook.com/profile.php?id=61553655967066&locale=ar_AR";
   const FB_APP_URL = "fb://profile/61553655967066";
 
-  function placeBlackGoldFacebookAboveCopyright() {
+  function placeEnhancedFacebookAboveCopyright() {
     const footerInner =
       document.querySelector("footer.footer .footer-inner") ||
       document.querySelector("footer.footer") ||
       document.querySelector("footer");
     if (!footerInner) return;
 
-    if (!document.getElementById("schoolFbBlackGoldStyle")) {
+    if (!document.getElementById("schoolFbProStyle")) {
       const style = document.createElement("style");
-      style.id = "schoolFbBlackGoldStyle";
+      style.id = "schoolFbProStyle";
       style.textContent = `
         .school-social-box {
           margin-top: 10px;
@@ -973,27 +973,28 @@
           display: flex;
           justify-content: center;
           align-items: center;
+          flex-wrap: wrap;
+          gap: 8px;
         }
         .fb-school-link {
           display: inline-flex;
           align-items: center;
           gap: 11px;
-          padding: 11px 22px 11px 15px;
+          padding: 10px 20px 10px 14px;
           border-radius: 999px;
           background: linear-gradient(135deg, #09111e, #142238);
           border: 1.5px solid #d4af37;
           color: #fbbf24;
           text-decoration: none;
           font-weight: 800;
-          font-size: 0.94rem;
-          letter-spacing: 0.2px;
+          font-size: 0.93rem;
         }
         .fb-icon-circle {
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          background: #d4af37;
-          color: #09111e;
+          background: #1877f2;
+          color: #ffffff;
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -1002,6 +1003,17 @@
           font-weight: 900;
           line-height: 1;
           flex-shrink: 0;
+        }
+        .fb-copy-btn {
+          padding: 9px 14px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #09111e, #142238);
+          border: 1.5px solid rgba(212, 175, 55, 0.75);
+          color: #fbbf24;
+          font-family: inherit;
+          font-weight: 700;
+          font-size: 0.84rem;
+          cursor: pointer;
         }
       `;
       document.head.appendChild(style);
@@ -1021,6 +1033,7 @@
           <span class="fb-icon-circle" aria-hidden="true">f</span>
           <span>صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك</span>
         </a>
+        <button type="button" class="fb-copy-btn" aria-label="نسخ رابط الصفحة">نسخ الرابط</button>
       `;
     }
 
@@ -1057,6 +1070,32 @@
         } catch (_) {}
       });
     }
+
+    const copyBtn = box.querySelector(".fb-copy-btn");
+    if (copyBtn && copyBtn.dataset.copyBound !== "1") {
+      copyBtn.dataset.copyBound = "1";
+      copyBtn.addEventListener("click", function () {
+        const done = () => {
+          const oldText = copyBtn.textContent;
+          copyBtn.textContent = "تم النسخ";
+          setTimeout(() => {
+            copyBtn.textContent = oldText;
+          }, 1500);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(FB_WEB_URL).then(done).catch(() => {
+            const temp = document.createElement("textarea");
+            temp.value = FB_WEB_URL;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand("copy");
+            document.body.removeChild(temp);
+            done();
+          });
+        }
+      });
+    }
   }
 
   function openDeepTabFromQueryOrHash() {
@@ -1073,7 +1112,7 @@
   }
 
   function bootDeepLinks() {
-    placeBlackGoldFacebookAboveCopyright();
+    placeEnhancedFacebookAboveCopyright();
     openDeepTabFromQueryOrHash();
   }
 
@@ -1083,10 +1122,10 @@
     bootDeepLinks();
   }
 
-  window.addEventListener("load", placeBlackGoldFacebookAboveCopyright);
+  window.addEventListener("load", placeEnhancedFacebookAboveCopyright);
   window.addEventListener("hashchange", openDeepTabFromQueryOrHash);
 
-  const deepObserver = new MutationObserver(placeBlackGoldFacebookAboveCopyright);
+  const deepObserver = new MutationObserver(placeEnhancedFacebookAboveCopyright);
   if (document.body) {
     deepObserver.observe(document.body, { childList: true, subtree: true });
   }
