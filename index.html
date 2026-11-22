@@ -1107,7 +1107,7 @@
   }
 })();
 </script>
- <!-- السكريبت الثالث: مستعرض تحميل تفاعلي مرتبط بالصورة images/7795.jpeg -->
+<!-- السكريبت الثالث: مستعرض تحميل تفاعلي (مدة عرض 2.5 إلى 3 ثوانٍ) مرتبط بـ images/7795.jpeg -->
 <script>
 (function () {
   function initInteractiveResearchPreloader() {
@@ -1236,7 +1236,7 @@
         border-radius: 999px;
         background: linear-gradient(90deg, #1877f2, #38bdf8, #fbbf24);
         box-shadow: 0 0 16px #38bdf8;
-        transition: width 0.12s linear;
+        transition: width 0.1s linear;
       }
       .jp-hint {
         color: #bae6fd;
@@ -1312,19 +1312,15 @@
       });
     });
 
-    let progress = 0;
-    let pageLoaded = document.readyState === "complete";
+    // مدة العرض: من 2.5 ثانية إلى 3 ثوانٍ
+    const displayDurationMs = 2750;
+    const startTime = Date.now();
     let closed = false;
-
-    window.addEventListener("load", () => {
-      pageLoaded = true;
-    }, { once: true });
 
     function closePreloader() {
       if (closed) return;
       closed = true;
-      clearInterval(timer);
-      progress = 100;
+      cancelAnimationFrame(rafId);
       barFill.style.width = "100%";
       percentText.textContent = "100%";
       statusText.textContent = "اكتمل تحميل منصة الأبحاث";
@@ -1333,23 +1329,30 @@
         setTimeout(() => {
           if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
         }, 600);
-      }, 180);
+      }, 220);
     }
 
-    const timer = setInterval(() => {
-      const cap = pageLoaded ? 100 : 92;
-      const step = pageLoaded ? 7 : 3.5;
-      progress = Math.min(cap, progress + step);
-      const shown = Math.round(progress);
-      barFill.style.width = shown + "%";
-      percentText.textContent = shown + "%";
-      if (progress >= 100) {
-        closePreloader();
-      }
-    }, 65);
+    let rafId;
+    function stepProgress() {
+      if (closed) return;
+      const elapsed = Date.now() - startTime;
+      const ratio = Math.min(1, elapsed / displayDurationMs);
+      // منحنى ناعم يبدأ سريعاً ثم يهدأ قرب النهاية ليصل 100% عند انتهاء المدة
+      const eased = 1 - Math.pow(1 - ratio, 2.2);
+      const pct = Math.min(100, Math.round(eased * 100));
+      barFill.style.width = pct + "%";
+      percentText.textContent = pct + "%";
 
+      if (elapsed >= displayDurationMs) {
+        closePreloader();
+        return;
+      }
+      rafId = requestAnimationFrame(stepProgress);
+    }
+
+    rafId = requestAnimationFrame(stepProgress);
     preloader.addEventListener("click", closePreloader);
-    setTimeout(closePreloader, 4200);
+    setTimeout(closePreloader, 3000);
   }
 
   if (document.body) {
