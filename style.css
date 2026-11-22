@@ -1424,3 +1424,99 @@ body {
         display: none;
     }
 }
+.school-social-box {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(235, 189, 89, 0.16);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fb-school-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 22px 11px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(24, 119, 242, 0.18), rgba(15, 41, 66, 0.72));
+  border: 1px solid rgba(24, 119, 242, 0.52);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    color 0.25s ease;
+}
+
+.fb-school-link:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(24, 119, 242, 0.3), rgba(235, 189, 89, 0.12));
+  border-color: rgba(235, 189, 89, 0.75);
+  box-shadow:
+    0 14px 30px rgba(24, 119, 242, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.fb-school-link:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(24, 119, 242, 0.2);
+}
+
+.fb-school-link:focus-visible {
+  outline: 2px solid #ebbd59;
+  outline-offset: 3px;
+}
+
+.fb-icon-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2d88ff, #1464d8);
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.45);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fb-school-link:hover .fb-icon-circle {
+  transform: scale(1.08);
+}
+
+@media (max-width: 480px) {
+  .school-social-box {
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+
+  .fb-school-link {
+    padding: 9px 16px 9px 13px;
+    font-size: 0.85rem;
+    gap: 10px;
+  }
+
+  .fb-icon-circle {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+}
