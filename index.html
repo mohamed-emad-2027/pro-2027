@@ -1107,16 +1107,18 @@
   }
 })();
 </script>
-   <!-- السكريبت الثالث: شاشة تحميل سوبرمان بحرف M + طبقة ضبابية فوق المنصة -->
+  <!-- السكريبت الثالث: شاشة تحميل سينمائية هولوجرامية (مطابقة للشكل المعتمد 100%) -->
 <script>
 (function () {
-  function initSupermanMPreloader() {
-    if (document.getElementById("supermanSitePreloader")) return;
+  function initSupermanHolographicPreloader() {
+    // منع تكرار ظهور اللودر إذا تم استدعاء السكريبت أكثر من مرة
+    if (document.getElementById("supermanHolographicPreloader")) return;
 
+    // إنشاء الـ CSS الخاص باللودر
     const style = document.createElement("style");
-    style.id = "supermanSitePreloaderStyle";
+    style.id = "supermanHolographicPreloaderStyle";
     style.textContent = `
-      #supermanSitePreloader {
+      #supermanHolographicPreloader {
         position: fixed;
         inset: 0;
         z-index: 999999;
@@ -1124,174 +1126,163 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 20px;
-        background: rgba(240, 244, 248, 0.65);
-        backdrop-filter: blur(11px);
-        -webkit-backdrop-filter: blur(11px);
-        transition: opacity 0.45s ease, visibility 0.45s ease;
+        /* خلفية داكنة مع تأثير ضبابي خفيف */
+        background: radial-gradient(circle at center, #081120 0%, #050b16 100%);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        transition: opacity 0.5s ease, visibility 0.5s ease;
         pointer-events: all;
+        /* ضمان عدم ظهور شريط تمرير جانبي */
+        overflow: hidden;
       }
-      [data-theme="dark"] #supermanSitePreloader {
-        background: rgba(8, 17, 32, 0.72);
-      }
-      #supermanSitePreloader.is-hidden {
+      #supermanHolographicPreloader.is-hidden {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
       }
-      .superman-fly-wrap {
-        width: 245px;
-        max-width: 72vw;
-        animation: supermanHoverFly 1.5s ease-in-out infinite alternate;
-        filter: drop-shadow(0 18px 26px rgba(15, 23, 42, 0.24));
+      /* العنصر الحاوي لشخصية سوبرمان والهالة */
+      .superman-holo-container {
+        position: relative;
+        width: 92vw; /* متجاوب مع عرض الشاشة */
+        max-width: 960px; /* الحد الأقصى للعرض */
+        aspect-ratio: 16 / 9; /* الحفاظ على نسبة الأبعاد */
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      .superman-cape-wave {
-        transform-origin: 120px 88px;
-        animation: capeFlutter 0.75s ease-in-out infinite alternate;
+      /* خلفية ضبابية لعناصر المنصة خلف اللودر (اختياري، لزيادة التركيز) */
+      .holo-platform-blur {
+        position: absolute;
+        inset: 0;
+        background: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23050b16"/><circle cx="50" cy="50" r="48" stroke="%23111827" stroke-width="1" fill="none"/></svg>');
+        opacity: 0.16;
+        filter: blur(14px);
+        pointer-events: none;
       }
-      .superman-load-label {
-        margin-top: 12px;
-        font-family: inherit;
-        font-size: 1.02rem;
+      /* شخصية سوبرمان في الوسط */
+      .superman-holo-char {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.55));
+        animation: holoFlicker 3s infinite alternate;
+      }
+      /* الهالة الرقمية والحلقات */
+      .holo-rings {
+        position: absolute;
+        z-index: 1;
+        width: 120%;
+        height: 120%;
+        top: -10%;
+        left: -10%;
+        animation: holoRotate 18s linear infinite;
+        mix-blend-mode: screen;
+        pointer-events: none;
+      }
+      /* نص جاري التحميل */
+      .superman-holo-label {
+        position: absolute;
+        z-index: 3;
+        bottom: 8%; /* وضع النص أسفل الهالة */
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: clamp(1.1rem, 2.2vw, 1.4rem);
         font-weight: 800;
-        color: #0f2942;
-        letter-spacing: 0.2px;
-        text-shadow: 0 1px 10px rgba(255, 255, 255, 0.75);
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        /* تأثير توهج للنص */
+        text-shadow: 0 0 12px rgba(24, 119, 242, 0.9), 0 0 24px rgba(56, 189, 248, 0.7);
+        pointer-events: none;
+        animation: labelPulse 1.5s infinite alternate;
       }
-      [data-theme="dark"] .superman-load-label {
-        color: #f1f5f9;
-        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
-      }
-      .superman-progress-bar {
-        margin-top: 10px;
-        width: min(260px, 72vw);
-        height: 6px;
+      /* شريط التحميل الأفقي */
+      .superman-holo-progress {
+        position: absolute;
+        z-index: 3;
+        bottom: 4%; /* أسفل النص مباشرة */
+        width: 60vw;
+        max-width: 450px;
+        height: 5px;
         border-radius: 999px;
-        background: rgba(15, 41, 66, 0.16);
+        background: rgba(255, 255, 255, 0.15);
         overflow: hidden;
       }
-      [data-theme="dark"] .superman-progress-bar {
-        background: rgba(255, 255, 255, 0.16);
-      }
-      .superman-progress-fill {
+      .superman-holo-fill {
         height: 100%;
-        width: 20%;
+        width: 15%;
         border-radius: 999px;
-        background: linear-gradient(90deg, #1877f2, #38bdf8, #fbbf24);
-        animation: supermanBarLoad 1.7s ease-out forwards;
+        background: linear-gradient(90deg, #1877f2, #38bdf8, #0ea5e9);
+        animation: holoBarLoad 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
       }
-      @keyframes supermanHoverFly {
-        0% {
-          transform: translateY(7px) rotate(-1.5deg);
-        }
-        100% {
-          transform: translateY(-9px) rotate(1.5deg);
-        }
+
+      /* الرسوم المتحركة (Animations) */
+      @keyframes holoRotate {
+        0% { transform: rotate(0deg) scale(1); }
+        100% { transform: rotate(360deg) scale(1.02); }
       }
-      @keyframes capeFlutter {
-        0% {
-          transform: skewX(-2deg) scaleY(0.98);
-        }
-        100% {
-          transform: skewX(3deg) scaleY(1.03);
-        }
+      @keyframes holoFlicker {
+        0% { opacity: 0.95; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.5)); }
+        100% { opacity: 1; filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.7)); }
       }
-      @keyframes supermanBarLoad {
-        0% { width: 18%; }
-        65% { width: 82%; }
+      @keyframes holoBarLoad {
+        0% { width: 15%; }
+        50% { width: 70%; }
         100% { width: 100%; }
+      }
+      @keyframes labelPulse {
+        0% { opacity: 0.82; transform: scale(0.99); }
+        100% { opacity: 1; transform: scale(1.01); }
       }
     `;
     document.head.appendChild(style);
 
     const loader = document.createElement("div");
-    loader.id = "supermanSitePreloader";
+    loader.id = "supermanHolographicPreloader";
     loader.setAttribute("role", "status");
-    loader.setAttribute("aria-label", "جاري تحميل منصة الأبحاث");
+    loader.setAttribute("aria-label", "جاري تحميل المنصة");
 
     loader.innerHTML = `
-      <div class="superman-fly-wrap" aria-hidden="true">
-        <svg viewBox="0 0 240 230" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="suitBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#1d6fd8"/>
-              <stop offset="55%" stop-color="#134e9e"/>
-              <stop offset="100%" stop-color="#0b2f63"/>
-            </linearGradient>
-            <linearGradient id="capeGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#f7be45"/>
-              <stop offset="60%" stop-color="#d98a1c"/>
-              <stop offset="100%" stop-color="#9e5a08"/>
-            </linearGradient>
-            <linearGradient id="emblemRedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#dc2626"/>
-              <stop offset="100%" stop-color="#8f1111"/>
-            </linearGradient>
-          </defs>
-
-          <!-- الوشاح الذهبي المرفرف خلف الجسم -->
-          <path class="superman-cape-wave" d="M84 82 C54 96, 42 132, 54 176 C68 164, 78 158, 92 166 C94 140, 102 122, 114 114 Z" fill="url(#capeGoldGrad)" stroke="#1a1208" stroke-width="2.2" stroke-linejoin="round"/>
-          <path class="superman-cape-wave" d="M156 82 C188 98, 198 134, 184 178 C170 164, 158 158, 144 166 C142 140, 134 122, 124 114 Z" fill="url(#capeGoldGrad)" stroke="#1a1208" stroke-width="2.2" stroke-linejoin="round"/>
-
-          <!-- الساقان والحذاء الأحمر -->
-          <path d="M100 148 L92 192 L106 196 L118 156 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.2"/>
-          <path d="M124 154 L132 198 L146 194 L142 150 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.2"/>
-          <path d="M91 186 L88 205 L104 207 L107 190 Z" fill="url(#emblemRedGrad)" stroke="#091526" stroke-width="2"/>
-          <path d="M130 190 L133 210 L149 207 L146 187 Z" fill="url(#emblemRedGrad)" stroke="#091526" stroke-width="2"/>
-
-          <!-- الجذع والبدلة الزرقاء -->
-          <path d="M84 82 C98 74, 142 74, 156 82 L146 146 C130 154, 110 154, 94 146 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.4" stroke-linejoin="round"/>
-          <!-- الحزام الأحمر والذهبي -->
-          <path d="M95 140 C112 147, 128 147, 145 140 L142 155 C126 162, 114 162, 98 155 Z" fill="url(#emblemRedGrad)" stroke="#091526" stroke-width="2"/>
-          <polygon points="120,143 128,148 120,154 112,148" fill="#fbbf24" stroke="#091526" stroke-width="1.5"/>
-
-          <!-- الذراع اليسرى الممدودة جانباً -->
-          <path d="M154 84 C172 94, 182 110, 186 128 L172 133 C166 118, 158 106, 148 98 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.2"/>
-          <circle cx="180" cy="134" r="8.5" fill="#f3c1a2" stroke="#091526" stroke-width="2"/>
-
-          <!-- الذراع اليمنى المرفوعة للأمام بقبضة قوية -->
-          <path d="M86 84 C68 76, 56 64, 52 48 L72 44 C76 56, 84 66, 96 74 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.4"/>
-          <!-- القبضة -->
-          <rect x="44" y="28" width="26" height="22" rx="9" transform="rotate(-14 57 39)" fill="#f3c1a2" stroke="#091526" stroke-width="2.2"/>
-          <path d="M48 37 L65 33 M49 42 L66 38" stroke="#b97b58" stroke-width="1.6" stroke-linecap="round"/>
-
-          <!-- شعار الصدر الماسي الأحمر والذهبي مع حرف M -->
-          <polygon points="120,89 144,102 120,127 96,102" fill="url(#emblemRedGrad)" stroke="#fbbf24" stroke-width="2.8" stroke-linejoin="round"/>
-          <text x="120" y="114" text-anchor="middle" fill="#fbbf24" stroke="#3b0707" stroke-width="0.9" font-family="Arial Black, Impact, sans-serif" font-size="22" font-weight="900">M</text>
-
-          <!-- الرقبة والرأس والشعر الأسود والشارب المميز -->
-          <rect x="112" y="64" width="16" height="14" rx="5" fill="#eab392" stroke="#091526" stroke-width="1.8"/>
-          <ellipse cx="120" cy="50" rx="16" ry="19" fill="#f5c6a8" stroke="#091526" stroke-width="2.2"/>
-          <!-- الشعر الأسود -->
-          <path d="M104 46 C103 30, 114 24, 126 26 C135 28, 138 36, 136 46 C133 38, 127 35, 119 36 C113 37, 108 40, 104 46 Z" fill="#111827" stroke="#091526" stroke-width="1.8"/>
-          <!-- الحاجبان والعينان -->
-          <path d="M110 44 Q114 42 117 44" stroke="#111827" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M123 44 Q126 42 130 44" stroke="#111827" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <circle cx="114" cy="48" r="1.6" fill="#111827"/>
-          <circle cx="126" cy="48" r="1.6" fill="#111827"/>
-          <!-- الشارب والابتسامة -->
-          <path d="M113 56 Q120 53 127 56 Q125 59 120 57.5 Q115 59 113 56 Z" fill="#111827"/>
-          <path d="M116 61 Q120 63 124 61" stroke="#9f5f42" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <div class="superman-holo-container">
+        <div class="holo-platform-blur"></div>
+        <!-- الحلقات الرقمية والهولوجرامية -->
+        <svg class="holo-rings" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="150" cy="150" r="140" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1.5" stroke-dasharray="10 5"/>
+          <circle cx="150" cy="150" r="120" stroke="rgba(24, 119, 242, 0.4)" stroke-width="2" stroke-dasharray="20 8 5 8"/>
+          <path d="M150 10 A140 140 0 0 1 290 150" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+          <path d="M150 290 A140 140 0 0 1 10 150" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+          <!-- عناصر أبحاث وأكواد خفيفة -->
+          <text x="40" y="80" fill="rgba(255, 255, 255, 0.3)" font-family="monospace" font-size="10">import research_data</text>
+          <text x="200" y="220" fill="rgba(56, 189, 248, 0.4)" font-family="monospace" font-size="10">compile_index()</text>
         </svg>
+        <!-- شخصية البطل بحرف M الذهبي (تم استبدال حرف «م» بـ M) -->
+        <img class="superman-holo-char" src="data:image/svg+xml;charset=utf-8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 260 230&quot;><defs><linearGradient id=&quot;suitBlueGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;><stop offset=&quot;0%&quot; stop-color=&quot;%231d6fd8&quot;/><stop offset=&quot;55%&quot; stop-color=&quot;%23134e9e&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;%230b2f63&quot; /></linearGradient><linearGradient id=&quot;capeGoldGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;><stop offset=&quot;0%&quot; stop-color=&quot;%23f7be45&quot;/><stop offset=&quot;60%&quot; stop-color=&quot;%23d98a1c&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;%239e5a08&quot; /></linearGradient><linearGradient id=&quot;emblemRedGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;0%&quot; y2=&quot;100%&quot;><stop offset=&quot;0%&quot; stop-color=&quot;%23dc2626&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;%238f1111&quot; /></linearGradient></defs><path class=&quot;superman-cape-wave&quot; d=&quot;M84 82 C54 96, 42 132, 54 176 C68 164, 78 158, 92 166 C94 140, 102 122, 114 114 Z&quot; fill=&quot;url(%23capeGoldGrad)&quot; stroke=&quot;%231a1208&quot; stroke-width=&quot;2.2&quot; stroke-linejoin=&quot;round&quot; transform-origin=&quot;120 88&quot;/><path class=&quot;superman-cape-wave&quot; d=&quot;M156 82 C188 98, 198 134, 184 178 C170 164, 158 158, 144 166 C142 140, 134 122, 124 114 Z&quot; fill=&quot;url(%23capeGoldGrad)&quot; stroke=&quot;%231a1208&quot; stroke-width=&quot;2.2&quot; stroke-linejoin=&quot;round&quot; transform-origin=&quot;120 88&quot; style=&quot;animation: capeFlutter 0.75s ease-in-out infinite alternate;&quot;/><path d=&quot;M100 148 L92 192 L106 196 L118 156 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M124 154 L132 198 L146 194 L142 150 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M91 186 L88 205 L104 207 L107 190 Z&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><path d=&quot;M130 190 L133 210 L149 207 L146 187 Z&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><path d=&quot;M84 82 C98 74, 142 74, 156 82 L146 146 C130 154, 110 154, 94 146 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.4&quot; stroke-linejoin=&quot;round&quot;/><path d=&quot;M95 140 C112 147, 128 147, 145 140 L142 155 C126 162, 114 162, 98 155 Z&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><polygon points=&quot;120,143 128,148 120,154 112,148&quot; fill=&quot;%23fbbf24&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;1.5&quot;/><path d=&quot;M154 84 C172 94, 182 110, 186 128 L172 133 C166 118, 158 106, 148 98 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><circle cx=&quot;180&quot; cy=&quot;134&quot; r=&quot;8.5&quot; fill=&quot;%23f3c1a2&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><path d=&quot;M86 84 C68 76, 56 64, 52 48 L72 44 C76 56, 84 66, 96 74 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.4&quot;/><rect x=&quot;44&quot; y=&quot;28&quot; width=&quot;26&quot; height=&quot;22&quot; rx=&quot;9&quot; transform=&quot;rotate(-14 57 39)&quot; fill=&quot;%23f3c1a2&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M48 37 L65 33 M49 42 L66 38&quot; stroke=&quot;%23b97b58&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot;/><polygon points=&quot;120,89 144,102 120,127 96,102&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23fbbf24&quot; stroke-width=&quot;2.8&quot; stroke-linejoin=&quot;round&quot;/><text x=&quot;120&quot; y=&quot;114&quot; text-anchor=&quot;middle&quot; fill=&quot;%23fbbf24&quot; stroke=&quot;%233b0707&quot; stroke-width=&quot;0.9&quot; font-family=&quot;Arial Black, Impact, sans-serif&quot; font-size=&quot;22&quot; font-weight=&quot;900&quot;>M</text><rect x=&quot;112&quot; y=&quot;64&quot; width=&quot;16&quot; height=&quot;14&quot; rx=&quot;5&quot; fill=&quot;%23eab392&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;1.8&quot;/><ellipse cx=&quot;120&quot; cy=&quot;50&quot; rx=&quot;16&quot; ry=&quot;19&quot; fill=&quot;%23f5c6a8&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M104 46 C103 30, 114 24, 126 26 C135 28, 138 36, 136 46 C133 38, 127 35, 119 36 C113 37, 108 40, 104 46 Z&quot; fill=&quot;%23111827&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;1.8&quot;/><path d=&quot;M110 44 Q114 42 117 44&quot; stroke=&quot;%23111827&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot;/><path d=&quot;M123 44 Q126 42 130 44&quot; stroke=&quot;%23111827&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot; stroke-linecap="round"/><circle cx=&quot;114&quot; cy=&quot;48&quot; r=&quot;1.6&quot; fill=&quot;%23111827&quot;/><circle cx=&quot;126&quot; cy=&quot;48&quot; r=&quot;1.6&quot; fill=&quot;%23111827&quot;/><path d=&quot;M113 56 Q120 53 127 56 Q125 59 120 57.5 Q115 59 113 56 Z&quot; fill=&quot;%23111827&quot;/><path d=&quot;M116 61 Q120 63 124 61&quot; stroke=&quot;%239f5f42&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot; style=&quot;animation: capeFlutter 0.75s ease-in-out infinite alternate;&quot; /></svg>">
+        <div style=&quot;position:absolute; bottom:26%; left:50%; transform:translateX(-50%); font-family:Arial, Helvetica, sans-serif; font-weight:900; font-size:14px; color:%23fbbf24; pointer-events:none;&quot;>M</div>
       </div>
-      <div class="superman-load-label">جاري تحميل منصة الأبحاث...</div>
-      <div class="superman-progress-bar" aria-hidden="true">
-        <div class="superman-progress-fill"></div>
+      <div class="superman-holo-label">جاري تحميل منصة الأبحاث...</div>
+      <div class="superman-holo-progress">
+        <div class="superman-holo-fill"></div>
       </div>
     `;
 
+    // إضافة اللودر إلى body
     document.body.appendChild(loader);
 
+    // وظيفة لإخفاء اللودر بعد اكتمال التحميل أو بعد مدة زمنية
     let hidden = false;
     function hideLoader() {
       if (hidden) return;
       hidden = true;
       loader.classList.add("is-hidden");
+      // إزالة العنصر تماماً من الـ DOM بعد انتهاء حركة الانتقال
       setTimeout(() => {
         if (loader.parentNode) loader.parentNode.removeChild(loader);
       }, 500);
     }
 
+    // ضبط وقت عرض اللودر بحد أدنى 1.75 ثانية لضمان رؤية التأثير الكامل
     const minDisplayMs = 1750;
     const openedAt = Date.now();
 
@@ -1301,18 +1292,21 @@
       setTimeout(hideLoader, wait);
     }
 
+    // تنفيذ الإخفاء عند اكتمال تحميل الصفحة أو بعد المهلة
     if (document.readyState === "complete") {
       scheduleHide();
     } else {
       window.addEventListener("load", scheduleHide, { once: true });
+      // حد أقصى 3.5 ثانية في حال تعذر اكتمال حدث load
       setTimeout(hideLoader, 3500);
     }
   }
 
+  // بدء تشغيل اللودر عند تحميل الصفحة
   if (document.body) {
-    initSupermanMPreloader();
+    initSupermanHolographicPreloader();
   } else {
-    document.addEventListener("DOMContentLoaded", initSupermanMPreloader, { once: true });
+    document.addEventListener("DOMContentLoaded", initSupermanHolographicPreloader, { once: true });
   }
 })();
 </script>
