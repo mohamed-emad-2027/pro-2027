@@ -1107,10 +1107,10 @@
   }
 })();
 </script>
-    <!-- السكريبت الثالث: شاشة تحميل سوبرمان (طبقة ضبابية فوق الموقع + حركة طيران سلسة) -->
+   <!-- السكريبت الثالث: شاشة تحميل سوبرمان بحرف M + طبقة ضبابية فوق المنصة -->
 <script>
 (function () {
-  function initSupermanPreloader() {
+  function initSupermanMPreloader() {
     if (document.getElementById("supermanSitePreloader")) return;
 
     const style = document.createElement("style");
@@ -1124,14 +1124,15 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        background: rgba(240, 244, 248, 0.72);
+        padding: 20px;
+        background: rgba(240, 244, 248, 0.65);
         backdrop-filter: blur(11px);
         -webkit-backdrop-filter: blur(11px);
         transition: opacity 0.45s ease, visibility 0.45s ease;
         pointer-events: all;
       }
       [data-theme="dark"] #supermanSitePreloader {
-        background: rgba(8, 17, 32, 0.76);
+        background: rgba(8, 17, 32, 0.72);
       }
       #supermanSitePreloader.is-hidden {
         opacity: 0;
@@ -1139,41 +1140,66 @@
         pointer-events: none;
       }
       .superman-fly-wrap {
-        width: 220px;
-        max-width: 62vw;
+        width: 245px;
+        max-width: 72vw;
         animation: supermanHoverFly 1.5s ease-in-out infinite alternate;
-        filter: drop-shadow(0 16px 24px rgba(15, 23, 42, 0.16));
+        filter: drop-shadow(0 18px 26px rgba(15, 23, 42, 0.24));
       }
-      .superman-cape {
-        transform-origin: 128px 66px;
-        animation: capeFlutter 0.7s ease-in-out infinite alternate;
+      .superman-cape-wave {
+        transform-origin: 120px 88px;
+        animation: capeFlutter 0.75s ease-in-out infinite alternate;
       }
       .superman-load-label {
-        margin-top: 10px;
+        margin-top: 12px;
         font-family: inherit;
-        font-size: 0.95rem;
+        font-size: 1.02rem;
         font-weight: 800;
-        color: #1e293b;
+        color: #0f2942;
         letter-spacing: 0.2px;
+        text-shadow: 0 1px 10px rgba(255, 255, 255, 0.75);
       }
       [data-theme="dark"] .superman-load-label {
-        color: #e2e8f0;
+        color: #f1f5f9;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+      }
+      .superman-progress-bar {
+        margin-top: 10px;
+        width: min(260px, 72vw);
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(15, 41, 66, 0.16);
+        overflow: hidden;
+      }
+      [data-theme="dark"] .superman-progress-bar {
+        background: rgba(255, 255, 255, 0.16);
+      }
+      .superman-progress-fill {
+        height: 100%;
+        width: 20%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #1877f2, #38bdf8, #fbbf24);
+        animation: supermanBarLoad 1.7s ease-out forwards;
       }
       @keyframes supermanHoverFly {
         0% {
-          transform: translate(6px, 8px) rotate(-2deg);
+          transform: translateY(7px) rotate(-1.5deg);
         }
         100% {
-          transform: translate(-8px, -10px) rotate(2deg);
+          transform: translateY(-9px) rotate(1.5deg);
         }
       }
       @keyframes capeFlutter {
         0% {
-          transform: skewY(-2deg) scaleX(0.98);
+          transform: skewX(-2deg) scaleY(0.98);
         }
         100% {
-          transform: skewY(3deg) scaleX(1.03);
+          transform: skewX(3deg) scaleY(1.03);
         }
+      }
+      @keyframes supermanBarLoad {
+        0% { width: 18%; }
+        65% { width: 82%; }
+        100% { width: 100%; }
       }
     `;
     document.head.appendChild(style);
@@ -1181,48 +1207,77 @@
     const loader = document.createElement("div");
     loader.id = "supermanSitePreloader";
     loader.setAttribute("role", "status");
-    loader.setAttribute("aria-label", "جاري تحميل المنصة");
+    loader.setAttribute("aria-label", "جاري تحميل منصة الأبحاث");
 
     loader.innerHTML = `
       <div class="superman-fly-wrap" aria-hidden="true">
-        <svg viewBox="0 0 260 150" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <!-- الوشاح الذهبي المتموج -->
-          <path class="superman-cape" d="M122 58 C165 44, 212 46, 248 56 C234 72, 242 86, 252 98 C210 96, 168 88, 128 78 Z" fill="#F6A641"/>
-          <path class="superman-cape" d="M126 65 C168 56, 206 58, 238 66 C210 76, 172 78, 130 74 Z" fill="#E88D2A" opacity="0.55"/>
+        <svg viewBox="0 0 240 230" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="suitBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1d6fd8"/>
+              <stop offset="55%" stop-color="#134e9e"/>
+              <stop offset="100%" stop-color="#0b2f63"/>
+            </linearGradient>
+            <linearGradient id="capeGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#f7be45"/>
+              <stop offset="60%" stop-color="#d98a1c"/>
+              <stop offset="100%" stop-color="#9e5a08"/>
+            </linearGradient>
+            <linearGradient id="emblemRedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#dc2626"/>
+              <stop offset="100%" stop-color="#8f1111"/>
+            </linearGradient>
+          </defs>
 
-          <!-- الساقان -->
-          <path d="M144 82 L188 102 L206 108 L202 117 L180 111 L138 94 Z" fill="#B9382C"/>
-          <path d="M138 90 L176 114 L194 121 L189 129 L169 121 L132 99 Z" fill="#9E2B21"/>
-          <!-- الحذاء الذهبي -->
-          <path d="M186 101 L209 108 L204 118 L182 111 Z" fill="#F6A641"/>
-          <path d="M174 113 L196 121 L190 130 L170 121 Z" fill="#E88D2A"/>
+          <!-- الوشاح الذهبي المرفرف خلف الجسم -->
+          <path class="superman-cape-wave" d="M84 82 C54 96, 42 132, 54 176 C68 164, 78 158, 92 166 C94 140, 102 122, 114 114 Z" fill="url(#capeGoldGrad)" stroke="#1a1208" stroke-width="2.2" stroke-linejoin="round"/>
+          <path class="superman-cape-wave" d="M156 82 C188 98, 198 134, 184 178 C170 164, 158 158, 144 166 C142 140, 134 122, 124 114 Z" fill="url(#capeGoldGrad)" stroke="#1a1208" stroke-width="2.2" stroke-linejoin="round"/>
 
-          <!-- الجذع والبدلة الحمراء -->
-          <path d="M78 58 C98 52, 126 56, 146 74 L138 96 C116 88, 94 82, 74 72 Z" fill="#C83E31"/>
-          <!-- الحزام والجزء الذهبي الأوسط -->
-          <path d="M126 66 L146 74 L138 96 L120 88 Z" fill="#F6A641"/>
-          <path d="M124 72 L143 80 L141 85 L122 77 Z" fill="#B9382C"/>
+          <!-- الساقان والحذاء الأحمر -->
+          <path d="M100 148 L92 192 L106 196 L118 156 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.2"/>
+          <path d="M124 154 L132 198 L146 194 L142 150 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.2"/>
+          <path d="M91 186 L88 205 L104 207 L107 190 Z" fill="url(#emblemRedGrad)" stroke="#091526" stroke-width="2"/>
+          <path d="M130 190 L133 210 L149 207 L146 187 Z" fill="url(#emblemRedGrad)" stroke="#091526" stroke-width="2"/>
 
-          <!-- الذراع الخلفية -->
-          <path d="M98 72 L124 88 L120 96 L90 80 Z" fill="#A93025"/>
+          <!-- الجذع والبدلة الزرقاء -->
+          <path d="M84 82 C98 74, 142 74, 156 82 L146 146 C130 154, 110 154, 94 146 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.4" stroke-linejoin="round"/>
+          <!-- الحزام الأحمر والذهبي -->
+          <path d="M95 140 C112 147, 128 147, 145 140 L142 155 C126 162, 114 162, 98 155 Z" fill="url(#emblemRedGrad)" stroke="#091526" stroke-width="2"/>
+          <polygon points="120,143 128,148 120,154 112,148" fill="#fbbf24" stroke="#091526" stroke-width="1.5"/>
 
-          <!-- الذراع الأمامية الممتدة للأمام -->
-          <path d="M84 62 L34 44 L29 53 L78 73 Z" fill="#C83E31"/>
+          <!-- الذراع اليسرى الممدودة جانباً -->
+          <path d="M154 84 C172 94, 182 110, 186 128 L172 133 C166 118, 158 106, 148 98 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.2"/>
+          <circle cx="180" cy="134" r="8.5" fill="#f3c1a2" stroke="#091526" stroke-width="2"/>
+
+          <!-- الذراع اليمنى المرفوعة للأمام بقبضة قوية -->
+          <path d="M86 84 C68 76, 56 64, 52 48 L72 44 C76 56, 84 66, 96 74 Z" fill="url(#suitBlueGrad)" stroke="#091526" stroke-width="2.4"/>
           <!-- القبضة -->
-          <circle cx="29" cy="47" r="7.5" fill="#F7C5A8"/>
-          <path d="M23 44 C26 40, 33 40, 35 45" stroke="#E0A382" stroke-width="1.8" fill="none"/>
+          <rect x="44" y="28" width="26" height="22" rx="9" transform="rotate(-14 57 39)" fill="#f3c1a2" stroke="#091526" stroke-width="2.2"/>
+          <path d="M48 37 L65 33 M49 42 L66 38" stroke="#b97b58" stroke-width="1.6" stroke-linecap="round"/>
 
-          <!-- الرأس والوجه -->
-          <ellipse cx="72" cy="50" rx="11" ry="12" transform="rotate(-14 72 50)" fill="#F7C5A8"/>
-          <!-- الشعر الأسود الداكن مع الخصلة المميزة -->
-          <path d="M61 46 C60 35, 73 30, 83 37 C87 40, 86 47, 81 51 C80 44, 73 42, 66 44 C64 47, 62 48, 61 46 Z" fill="#132238"/>
-          <path d="M63 44 C60 46, 60 50, 64 50" stroke="#132238" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-          <!-- ملامح الوجه البسيطة -->
-          <circle cx="66" cy="48" r="1.3" fill="#132238"/>
-          <path d="M64 54 Q67 56 70 54" stroke="#C98263" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- شعار الصدر الماسي الأحمر والذهبي مع حرف M -->
+          <polygon points="120,89 144,102 120,127 96,102" fill="url(#emblemRedGrad)" stroke="#fbbf24" stroke-width="2.8" stroke-linejoin="round"/>
+          <text x="120" y="114" text-anchor="middle" fill="#fbbf24" stroke="#3b0707" stroke-width="0.9" font-family="Arial Black, Impact, sans-serif" font-size="22" font-weight="900">M</text>
+
+          <!-- الرقبة والرأس والشعر الأسود والشارب المميز -->
+          <rect x="112" y="64" width="16" height="14" rx="5" fill="#eab392" stroke="#091526" stroke-width="1.8"/>
+          <ellipse cx="120" cy="50" rx="16" ry="19" fill="#f5c6a8" stroke="#091526" stroke-width="2.2"/>
+          <!-- الشعر الأسود -->
+          <path d="M104 46 C103 30, 114 24, 126 26 C135 28, 138 36, 136 46 C133 38, 127 35, 119 36 C113 37, 108 40, 104 46 Z" fill="#111827" stroke="#091526" stroke-width="1.8"/>
+          <!-- الحاجبان والعينان -->
+          <path d="M110 44 Q114 42 117 44" stroke="#111827" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M123 44 Q126 42 130 44" stroke="#111827" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <circle cx="114" cy="48" r="1.6" fill="#111827"/>
+          <circle cx="126" cy="48" r="1.6" fill="#111827"/>
+          <!-- الشارب والابتسامة -->
+          <path d="M113 56 Q120 53 127 56 Q125 59 120 57.5 Q115 59 113 56 Z" fill="#111827"/>
+          <path d="M116 61 Q120 63 124 61" stroke="#9f5f42" stroke-width="1.5" fill="none" stroke-linecap="round"/>
         </svg>
       </div>
-      <div class="superman-load-label">جاري تحميل المنصة...</div>
+      <div class="superman-load-label">جاري تحميل منصة الأبحاث...</div>
+      <div class="superman-progress-bar" aria-hidden="true">
+        <div class="superman-progress-fill"></div>
+      </div>
     `;
 
     document.body.appendChild(loader);
@@ -1237,7 +1292,7 @@
       }, 500);
     }
 
-    const minDisplayMs = 1100;
+    const minDisplayMs = 1750;
     const openedAt = Date.now();
 
     function scheduleHide() {
@@ -1255,9 +1310,9 @@
   }
 
   if (document.body) {
-    initSupermanPreloader();
+    initSupermanMPreloader();
   } else {
-    document.addEventListener("DOMContentLoaded", initSupermanPreloader, { once: true });
+    document.addEventListener("DOMContentLoaded", initSupermanMPreloader, { once: true });
   }
 })();
 </script>
