@@ -950,5 +950,86 @@
   setInterval(scrubAssistantMediaButtons, 400);
 })();
 </script>
+    <!-- زر صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك في الفوتر -->
+<script>
+(function () {
+  function addSchoolFacebookFooter() {
+    const footerInner =
+      document.querySelector('footer.footer .footer-inner') ||
+      document.querySelector('footer.footer') ||
+      document.querySelector('footer');
+
+    if (!footerInner || document.getElementById('schoolFbLinkBox')) return;
+
+    if (!document.getElementById('schoolFbStyle')) {
+      const style = document.createElement('style');
+      style.id = 'schoolFbStyle';
+      style.textContent = `
+        .school-social-box {
+          margin-top: 16px;
+          display: flex;
+          justify-content: center;
+        }
+        .fb-school-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 20px;
+          border-radius: 999px;
+          background: rgba(24, 119, 242, 0.14);
+          border: 1px solid rgba(24, 119, 242, 0.5);
+          color: inherit;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 0.95rem;
+          transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .fb-school-link:hover {
+          transform: translateY(-2px);
+          background: rgba(24, 119, 242, 0.24);
+          border-color: #1877f2;
+        }
+        .fb-icon-circle {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: #1877f2;
+          color: #ffffff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-family: Arial, sans-serif;
+          font-size: 17px;
+          font-weight: 900;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const box = document.createElement('div');
+    box.id = 'schoolFbLinkBox';
+    box.className = 'school-social-box';
+    box.innerHTML = `
+      <a href="https://www.facebook.com/profile.php?id=61553655967066&locale=ar_AR"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="fb-school-link"
+         aria-label="صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك">
+        <span class="fb-icon-circle" aria-hidden="true">f</span>
+        <span>صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك</span>
+      </a>
+    `;
+    footerInner.appendChild(box);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addSchoolFacebookFooter);
+  } else {
+    addSchoolFacebookFooter();
+  }
+})();
+</script>
 </body>
 </html>
