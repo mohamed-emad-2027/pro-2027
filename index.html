@@ -1107,18 +1107,16 @@
   }
 })();
 </script>
-  <!-- السكريبت الثالث: شاشة تحميل سينمائية هولوجرامية (مطابقة للشكل المعتمد 100%) -->
+ <!-- السكريبت الثالث: مستعرض تحميل تفاعلي مرتبط بالصورة image/7795.jpg -->
 <script>
 (function () {
-  function initSupermanHolographicPreloader() {
-    // منع تكرار ظهور اللودر إذا تم استدعاء السكريبت أكثر من مرة
-    if (document.getElementById("supermanHolographicPreloader")) return;
+  function initInteractiveResearchPreloader() {
+    if (document.getElementById("jaafariaInteractivePreloader")) return;
 
-    // إنشاء الـ CSS الخاص باللودر
     const style = document.createElement("style");
-    style.id = "supermanHolographicPreloaderStyle";
+    style.id = "jaafariaInteractivePreloaderStyle";
     style.textContent = `
-      #supermanHolographicPreloader {
+      #jaafariaInteractivePreloader {
         position: fixed;
         inset: 0;
         z-index: 999999;
@@ -1126,187 +1124,238 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        /* خلفية داكنة مع تأثير ضبابي خفيف */
-        background: radial-gradient(circle at center, #081120 0%, #050b16 100%);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        transition: opacity 0.5s ease, visibility 0.5s ease;
-        pointer-events: all;
-        /* ضمان عدم ظهور شريط تمرير جانبي */
+        padding: 18px;
+        background: radial-gradient(circle at center, rgba(6, 18, 38, 0.78) 0%, rgba(3, 8, 18, 0.9) 100%);
+        backdrop-filter: blur(11px);
+        -webkit-backdrop-filter: blur(11px);
+        transition: opacity 0.55s ease, visibility 0.55s ease;
         overflow: hidden;
+        pointer-events: all;
+        user-select: none;
       }
-      #supermanHolographicPreloader.is-hidden {
+      #jaafariaInteractivePreloader.is-hidden {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
       }
-      /* العنصر الحاوي لشخصية سوبرمان والهالة */
-      .superman-holo-container {
+      .jp-stage {
         position: relative;
-        width: 92vw; /* متجاوب مع عرض الشاشة */
-        max-width: 960px; /* الحد الأقصى للعرض */
-        aspect-ratio: 16 / 9; /* الحفاظ على نسبة الأبعاد */
+        width: min(760px, 94vw);
+        aspect-ratio: 16 / 9;
+        max-height: 62vh;
+        border-radius: 18px;
+        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 36px rgba(56, 189, 248, 0.25);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        transform-style: preserve-3d;
+        transition: transform 0.2s ease-out;
       }
-      /* خلفية ضبابية لعناصر المنصة خلف اللودر (اختياري، لزيادة التركيز) */
-      .holo-platform-blur {
-        position: absolute;
-        inset: 0;
-        background: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23050b16"/><circle cx="50" cy="50" r="48" stroke="%23111827" stroke-width="1" fill="none"/></svg>');
-        opacity: 0.16;
-        filter: blur(14px);
-        pointer-events: none;
-      }
-      /* شخصية سوبرمان في الوسط */
-      .superman-holo-char {
-        position: relative;
-        z-index: 2;
+      .jp-hero-art {
         width: 100%;
         height: 100%;
-        object-fit: contain;
+        object-fit: cover;
         object-position: center;
-        filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.55));
-        animation: holoFlicker 3s infinite alternate;
+        filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.45));
+        -webkit-user-drag: none;
       }
-      /* الهالة الرقمية والحلقات */
-      .holo-rings {
-        position: absolute;
-        z-index: 1;
-        width: 120%;
-        height: 120%;
-        top: -10%;
-        left: -10%;
-        animation: holoRotate 18s linear infinite;
-        mix-blend-mode: screen;
-        pointer-events: none;
-      }
-      /* نص جاري التحميل */
-      .superman-holo-label {
+      .jp-paper-badge {
         position: absolute;
         z-index: 3;
-        bottom: 8%; /* وضع النص أسفل الهالة */
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+        padding: 7px 12px;
+        border-radius: 10px;
+        background: rgba(8, 25, 48, 0.78);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        color: #e0f2fe;
+        font-family: inherit;
+        font-size: clamp(0.72rem, 1.5vw, 0.88rem);
+        font-weight: 700;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), 0 0 14px rgba(56, 189, 248, 0.25);
+        cursor: pointer;
+        transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      }
+      .jp-paper-badge:hover,
+      .jp-paper-badge.is-active {
+        transform: translateY(-4px) scale(1.05);
+        border-color: #fbbf24;
+        color: #fef08a;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 18px rgba(251, 191, 36, 0.45);
+      }
+      .jp-paper-1 {
+        top: 10%;
+        right: 4%;
+        animation: jpFloatA 3.2s ease-in-out infinite alternate;
+      }
+      .jp-paper-2 {
+        bottom: 16%;
+        left: 4%;
+        animation: jpFloatB 3.6s ease-in-out infinite alternate;
+      }
+      .jp-paper-3 {
+        top: 12%;
+        left: 5%;
+        animation: jpFloatA 2.9s ease-in-out infinite alternate-reverse;
+      }
+      .jp-hud-box {
+        margin-top: 16px;
+        width: min(520px, 90vw);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .jp-status-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #f8fafc;
+        font-family: inherit;
         font-weight: 800;
-        color: #ffffff;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        /* تأثير توهج للنص */
-        text-shadow: 0 0 12px rgba(24, 119, 242, 0.9), 0 0 24px rgba(56, 189, 248, 0.7);
-        pointer-events: none;
-        animation: labelPulse 1.5s infinite alternate;
+        font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+        text-shadow: 0 0 14px rgba(56, 189, 248, 0.8);
       }
-      /* شريط التحميل الأفقي */
-      .superman-holo-progress {
-        position: absolute;
-        z-index: 3;
-        bottom: 4%; /* أسفل النص مباشرة */
-        width: 60vw;
-        max-width: 450px;
-        height: 5px;
+      .jp-percent {
+        color: #fbbf24;
+        font-variant-numeric: tabular-nums;
+      }
+      .jp-bar-track {
+        width: 100%;
+        height: 8px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.14);
         overflow: hidden;
+        box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
       }
-      .superman-holo-fill {
+      .jp-bar-fill {
         height: 100%;
-        width: 15%;
+        width: 0%;
         border-radius: 999px;
-        background: linear-gradient(90deg, #1877f2, #38bdf8, #0ea5e9);
-        animation: holoBarLoad 2.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        background: linear-gradient(90deg, #1877f2, #38bdf8, #fbbf24);
+        box-shadow: 0 0 16px #38bdf8;
+        transition: width 0.12s linear;
       }
-
-      /* الرسوم المتحركة (Animations) */
-      @keyframes holoRotate {
-        0% { transform: rotate(0deg) scale(1); }
-        100% { transform: rotate(360deg) scale(1.02); }
+      .jp-hint {
+        color: #bae6fd;
+        font-size: 0.78rem;
+        opacity: 0.88;
       }
-      @keyframes holoFlicker {
-        0% { opacity: 0.95; filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.5)); }
-        100% { opacity: 1; filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.7)); }
+      @keyframes jpFloatA {
+        0% { transform: translateY(0px) rotate(-1deg); }
+        100% { transform: translateY(-7px) rotate(1.5deg); }
       }
-      @keyframes holoBarLoad {
-        0% { width: 15%; }
-        50% { width: 70%; }
-        100% { width: 100%; }
-      }
-      @keyframes labelPulse {
-        0% { opacity: 0.82; transform: scale(0.99); }
-        100% { opacity: 1; transform: scale(1.01); }
+      @keyframes jpFloatB {
+        0% { transform: translateY(0px) rotate(1deg); }
+        100% { transform: translateY(-6px) rotate(-1.5deg); }
       }
     `;
     document.head.appendChild(style);
 
-    const loader = document.createElement("div");
-    loader.id = "supermanHolographicPreloader";
-    loader.setAttribute("role", "status");
-    loader.setAttribute("aria-label", "جاري تحميل المنصة");
+    const preloader = document.createElement("div");
+    preloader.id = "jaafariaInteractivePreloader";
+    preloader.setAttribute("role", "status");
+    preloader.setAttribute("aria-label", "جاري تحميل منصة الأبحاث");
 
-    loader.innerHTML = `
-      <div class="superman-holo-container">
-        <div class="holo-platform-blur"></div>
-        <!-- الحلقات الرقمية والهولوجرامية -->
-        <svg class="holo-rings" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="150" cy="150" r="140" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1.5" stroke-dasharray="10 5"/>
-          <circle cx="150" cy="150" r="120" stroke="rgba(24, 119, 242, 0.4)" stroke-width="2" stroke-dasharray="20 8 5 8"/>
-          <path d="M150 10 A140 140 0 0 1 290 150" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
-          <path d="M150 290 A140 140 0 0 1 10 150" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
-          <!-- عناصر أبحاث وأكواد خفيفة -->
-          <text x="40" y="80" fill="rgba(255, 255, 255, 0.3)" font-family="monospace" font-size="10">import research_data</text>
-          <text x="200" y="220" fill="rgba(56, 189, 248, 0.4)" font-family="monospace" font-size="10">compile_index()</text>
-        </svg>
-        <!-- شخصية البطل بحرف M الذهبي (تم استبدال حرف «م» بـ M) -->
-        <img class="superman-holo-char" src="data:image/svg+xml;charset=utf-8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 260 230&quot;><defs><linearGradient id=&quot;suitBlueGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;><stop offset=&quot;0%&quot; stop-color=&quot;%231d6fd8&quot;/><stop offset=&quot;55%&quot; stop-color=&quot;%23134e9e&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;%230b2f63&quot; /></linearGradient><linearGradient id=&quot;capeGoldGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;100%&quot; y2=&quot;100%&quot;><stop offset=&quot;0%&quot; stop-color=&quot;%23f7be45&quot;/><stop offset=&quot;60%&quot; stop-color=&quot;%23d98a1c&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;%239e5a08&quot; /></linearGradient><linearGradient id=&quot;emblemRedGrad&quot; x1=&quot;0%&quot; y1=&quot;0%&quot; x2=&quot;0%&quot; y2=&quot;100%&quot;><stop offset=&quot;0%&quot; stop-color=&quot;%23dc2626&quot;/><stop offset=&quot;100%&quot; stop-color=&quot;%238f1111&quot; /></linearGradient></defs><path class=&quot;superman-cape-wave&quot; d=&quot;M84 82 C54 96, 42 132, 54 176 C68 164, 78 158, 92 166 C94 140, 102 122, 114 114 Z&quot; fill=&quot;url(%23capeGoldGrad)&quot; stroke=&quot;%231a1208&quot; stroke-width=&quot;2.2&quot; stroke-linejoin=&quot;round&quot; transform-origin=&quot;120 88&quot;/><path class=&quot;superman-cape-wave&quot; d=&quot;M156 82 C188 98, 198 134, 184 178 C170 164, 158 158, 144 166 C142 140, 134 122, 124 114 Z&quot; fill=&quot;url(%23capeGoldGrad)&quot; stroke=&quot;%231a1208&quot; stroke-width=&quot;2.2&quot; stroke-linejoin=&quot;round&quot; transform-origin=&quot;120 88&quot; style=&quot;animation: capeFlutter 0.75s ease-in-out infinite alternate;&quot;/><path d=&quot;M100 148 L92 192 L106 196 L118 156 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M124 154 L132 198 L146 194 L142 150 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M91 186 L88 205 L104 207 L107 190 Z&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><path d=&quot;M130 190 L133 210 L149 207 L146 187 Z&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><path d=&quot;M84 82 C98 74, 142 74, 156 82 L146 146 C130 154, 110 154, 94 146 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.4&quot; stroke-linejoin=&quot;round&quot;/><path d=&quot;M95 140 C112 147, 128 147, 145 140 L142 155 C126 162, 114 162, 98 155 Z&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><polygon points=&quot;120,143 128,148 120,154 112,148&quot; fill=&quot;%23fbbf24&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;1.5&quot;/><path d=&quot;M154 84 C172 94, 182 110, 186 128 L172 133 C166 118, 158 106, 148 98 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><circle cx=&quot;180&quot; cy=&quot;134&quot; r=&quot;8.5&quot; fill=&quot;%23f3c1a2&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2&quot;/><path d=&quot;M86 84 C68 76, 56 64, 52 48 L72 44 C76 56, 84 66, 96 74 Z&quot; fill=&quot;url(%23suitBlueGrad)&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.4&quot;/><rect x=&quot;44&quot; y=&quot;28&quot; width=&quot;26&quot; height=&quot;22&quot; rx=&quot;9&quot; transform=&quot;rotate(-14 57 39)&quot; fill=&quot;%23f3c1a2&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M48 37 L65 33 M49 42 L66 38&quot; stroke=&quot;%23b97b58&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot;/><polygon points=&quot;120,89 144,102 120,127 96,102&quot; fill=&quot;url(%23emblemRedGrad)&quot; stroke=&quot;%23fbbf24&quot; stroke-width=&quot;2.8&quot; stroke-linejoin=&quot;round&quot;/><text x=&quot;120&quot; y=&quot;114&quot; text-anchor=&quot;middle&quot; fill=&quot;%23fbbf24&quot; stroke=&quot;%233b0707&quot; stroke-width=&quot;0.9&quot; font-family=&quot;Arial Black, Impact, sans-serif&quot; font-size=&quot;22&quot; font-weight=&quot;900&quot;>M</text><rect x=&quot;112&quot; y=&quot;64&quot; width=&quot;16&quot; height=&quot;14&quot; rx=&quot;5&quot; fill=&quot;%23eab392&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;1.8&quot;/><ellipse cx=&quot;120&quot; cy=&quot;50&quot; rx=&quot;16&quot; ry=&quot;19&quot; fill=&quot;%23f5c6a8&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;2.2&quot;/><path d=&quot;M104 46 C103 30, 114 24, 126 26 C135 28, 138 36, 136 46 C133 38, 127 35, 119 36 C113 37, 108 40, 104 46 Z&quot; fill=&quot;%23111827&quot; stroke=&quot;%23091526&quot; stroke-width=&quot;1.8&quot;/><path d=&quot;M110 44 Q114 42 117 44&quot; stroke=&quot;%23111827&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot;/><path d=&quot;M123 44 Q126 42 130 44&quot; stroke=&quot;%23111827&quot; stroke-width=&quot;2&quot; fill=&quot;none&quot; stroke-linecap="round"/><circle cx=&quot;114&quot; cy=&quot;48&quot; r=&quot;1.6&quot; fill=&quot;%23111827&quot;/><circle cx=&quot;126&quot; cy=&quot;48&quot; r=&quot;1.6&quot; fill=&quot;%23111827&quot;/><path d=&quot;M113 56 Q120 53 127 56 Q125 59 120 57.5 Q115 59 113 56 Z&quot; fill=&quot;%23111827&quot;/><path d=&quot;M116 61 Q120 63 124 61&quot; stroke=&quot;%239f5f42&quot; stroke-width=&quot;1.5&quot; fill=&quot;none&quot; stroke-linecap=&quot;round&quot; style=&quot;animation: capeFlutter 0.75s ease-in-out infinite alternate;&quot; /></svg>">
-        <div style=&quot;position:absolute; bottom:26%; left:50%; transform:translateX(-50%); font-family:Arial, Helvetica, sans-serif; font-weight:900; font-size:14px; color:%23fbbf24; pointer-events:none;&quot;>M</div>
+    preloader.innerHTML = `
+      <div class="jp-stage" id="jpInteractiveStage">
+        <button type="button" class="jp-paper-badge jp-paper-1" data-msg="تجهيز الأبحاث العلمية...">📄 أوراق الأبحاث</button>
+        <button type="button" class="jp-paper-badge jp-paper-2" data-msg="مراجعة المصادر والمراجع...">📚 المراجع العلمية</button>
+        <button type="button" class="jp-paper-badge jp-paper-3" data-msg="تشغيل المحرك الذكي للمنصة...">⚡ فهرسة المحتوى</button>
+        <img class="jp-hero-art" src="image/7795.jpg" alt="جاري تحميل منصة الأبحاث" />
       </div>
-      <div class="superman-holo-label">جاري تحميل منصة الأبحاث...</div>
-      <div class="superman-holo-progress">
-        <div class="superman-holo-fill"></div>
+      <div class="jp-hud-box">
+        <div class="jp-status-row">
+          <span id="jpStatusText">جاري تحميل منصة الأبحاث...</span>
+          <span class="jp-percent" id="jpPercentText">0%</span>
+        </div>
+        <div class="jp-bar-track" aria-hidden="true">
+          <div class="jp-bar-fill" id="jpBarFill"></div>
+        </div>
+        <div class="jp-hint" id="jpHintText">حرّك المؤشر أو اضغط على الأوراق البحثية للتفاعل — أو اضغط للدخول فوراً</div>
       </div>
     `;
 
-    // إضافة اللودر إلى body
-    document.body.appendChild(loader);
+    document.body.appendChild(preloader);
 
-    // وظيفة لإخفاء اللودر بعد اكتمال التحميل أو بعد مدة زمنية
-    let hidden = false;
-    function hideLoader() {
-      if (hidden) return;
-      hidden = true;
-      loader.classList.add("is-hidden");
-      // إزالة العنصر تماماً من الـ DOM بعد انتهاء حركة الانتقال
+    const stage = document.getElementById("jpInteractiveStage");
+    const barFill = document.getElementById("jpBarFill");
+    const percentText = document.getElementById("jpPercentText");
+    const statusText = document.getElementById("jpStatusText");
+    const badges = preloader.querySelectorAll(".jp-paper-badge");
+
+    function updateTilt(clientX, clientY) {
+      const rect = stage.getBoundingClientRect();
+      const nx = (clientX - (rect.left + rect.width / 2)) / (rect.width / 2 || 1);
+      const ny = (clientY - (rect.top + rect.height / 2)) / (rect.height / 2 || 1);
+      const rotY = Math.max(-7, Math.min(7, nx * 6));
+      const rotX = Math.max(-6, Math.min(6, -ny * 5));
+      stage.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    }
+
+    preloader.addEventListener("pointermove", (e) => {
+      updateTilt(e.clientX, e.clientY);
+    });
+
+    preloader.addEventListener("pointerleave", () => {
+      stage.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg)";
+    });
+
+    badges.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        badges.forEach((b) => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        statusText.textContent = btn.getAttribute("data-msg") || "جاري تحميل منصة الأبحاث...";
+      });
+    });
+
+    let progress = 0;
+    let pageLoaded = document.readyState === "complete";
+    let closed = false;
+
+    window.addEventListener("load", () => {
+      pageLoaded = true;
+    }, { once: true });
+
+    function closePreloader() {
+      if (closed) return;
+      closed = true;
+      clearInterval(timer);
+      progress = 100;
+      barFill.style.width = "100%";
+      percentText.textContent = "100%";
+      statusText.textContent = "اكتمل تحميل منصة الأبحاث";
       setTimeout(() => {
-        if (loader.parentNode) loader.parentNode.removeChild(loader);
-      }, 500);
+        preloader.classList.add("is-hidden");
+        setTimeout(() => {
+          if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+        }, 600);
+      }, 180);
     }
 
-    // ضبط وقت عرض اللودر بحد أدنى 1.75 ثانية لضمان رؤية التأثير الكامل
-    const minDisplayMs = 1750;
-    const openedAt = Date.now();
+    const timer = setInterval(() => {
+      const cap = pageLoaded ? 100 : 92;
+      const step = pageLoaded ? 7 : 3.5;
+      progress = Math.min(cap, progress + step);
+      const shown = Math.round(progress);
+      barFill.style.width = shown + "%";
+      percentText.textContent = shown + "%";
+      if (progress >= 100) {
+        closePreloader();
+      }
+    }, 65);
 
-    function scheduleHide() {
-      const elapsed = Date.now() - openedAt;
-      const wait = Math.max(0, minDisplayMs - elapsed);
-      setTimeout(hideLoader, wait);
-    }
-
-    // تنفيذ الإخفاء عند اكتمال تحميل الصفحة أو بعد المهلة
-    if (document.readyState === "complete") {
-      scheduleHide();
-    } else {
-      window.addEventListener("load", scheduleHide, { once: true });
-      // حد أقصى 3.5 ثانية في حال تعذر اكتمال حدث load
-      setTimeout(hideLoader, 3500);
-    }
+    preloader.addEventListener("click", closePreloader);
+    setTimeout(closePreloader, 4200);
   }
 
-  // بدء تشغيل اللودر عند تحميل الصفحة
   if (document.body) {
-    initSupermanHolographicPreloader();
+    initInteractiveResearchPreloader();
   } else {
-    document.addEventListener("DOMContentLoaded", initSupermanHolographicPreloader, { once: true });
+    document.addEventListener("DOMContentLoaded", initInteractiveResearchPreloader, { once: true });
   }
 })();
 </script>
