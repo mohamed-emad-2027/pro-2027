@@ -950,57 +950,55 @@
   setInterval(scrubAssistantMediaButtons, 400);
 })();
 </script>
-    <!-- زر صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك في الفوتر -->
+   <!-- الرابط العميق لفيسبوك بأسلوب المنصات العالمية (فوق سطر الحقوق) + تنقل التبويبات -->
 <script>
 (function () {
-  function addSchoolFacebookFooter() {
+  const FB_WEB_URL = "https://www.facebook.com/profile.php?id=61553655967066&locale=ar_AR";
+  const FB_APP_URL = "fb://profile/61553655967066";
+
+  function placeGlobalFacebookAboveCopyright() {
     const footerInner =
-      document.querySelector('footer.footer .footer-inner') ||
-      document.querySelector('footer.footer') ||
-      document.querySelector('footer');
+      document.querySelector("footer.footer .footer-inner") ||
+      document.querySelector("footer.footer") ||
+      document.querySelector("footer");
+    if (!footerInner) return;
 
-    if (!footerInner || document.getElementById('schoolFbLinkBox')) return;
-
-    if (!document.getElementById('schoolFbStyle')) {
-      const style = document.createElement('style');
-      style.id = 'schoolFbStyle';
+    if (!document.getElementById("schoolFbGlobalStyle")) {
+      const style = document.createElement("style");
+      style.id = "schoolFbGlobalStyle";
       style.textContent = `
         .school-social-box {
-          margin-top: 16px;
+          margin-top: 8px;
+          margin-bottom: 6px;
           display: flex;
           justify-content: center;
+          align-items: center;
         }
         .fb-school-link {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          padding: 10px 20px;
-          border-radius: 999px;
-          background: rgba(24, 119, 242, 0.14);
-          border: 1px solid rgba(24, 119, 242, 0.5);
-          color: inherit;
+          padding: 9px 18px 9px 13px;
+          border-radius: 12px;
+          background: var(--bg-card, #ffffff);
+          border: 1px solid var(--border-color, rgba(15, 41, 66, 0.14));
+          color: var(--text-main, #182230);
           text-decoration: none;
           font-weight: 700;
-          font-size: 0.95rem;
-          transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-        }
-        .fb-school-link:hover {
-          transform: translateY(-2px);
-          background: rgba(24, 119, 242, 0.24);
-          border-color: #1877f2;
+          font-size: 0.92rem;
         }
         .fb-icon-circle {
-          width: 28px;
-          height: 28px;
+          width: 26px;
+          height: 26px;
           border-radius: 50%;
           background: #1877f2;
           color: #ffffff;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-family: Arial, sans-serif;
-          font-size: 17px;
-          font-weight: 900;
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 16px;
+          font-weight: 700;
           line-height: 1;
           flex-shrink: 0;
         }
@@ -1008,26 +1006,85 @@
       document.head.appendChild(style);
     }
 
-    const box = document.createElement('div');
-    box.id = 'schoolFbLinkBox';
-    box.className = 'school-social-box';
-    box.innerHTML = `
-      <a href="https://www.facebook.com/profile.php?id=61553655967066&locale=ar_AR"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="fb-school-link"
-         aria-label="صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك">
-        <span class="fb-icon-circle" aria-hidden="true">f</span>
-        <span>صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك</span>
-      </a>
-    `;
-    footerInner.appendChild(box);
+    let box = document.getElementById("schoolFbLinkBox");
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "schoolFbLinkBox";
+      box.className = "school-social-box";
+      box.innerHTML = `
+        <a href="${FB_WEB_URL}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="fb-school-link"
+           aria-label="صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك">
+          <span class="fb-icon-circle" aria-hidden="true">f</span>
+          <span>صفحة مدرسة الجعفرية الثانوية المشتركة على فيسبوك</span>
+        </a>
+      `;
+    }
+
+    const copyrightBadge = footerInner.querySelector(".copyright-badge");
+    if (copyrightBadge) {
+      if (box.nextElementSibling !== copyrightBadge) {
+        footerInner.insertBefore(box, copyrightBadge);
+      }
+    } else if (!box.parentElement) {
+      footerInner.appendChild(box);
+    }
+
+    const fbLink = box.querySelector(".fb-school-link");
+    if (fbLink && fbLink.dataset.deepLinkReady !== "1") {
+      fbLink.dataset.deepLinkReady = "1";
+      fbLink.setAttribute("href", FB_WEB_URL);
+      fbLink.addEventListener("click", function (e) {
+        const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
+        if (!isMobile) return;
+
+        e.preventDefault();
+        const clickedAt = Date.now();
+        try {
+          window.location.href = FB_APP_URL;
+        } catch (_) {}
+
+        setTimeout(function () {
+          if (!document.hidden && (Date.now() - clickedAt) < 2000) {
+            window.open(FB_WEB_URL, "_blank", "noopener,noreferrer");
+          }
+        }, 950);
+      });
+    }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addSchoolFacebookFooter);
+  function openDeepTabFromQueryOrHash() {
+    const params = new URLSearchParams(window.location.search || "");
+    const rawHash = (window.location.hash || "").replace(/^#/, "");
+    const hashTab = rawHash.startsWith("tab=") ? rawHash.slice(4) : rawHash;
+    const requestedTab = params.get("tab") || hashTab;
+
+    if (!requestedTab || typeof window.switchTab !== "function") return;
+    const targetSection = document.getElementById(requestedTab);
+    if (targetSection && targetSection.classList.contains("section")) {
+      window.switchTab(requestedTab);
+    }
+  }
+
+  function bootDeepLinks() {
+    placeGlobalFacebookAboveCopyright();
+    openDeepTabFromQueryOrHash();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootDeepLinks);
   } else {
-    addSchoolFacebookFooter();
+    bootDeepLinks();
+  }
+
+  window.addEventListener("load", placeGlobalFacebookAboveCopyright);
+  window.addEventListener("hashchange", openDeepTabFromQueryOrHash);
+
+  const deepObserver = new MutationObserver(placeGlobalFacebookAboveCopyright);
+  if (document.body) {
+    deepObserver.observe(document.body, { childList: true, subtree: true });
   }
 })();
 </script>
