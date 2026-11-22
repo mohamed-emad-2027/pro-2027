@@ -950,25 +950,25 @@
   setInterval(scrubAssistantMediaButtons, 400);
 })();
 </script>
-   <!-- الرابط العميق لفيسبوك بأسلوب المنصات العالمية (فوق سطر الحقوق) + تنقل التبويبات -->
+ <!-- الرابط العميق لفيسبوك (ذهبي في أسود - فوق سطر الحقوق) + تنقل التبويبات -->
 <script>
 (function () {
   const FB_WEB_URL = "https://www.facebook.com/profile.php?id=61553655967066&locale=ar_AR";
   const FB_APP_URL = "fb://profile/61553655967066";
 
-  function placeGlobalFacebookAboveCopyright() {
+  function placeBlackGoldFacebookAboveCopyright() {
     const footerInner =
       document.querySelector("footer.footer .footer-inner") ||
       document.querySelector("footer.footer") ||
       document.querySelector("footer");
     if (!footerInner) return;
 
-    if (!document.getElementById("schoolFbGlobalStyle")) {
+    if (!document.getElementById("schoolFbBlackGoldStyle")) {
       const style = document.createElement("style");
-      style.id = "schoolFbGlobalStyle";
+      style.id = "schoolFbBlackGoldStyle";
       style.textContent = `
         .school-social-box {
-          margin-top: 8px;
+          margin-top: 10px;
           margin-bottom: 6px;
           display: flex;
           justify-content: center;
@@ -977,28 +977,29 @@
         .fb-school-link {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          padding: 9px 18px 9px 13px;
-          border-radius: 12px;
-          background: var(--bg-card, #ffffff);
-          border: 1px solid var(--border-color, rgba(15, 41, 66, 0.14));
-          color: var(--text-main, #182230);
+          gap: 11px;
+          padding: 11px 22px 11px 15px;
+          border-radius: 999px;
+          background: linear-gradient(135deg, #09111e, #142238);
+          border: 1.5px solid #d4af37;
+          color: #fbbf24;
           text-decoration: none;
-          font-weight: 700;
-          font-size: 0.92rem;
+          font-weight: 800;
+          font-size: 0.94rem;
+          letter-spacing: 0.2px;
         }
         .fb-icon-circle {
-          width: 26px;
-          height: 26px;
+          width: 28px;
+          height: 28px;
           border-radius: 50%;
-          background: #1877f2;
-          color: #ffffff;
+          background: #d4af37;
+          color: #09111e;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           font-family: Arial, Helvetica, sans-serif;
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 17px;
+          font-weight: 900;
           line-height: 1;
           flex-shrink: 0;
         }
@@ -1036,21 +1037,24 @@
     if (fbLink && fbLink.dataset.deepLinkReady !== "1") {
       fbLink.dataset.deepLinkReady = "1";
       fbLink.setAttribute("href", FB_WEB_URL);
-      fbLink.addEventListener("click", function (e) {
+      fbLink.setAttribute("target", "_blank");
+      fbLink.setAttribute("rel", "noopener noreferrer");
+
+      fbLink.addEventListener("click", function () {
         const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || "");
         if (!isMobile) return;
 
-        e.preventDefault();
-        const clickedAt = Date.now();
         try {
-          window.location.href = FB_APP_URL;
+          const appFrame = document.createElement("iframe");
+          appFrame.style.display = "none";
+          appFrame.src = FB_APP_URL;
+          document.body.appendChild(appFrame);
+          setTimeout(function () {
+            if (appFrame && appFrame.parentNode) {
+              appFrame.parentNode.removeChild(appFrame);
+            }
+          }, 1500);
         } catch (_) {}
-
-        setTimeout(function () {
-          if (!document.hidden && (Date.now() - clickedAt) < 2000) {
-            window.open(FB_WEB_URL, "_blank", "noopener,noreferrer");
-          }
-        }, 950);
       });
     }
   }
@@ -1069,7 +1073,7 @@
   }
 
   function bootDeepLinks() {
-    placeGlobalFacebookAboveCopyright();
+    placeBlackGoldFacebookAboveCopyright();
     openDeepTabFromQueryOrHash();
   }
 
@@ -1079,10 +1083,10 @@
     bootDeepLinks();
   }
 
-  window.addEventListener("load", placeGlobalFacebookAboveCopyright);
+  window.addEventListener("load", placeBlackGoldFacebookAboveCopyright);
   window.addEventListener("hashchange", openDeepTabFromQueryOrHash);
 
-  const deepObserver = new MutationObserver(placeGlobalFacebookAboveCopyright);
+  const deepObserver = new MutationObserver(placeBlackGoldFacebookAboveCopyright);
   if (document.body) {
     deepObserver.observe(document.body, { childList: true, subtree: true });
   }
