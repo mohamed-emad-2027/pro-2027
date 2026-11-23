@@ -1459,7 +1459,7 @@
   }
 })();
 </script>
-   <!-- السكريبت الخامس (مُصحّح ومُقوّى): شعار منصة أبحاث البكالوريا 2027 - مدرسة الجعفرية الثانوية المشتركة -->
+  <!-- السكريبت الخامس (50% متوازن): شعار منصة أبحاث البكالوريا 2027 - مدرسة الجعفرية الثانوية المشتركة -->
 <script>
 (function () {
   const oldWatermark = document.getElementById("jaafariaGoldCenterWatermark");
@@ -1482,10 +1482,10 @@
     }
 
     #jaafariaGoldCenterWatermark svg {
-      width: min(78vw, 560px);
-      height: min(78vw, 560px);
-      opacity: 0.78;
-      filter: drop-shadow(0 0 32px rgba(255, 215, 90, 0.55)) drop-shadow(0 14px 34px rgba(0, 0, 0, 0.7));
+      width: min(76vw, 540px);
+      height: min(76vw, 540px);
+      opacity: 0.5;
+      filter: drop-shadow(0 0 22px rgba(245, 200, 75, 0.32)) drop-shadow(0 12px 26px rgba(0, 0, 0, 0.45));
       transition: transform 0.25s ease-out, opacity 0.35s ease;
       will-change: transform;
     }
@@ -1493,13 +1493,6 @@
     main, section, footer, .card, [class*="card"], [class*="box"], [class*="stat"] {
       position: relative;
       z-index: 1;
-    }
-
-    /* جعل خلفية البطاقات شفافة نسبياً حتى يظهر الشعار الذهبي بوضوح خلفها */
-    .card, [class*="card"], [class*="stat"] {
-      background-color: rgba(10, 19, 38, 0.58) !important;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
     }
   `;
   document.head.appendChild(style);
@@ -1512,8 +1505,8 @@
     <svg id="jaafariaGoldSvg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="bgGlowJaafaria" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffea8a" stop-opacity="0.52"/>
-          <stop offset="65%" stop-color="#d4a024" stop-opacity="0.22"/>
+          <stop offset="0%" stop-color="#ffea8a" stop-opacity="0.38"/>
+          <stop offset="65%" stop-color="#d4a024" stop-opacity="0.15"/>
           <stop offset="100%" stop-color="#070d19" stop-opacity="0"/>
         </radialGradient>
 
@@ -1541,9 +1534,9 @@
 
       <!-- الإطار المعدني الذهبي الخارجي -->
       <circle cx="300" cy="300" r="262" fill="url(#innerNavyJaafaria)" stroke="url(#goldMetallicJaafaria)" stroke-width="16"/>
-      <circle cx="300" cy="300" r="247" fill="none" stroke="#fff8c9" stroke-width="2" stroke-opacity="0.88"/>
+      <circle cx="300" cy="300" r="247" fill="none" stroke="#fff8c9" stroke-width="2" stroke-opacity="0.85"/>
       <circle cx="300" cy="300" r="176" fill="none" stroke="url(#goldMetallicJaafaria)" stroke-width="7.5"/>
-      <circle cx="300" cy="300" r="167" fill="none" stroke="#fff8c9" stroke-width="1.3" stroke-opacity="0.7"/>
+      <circle cx="300" cy="300" r="167" fill="none" stroke="#fff8c9" stroke-width="1.3" stroke-opacity="0.65"/>
 
       <!-- نجوم جانبية -->
       <polygon points="88,300 93,311 105,312 96,320 99,332 88,325 77,332 80,320 71,312 83,311" fill="url(#goldMetallicJaafaria)"/>
@@ -1604,5 +1597,6 @@
 </script>
 </body>
 </html>
+
 
 
