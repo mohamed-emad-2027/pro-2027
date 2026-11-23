@@ -1459,7 +1459,7 @@
   }
 })();
 </script>
-  <!-- السكريبت الخامس (50% متوازن): شعار منصة أبحاث البكالوريا 2027 - مدرسة الجعفرية الثانوية المشتركة -->
+ <!-- السكريبت الخامس (الحل النهائي للقراءة 100%): نقش شعار ذهبي شفاف بدون كتلة خلفية -->
 <script>
 (function () {
   const oldWatermark = document.getElementById("jaafariaGoldCenterWatermark");
@@ -1482,15 +1482,15 @@
     }
 
     #jaafariaGoldCenterWatermark svg {
-      width: min(76vw, 540px);
-      height: min(76vw, 540px);
-      opacity: 0.5;
-      filter: drop-shadow(0 0 22px rgba(245, 200, 75, 0.32)) drop-shadow(0 12px 26px rgba(0, 0, 0, 0.45));
-      transition: transform 0.25s ease-out, opacity 0.35s ease;
+      width: min(74vw, 520px);
+      height: min(74vw, 520px);
+      opacity: 0.2;
+      filter: drop-shadow(0 4px 16px rgba(212, 175, 55, 0.22));
+      transition: transform 0.25s ease-out;
       will-change: transform;
     }
 
-    main, section, footer, .card, [class*="card"], [class*="box"], [class*="stat"] {
+    header, main, section, footer, nav, .card, [class*="card"], [class*="box"], [class*="stat"], h1, h2, h3, p, a, button {
       position: relative;
       z-index: 1;
     }
@@ -1504,71 +1504,55 @@
   wrapper.innerHTML = `
     <svg id="jaafariaGoldSvg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="bgGlowJaafaria" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#ffea8a" stop-opacity="0.38"/>
-          <stop offset="65%" stop-color="#d4a024" stop-opacity="0.15"/>
-          <stop offset="100%" stop-color="#070d19" stop-opacity="0"/>
-        </radialGradient>
-
-        <linearGradient id="goldMetallicJaafaria" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="goldMetallicClean" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#fff8c9"/>
-          <stop offset="25%" stop-color="#ffd154"/>
-          <stop offset="52%" stop-color="#c48d16"/>
-          <stop offset="78%" stop-color="#ffe68c"/>
+          <stop offset="28%" stop-color="#f5c84b"/>
+          <stop offset="55%" stop-color="#c48d16"/>
+          <stop offset="82%" stop-color="#ffe68c"/>
           <stop offset="100%" stop-color="#a6720f"/>
         </linearGradient>
 
-        <linearGradient id="innerNavyJaafaria" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stop-color="#162b52"/>
-          <stop offset="100%" stop-color="#070f1f"/>
-        </linearGradient>
-
-        <!-- مسار القوس العلوي: من اليسار لليمين فوق المنتصف -->
-        <path id="topArcPathJaafaria" d="M 92,300 A 208,208 0 1,1 508,300" />
-        <!-- مسار القوس السفلي المُصحّح: من اليسار لليمين أسفل المنتصف حتى يظهر النص معتدلاً 100% -->
-        <path id="bottomArcPathJaafaria" d="M 76,308 A 224,224 0 0,0 524,308" />
+        <path id="topArcPathClean" d="M 92,300 A 208,208 0 1,1 508,300" />
+        <path id="bottomArcPathClean" d="M 76,308 A 224,224 0 0,0 524,308" />
       </defs>
 
-      <!-- هالة ذهبية خلفية -->
-      <circle cx="300" cy="300" r="292" fill="url(#bgGlowJaafaria)"/>
-
-      <!-- الإطار المعدني الذهبي الخارجي -->
-      <circle cx="300" cy="300" r="262" fill="url(#innerNavyJaafaria)" stroke="url(#goldMetallicJaafaria)" stroke-width="16"/>
-      <circle cx="300" cy="300" r="247" fill="none" stroke="#fff8c9" stroke-width="2" stroke-opacity="0.85"/>
-      <circle cx="300" cy="300" r="176" fill="none" stroke="url(#goldMetallicJaafaria)" stroke-width="7.5"/>
-      <circle cx="300" cy="300" r="167" fill="none" stroke="#fff8c9" stroke-width="1.3" stroke-opacity="0.65"/>
+      <!-- إطار ذهبي مفرغ (بدون دائرة غامقة في الخلفية لعدم التشويش على النصوص) -->
+      <circle cx="300" cy="300" r="262" fill="none" stroke="url(#goldMetallicClean)" stroke-width="14"/>
+      <circle cx="300" cy="300" r="247" fill="none" stroke="#fff8c9" stroke-width="1.8" stroke-opacity="0.75"/>
+      <circle cx="300" cy="300" r="176" fill="none" stroke="url(#goldMetallicClean)" stroke-width="6.5"/>
+      <circle cx="300" cy="300" r="167" fill="none" stroke="#fff8c9" stroke-width="1.2" stroke-opacity="0.6"/>
 
       <!-- نجوم جانبية -->
-      <polygon points="88,300 93,311 105,312 96,320 99,332 88,325 77,332 80,320 71,312 83,311" fill="url(#goldMetallicJaafaria)"/>
-      <polygon points="512,300 517,311 529,312 520,320 523,332 512,325 501,332 504,320 495,312 507,311" fill="url(#goldMetallicJaafaria)"/>
+      <polygon points="88,300 93,311 105,312 96,320 99,332 88,325 77,332 80,320 71,312 83,311" fill="url(#goldMetallicClean)"/>
+      <polygon points="512,300 517,311 529,312 520,320 523,332 512,325 501,332 504,320 495,312 507,311" fill="url(#goldMetallicClean)"/>
 
       <!-- النص الدائري العلوي المعتدل -->
-      <text fill="url(#goldMetallicJaafaria)" font-family="Cairo, Tajawal, sans-serif" font-size="31" font-weight="900">
-        <textPath href="#topArcPathJaafaria" startOffset="50%" text-anchor="middle">
+      <text fill="url(#goldMetallicClean)" font-family="Cairo, Tajawal, sans-serif" font-size="31" font-weight="900">
+        <textPath href="#topArcPathClean" startOffset="50%" text-anchor="middle">
           منصة أبحاث البكالوريا 2027
         </textPath>
       </text>
 
       <!-- النص الدائري السفلي المعتدل 100% -->
-      <text fill="url(#goldMetallicJaafaria)" font-family="Cairo, Tajawal, sans-serif" font-size="27" font-weight="900">
-        <textPath href="#bottomArcPathJaafaria" startOffset="50%" text-anchor="middle">
+      <text fill="url(#goldMetallicClean)" font-family="Cairo, Tajawal, sans-serif" font-size="27" font-weight="900">
+        <textPath href="#bottomArcPathClean" startOffset="50%" text-anchor="middle">
           مدرسة الجعفرية الثانوية المشتركة
         </textPath>
       </text>
 
-      <!-- أيقونة الشعلة والكتاب المفتوح في المنتصف -->
+      <!-- أيقونة الشعلة والكتاب المفتوح -->
       <g transform="translate(300, 300)">
-        <path d="M 0,-118 C 16,-96 22,-78 10,-62 C 6,-56 14,-48 16,-40 C 4,-44 -6,-52 -8,-64 C -16,-78 -12,-98 0,-118 Z" fill="url(#goldMetallicJaafaria)"/>
-        <rect x="-16" y="-36" width="32" height="8" rx="3" fill="url(#goldMetallicJaafaria)"/>
-        <polygon points="-11,-26 11,-26 6,28 -6,28" fill="url(#goldMetallicJaafaria)"/>
+        <path d="M 0,-118 C 16,-96 22,-78 10,-62 C 6,-56 14,-48 16,-40 C 4,-44 -6,-52 -8,-64 C -16,-78 -12,-98 0,-118 Z" fill="url(#goldMetallicClean)"/>
+        <rect x="-16" y="-36" width="32" height="8" rx="3" fill="url(#goldMetallicClean)"/>
+        <polygon points="-11,-26 11,-26 6,28 -6,28" fill="url(#goldMetallicClean)"/>
 
         <path d="M -112,26 C -72,14 -34,18 0,36 C 34,18 72,14 112,26 L 102,88 C 66,76 32,80 0,96 C -32,80 -66,76 -102,88 Z"
-              fill="none" stroke="url(#goldMetallicJaafaria)" stroke-width="8" stroke-linejoin="round"/>
+              fill="none" stroke="url(#goldMetallicClean)" stroke-width="7.5" stroke-linejoin="round"/>
         <path d="M -94,40 C -62,32 -30,36 -6,48 M 94,40 C 62,32 30,36 6,48"
-              stroke="url(#goldMetallicJaafaria)" stroke-width="4.5" stroke-linecap="round"/>
+              stroke="url(#goldMetallicClean)" stroke-width="4.2" stroke-linecap="round"/>
         <path d="M -90,58 C -60,50 -30,54 -6,66 M 90,58 C 60,50 30,54 6,66"
-              stroke="url(#goldMetallicJaafaria)" stroke-width="4.5" stroke-linecap="round"/>
-        <line x1="0" y1="36" x2="0" y2="96" stroke="url(#goldMetallicJaafaria)" stroke-width="6"/>
+              stroke="url(#goldMetallicClean)" stroke-width="4.2" stroke-linecap="round"/>
+        <line x1="0" y1="36" x2="0" y2="96" stroke="url(#goldMetallicClean)" stroke-width="5.5"/>
       </g>
     </svg>
   `;
@@ -1582,9 +1566,9 @@
   const svgEl = document.getElementById("jaafariaGoldSvg");
   function handleMove(clientX, clientY) {
     if (!svgEl) return;
-    const xRatio = (clientX / window.innerWidth - 0.5) * 14;
-    const yRatio = (clientY / window.innerHeight - 0.5) * 14;
-    svgEl.style.transform = `translate(${xRatio.toFixed(1)}px, ${yRatio.toFixed(1)}px) scale(1.01)`;
+    const xRatio = (clientX / window.innerWidth - 0.5) * 12;
+    const yRatio = (clientY / window.innerHeight - 0.5) * 12;
+    svgEl.style.transform = `translate(${xRatio.toFixed(1)}px, ${yRatio.toFixed(1)}px)`;
   }
 
   window.addEventListener("mousemove", (e) => handleMove(e.clientX, e.clientY), { passive: true });
@@ -1597,6 +1581,7 @@
 </script>
 </body>
 </html>
+
 
 
 
