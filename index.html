@@ -1459,7 +1459,7 @@
   }
 })();
 </script>
- <!-- السكريبت الخامس (الحل النهائي للقراءة 100%): نقش شعار ذهبي شفاف بدون كتلة خلفية -->
+<!-- السكريبت الخامس (توازن مثالي: كتابة واضحة 100% + شعار ذهبي بارز ومفرغ) -->
 <script>
 (function () {
   const oldWatermark = document.getElementById("jaafariaGoldCenterWatermark");
@@ -1482,10 +1482,10 @@
     }
 
     #jaafariaGoldCenterWatermark svg {
-      width: min(74vw, 520px);
-      height: min(74vw, 520px);
-      opacity: 0.2;
-      filter: drop-shadow(0 4px 16px rgba(212, 175, 55, 0.22));
+      width: min(76vw, 540px);
+      height: min(76vw, 540px);
+      opacity: 0.38;
+      filter: drop-shadow(0 2px 10px rgba(180, 130, 20, 0.35));
       transition: transform 0.25s ease-out;
       will-change: transform;
     }
@@ -1504,55 +1504,55 @@
   wrapper.innerHTML = `
     <svg id="jaafariaGoldSvg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="goldMetallicClean" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fff8c9"/>
-          <stop offset="28%" stop-color="#f5c84b"/>
-          <stop offset="55%" stop-color="#c48d16"/>
-          <stop offset="82%" stop-color="#ffe68c"/>
-          <stop offset="100%" stop-color="#a6720f"/>
+        <linearGradient id="goldMetallicRich" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f7d265"/>
+          <stop offset="30%" stop-color="#d99f1e"/>
+          <stop offset="55%" stop-color="#9e6d0b"/>
+          <stop offset="80%" stop-color="#eab638"/>
+          <stop offset="100%" stop-color="#875a06"/>
         </linearGradient>
 
-        <path id="topArcPathClean" d="M 92,300 A 208,208 0 1,1 508,300" />
-        <path id="bottomArcPathClean" d="M 76,308 A 224,224 0 0,0 524,308" />
+        <path id="topArcPathRich" d="M 90,300 A 210,210 0 1,1 510,300" />
+        <path id="bottomArcPathRich" d="M 74,308 A 226,226 0 0,0 526,308" />
       </defs>
 
-      <!-- إطار ذهبي مفرغ (بدون دائرة غامقة في الخلفية لعدم التشويش على النصوص) -->
-      <circle cx="300" cy="300" r="262" fill="none" stroke="url(#goldMetallicClean)" stroke-width="14"/>
-      <circle cx="300" cy="300" r="247" fill="none" stroke="#fff8c9" stroke-width="1.8" stroke-opacity="0.75"/>
-      <circle cx="300" cy="300" r="176" fill="none" stroke="url(#goldMetallicClean)" stroke-width="6.5"/>
-      <circle cx="300" cy="300" r="167" fill="none" stroke="#fff8c9" stroke-width="1.2" stroke-opacity="0.6"/>
+      <!-- إطار ذهبي مفرغ بخطوط سميكة وواضحة بدون أي تعبئة غامقة تحجب الكلام -->
+      <circle cx="300" cy="300" r="264" fill="none" stroke="url(#goldMetallicRich)" stroke-width="18"/>
+      <circle cx="300" cy="300" r="246" fill="none" stroke="url(#goldMetallicRich)" stroke-width="3"/>
+      <circle cx="300" cy="300" r="176" fill="none" stroke="url(#goldMetallicRich)" stroke-width="9"/>
+      <circle cx="300" cy="300" r="165" fill="none" stroke="url(#goldMetallicRich)" stroke-width="2"/>
 
       <!-- نجوم جانبية -->
-      <polygon points="88,300 93,311 105,312 96,320 99,332 88,325 77,332 80,320 71,312 83,311" fill="url(#goldMetallicClean)"/>
-      <polygon points="512,300 517,311 529,312 520,320 523,332 512,325 501,332 504,320 495,312 507,311" fill="url(#goldMetallicClean)"/>
+      <polygon points="88,300 94,312 107,313 97,322 100,335 88,327 76,335 79,322 69,313 82,312" fill="url(#goldMetallicRich)"/>
+      <polygon points="512,300 518,312 531,313 521,322 524,335 512,327 500,335 503,322 493,313 506,312" fill="url(#goldMetallicRich)"/>
 
       <!-- النص الدائري العلوي المعتدل -->
-      <text fill="url(#goldMetallicClean)" font-family="Cairo, Tajawal, sans-serif" font-size="31" font-weight="900">
-        <textPath href="#topArcPathClean" startOffset="50%" text-anchor="middle">
+      <text fill="url(#goldMetallicRich)" font-family="Cairo, Tajawal, sans-serif" font-size="32" font-weight="900">
+        <textPath href="#topArcPathRich" startOffset="50%" text-anchor="middle">
           منصة أبحاث البكالوريا 2027
         </textPath>
       </text>
 
       <!-- النص الدائري السفلي المعتدل 100% -->
-      <text fill="url(#goldMetallicClean)" font-family="Cairo, Tajawal, sans-serif" font-size="27" font-weight="900">
-        <textPath href="#bottomArcPathClean" startOffset="50%" text-anchor="middle">
+      <text fill="url(#goldMetallicRich)" font-family="Cairo, Tajawal, sans-serif" font-size="28" font-weight="900">
+        <textPath href="#bottomArcPathRich" startOffset="50%" text-anchor="middle">
           مدرسة الجعفرية الثانوية المشتركة
         </textPath>
       </text>
 
-      <!-- أيقونة الشعلة والكتاب المفتوح -->
+      <!-- أيقونة الشعلة والكتاب المفتوح بخطوط بارزة -->
       <g transform="translate(300, 300)">
-        <path d="M 0,-118 C 16,-96 22,-78 10,-62 C 6,-56 14,-48 16,-40 C 4,-44 -6,-52 -8,-64 C -16,-78 -12,-98 0,-118 Z" fill="url(#goldMetallicClean)"/>
-        <rect x="-16" y="-36" width="32" height="8" rx="3" fill="url(#goldMetallicClean)"/>
-        <polygon points="-11,-26 11,-26 6,28 -6,28" fill="url(#goldMetallicClean)"/>
+        <path d="M 0,-120 C 18,-96 24,-78 11,-61 C 6,-55 15,-46 17,-38 C 4,-42 -7,-51 -9,-63 C -18,-78 -13,-98 0,-120 Z" fill="url(#goldMetallicRich)"/>
+        <rect x="-18" y="-35" width="36" height="9" rx="3" fill="url(#goldMetallicRich)"/>
+        <polygon points="-12,-24 12,-24 7,30 -7,30" fill="url(#goldMetallicRich)"/>
 
-        <path d="M -112,26 C -72,14 -34,18 0,36 C 34,18 72,14 112,26 L 102,88 C 66,76 32,80 0,96 C -32,80 -66,76 -102,88 Z"
-              fill="none" stroke="url(#goldMetallicClean)" stroke-width="7.5" stroke-linejoin="round"/>
-        <path d="M -94,40 C -62,32 -30,36 -6,48 M 94,40 C 62,32 30,36 6,48"
-              stroke="url(#goldMetallicClean)" stroke-width="4.2" stroke-linecap="round"/>
-        <path d="M -90,58 C -60,50 -30,54 -6,66 M 90,58 C 60,50 30,54 6,66"
-              stroke="url(#goldMetallicClean)" stroke-width="4.2" stroke-linecap="round"/>
-        <line x1="0" y1="36" x2="0" y2="96" stroke="url(#goldMetallicClean)" stroke-width="5.5"/>
+        <path d="M -115,26 C -74,13 -35,17 0,36 C 35,17 74,13 115,26 L 104,90 C 67,77 33,81 0,98 C -33,81 -67,77 -104,90 Z"
+              fill="none" stroke="url(#goldMetallicRich)" stroke-width="9.5" stroke-linejoin="round"/>
+        <path d="M -96,41 C -63,32 -31,36 -6,49 M 96,41 C 63,32 31,36 6,49"
+              stroke="url(#goldMetallicRich)" stroke-width="5.2" stroke-linecap="round"/>
+        <path d="M -92,60 C -61,51 -31,55 -6,68 M 92,60 C 61,51 31,55 6,68"
+              stroke="url(#goldMetallicRich)" stroke-width="5.2" stroke-linecap="round"/>
+        <line x1="0" y1="36" x2="0" y2="98" stroke="url(#goldMetallicRich)" stroke-width="7"/>
       </g>
     </svg>
   `;
@@ -1581,6 +1581,7 @@
 </script>
 </body>
 </html>
+
 
 
 
