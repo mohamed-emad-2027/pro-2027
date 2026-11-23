@@ -1579,10 +1579,11 @@
   }, { passive: true });
 })();
 </script>
-    <!-- السكريبت السادس: قفل المنصة بكلمة مرور RORO12 قبل التسليم دون التأثير على السكريبتات السابقة -->
+    <!-- السكريبت السادس: قفل المنصة بكلمة مرور RORO12 بشاشة سوداء عاتمة بالكامل تحجب المشروع تماماً -->
 <script>
 (function () {
-  if (document.getElementById("jaafariaPreSubmitLock")) return;
+  const prevLock = document.getElementById("jaafariaPreSubmitLock");
+  if (prevLock) prevLock.remove();
 
   const PASS_KEY = "RORO12";
   const SESSION_KEY = "jaafaria_2027_presubmit_auth";
@@ -1599,14 +1600,14 @@
     "align-items:center",
     "justify-content:center",
     "padding:20px",
-    "background:rgba(7,14,28,0.97)",
+    "background:#000000",
     "font-family:'Cairo','Tajawal',sans-serif",
     "direction:rtl",
     "color:#f8fafc"
   ].join(";");
 
   lockOverlay.innerHTML = `
-    <div id="jaafariaLockBox" style="width:100%;max-width:380px;background:#0e1c36;border:1px solid rgba(228,181,59,0.45);border-radius:18px;padding:24px;text-align:center;box-shadow:0 18px 45px rgba(0,0,0,0.6);">
+    <div id="jaafariaLockBox" style="width:100%;max-width:380px;background:#0a0f1a;border:1px solid rgba(228,181,59,0.5);border-radius:18px;padding:24px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.85);">
       <div style="font-size:0.78rem;color:#ffd154;font-weight:700;margin-bottom:8px;">وضع الحماية قبل التسليم • 2027</div>
       <div style="font-size:1.15rem;font-weight:900;color:#fff6bd;margin-bottom:6px;">منصة أبحاث البكالوريا 2027</div>
       <div style="font-size:0.85rem;color:#cbd5e1;margin-bottom:16px;">مدرسة الجعفرية الثانوية المشتركة — أدخل كلمة المرور</div>
@@ -1615,7 +1616,7 @@
         type="password"
         placeholder="كلمة المرور"
         autocomplete="off"
-        style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:10px;border:1px solid rgba(228,181,59,0.4);background:#070d19;color:#ffffff;font-size:0.95rem;font-weight:700;margin-bottom:12px;outline:none;"
+        style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:10px;border:1px solid rgba(228,181,59,0.45);background:#000000;color:#ffffff;font-size:0.95rem;font-weight:700;margin-bottom:12px;outline:none;"
       />
       <button
         id="jaafariaLockSubmitBtn"
@@ -1669,6 +1670,7 @@
 </script>
 </body>
 </html>
+
 
 
 
