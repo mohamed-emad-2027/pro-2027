@@ -1579,8 +1579,249 @@
   }, { passive: true });
 })();
 </script>
+    <!-- السكريبت السادس: شاشة قفل المنصة بكلمة سر للمعاينة الخاصة قبل التقديم -->
+<script>
+(function () {
+  if (document.getElementById("jaafariaAccessLockOverlay")) return;
+
+  const ACCESS_CODE = "RORO12";
+  const STORAGE_KEY = "jaafaria_2027_unlocked_session";
+
+  if (sessionStorage.getItem(STORAGE_KEY) === "true") {
+    renderRelockButton();
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = "jaafariaAccessLockStyle";
+  style.textContent = `
+    html.jaafaria-locked,
+    html.jaafaria-locked body {
+      overflow: hidden !important;
+      height: 100% !important;
+    }
+
+    #jaafariaAccessLockOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(circle at top center, rgba(22, 43, 82, 0.96), rgba(6, 12, 24, 0.99));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      font-family: "Cairo", "Tajawal", sans-serif;
+      direction: rtl;
+      color: #f8fafc;
+    }
+
+    .jaafaria-lock-card {
+      width: 100%;
+      max-width: 430px;
+      background: rgba(12, 23, 44, 0.9);
+      border: 1px solid rgba(228, 181, 59, 0.45);
+      border-radius: 22px;
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), 0 0 28px rgba(228, 181, 59, 0.14);
+    }
+
+    .jaafaria-lock-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(228, 181, 59, 0.14);
+      border: 1px solid rgba(228, 181, 59, 0.35);
+      color: #ffe68c;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .jaafaria-lock-title {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #fff6bd;
+      margin-bottom: 6px;
+    }
+
+    .jaafaria-lock-sub {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .jaafaria-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .jaafaria-lock-input {
+      width: 100%;
+      padding: 13px 16px 13px 46px;
+      border-radius: 12px;
+      border: 1px solid rgba(228, 181, 59, 0.4);
+      background: rgba(6, 13, 26, 0.85);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .jaafaria-lock-input:focus {
+      border-color: #ffd154;
+      box-shadow: 0 0 0 3px rgba(255, 209, 84, 0.18);
+    }
+
+    .jaafaria-toggle-eye {
+      position: absolute;
+      left: 10px;
+      background: transparent;
+      border: none;
+      color: #e4b53b;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 6px;
+    }
+
+    .jaafaria-unlock-btn {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #081020;
+      background: linear-gradient(135deg, #fff3b0, #e5b842, #b88414);
+      box-shadow: 0 8px 22px rgba(229, 184, 66, 0.32);
+      transition: transform 0.18s ease, filter 0.2s ease;
+    }
+
+    .jaafaria-unlock-btn:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .jaafaria-lock-error {
+      min-height: 22px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fca5a5;
+    }
+
+    .jaafaria-lock-footer {
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: #94a3b8;
+    }
+
+    #jaafariaRelockFloatingBtn {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 99990;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(228, 181, 59, 0.45);
+      background: rgba(10, 20, 40, 0.88);
+      color: #ffe68c;
+      font-family: "Cairo", "Tajawal", sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+  `;
+  document.head.appendChild(style);
+  document.documentElement.classList.add("jaafaria-locked");
+
+  const overlay = document.createElement("div");
+  overlay.id = "jaafariaAccessLockOverlay";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "قفل الوصول إلى المنصة");
+
+  overlay.innerHTML = `
+    <form class="jaafaria-lock-card" id="jaafariaUnlockForm" autocomplete="off">
+      <div class="jaafaria-lock-badge">معاينة مغلقة قبل التسليم • 2027</div>
+      <div class="jaafaria-lock-title">منصة أبحاث البكالوريا 2027</div>
+      <p class="jaafaria-lock-sub">
+        مدرسة الجعفرية الثانوية المشتركة<br />
+        أدخل كلمة السر للمتابعة إلى عرض المشروع
+      </p>
+
+      <div class="jaafaria-input-wrap">
+        <input
+          type="password"
+          id="jaafariaPassInput"
+          class="jaafaria-lock-input"
+          placeholder="أدخل كلمة السر"
+          required
+        />
+        <button type="button" class="jaafaria-toggle-eye" id="jaafariaTogglePassBtn">إظهار</button>
+      </div>
+
+      <button type="submit" class="jaafaria-unlock-btn">فتح المنصة</button>
+      <div class="jaafaria-lock-error" id="jaafariaLockError"></div>
+      <div class="jaafaria-lock-footer">إعداد وتطوير: محمد عماد عباس</div>
+    </form>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const form = document.getElementById("jaafariaUnlockForm");
+  const input = document.getElementById("jaafariaPassInput");
+  const toggleBtn = document.getElementById("jaafariaTogglePassBtn");
+  const errorEl = document.getElementById("jaafariaLockError");
+
+  toggleBtn.addEventListener("click", () => {
+    const isPass = input.type === "password";
+    input.type = isPass ? "text" : "password";
+    toggleBtn.textContent = isPass ? "إخفاء" : "إظهار";
+  });
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const entered = (input.value || "").trim();
+    if (entered === ACCESS_CODE) {
+      sessionStorage.setItem(STORAGE_KEY, "true");
+      document.documentElement.classList.remove("jaafaria-locked");
+      overlay.remove();
+      renderRelockButton();
+    } else {
+      errorEl.textContent = "كلمة السر غير صحيحة، حاول مرة أخرى.";
+      input.value = "";
+      input.focus();
+    }
+  });
+
+  function renderRelockButton() {
+    if (document.getElementById("jaafariaRelockFloatingBtn")) return;
+    const btn = document.createElement("button");
+    btn.id = "jaafariaRelockFloatingBtn";
+    btn.type = "button";
+    btn.textContent = "قفل المنصة";
+    btn.addEventListener("click", () => {
+      sessionStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    });
+    document.body.appendChild(btn);
+  }
+})();
+</script>
 </body>
 </html>
+
 
 
 
