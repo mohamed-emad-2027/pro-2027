@@ -1579,8 +1579,97 @@
   }, { passive: true });
 })();
 </script>
+    <!-- السكريبت السادس: قفل المنصة بكلمة مرور RORO12 قبل التسليم دون التأثير على السكريبتات السابقة -->
+<script>
+(function () {
+  if (document.getElementById("jaafariaPreSubmitLock")) return;
+
+  const PASS_KEY = "RORO12";
+  const SESSION_KEY = "jaafaria_2027_presubmit_auth";
+
+  if (sessionStorage.getItem(SESSION_KEY) === "ok") return;
+
+  const lockOverlay = document.createElement("div");
+  lockOverlay.id = "jaafariaPreSubmitLock";
+  lockOverlay.style.cssText = [
+    "position:fixed",
+    "inset:0",
+    "z-index:2147483647",
+    "display:flex",
+    "align-items:center",
+    "justify-content:center",
+    "padding:20px",
+    "background:rgba(7,14,28,0.97)",
+    "font-family:'Cairo','Tajawal',sans-serif",
+    "direction:rtl",
+    "color:#f8fafc"
+  ].join(";");
+
+  lockOverlay.innerHTML = `
+    <div id="jaafariaLockBox" style="width:100%;max-width:380px;background:#0e1c36;border:1px solid rgba(228,181,59,0.45);border-radius:18px;padding:24px;text-align:center;box-shadow:0 18px 45px rgba(0,0,0,0.6);">
+      <div style="font-size:0.78rem;color:#ffd154;font-weight:700;margin-bottom:8px;">وضع الحماية قبل التسليم • 2027</div>
+      <div style="font-size:1.15rem;font-weight:900;color:#fff6bd;margin-bottom:6px;">منصة أبحاث البكالوريا 2027</div>
+      <div style="font-size:0.85rem;color:#cbd5e1;margin-bottom:16px;">مدرسة الجعفرية الثانوية المشتركة — أدخل كلمة المرور</div>
+      <input
+        id="jaafariaLockPassInput"
+        type="password"
+        placeholder="كلمة المرور"
+        autocomplete="off"
+        style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:10px;border:1px solid rgba(228,181,59,0.4);background:#070d19;color:#ffffff;font-size:0.95rem;font-weight:700;margin-bottom:12px;outline:none;"
+      />
+      <button
+        id="jaafariaLockSubmitBtn"
+        type="button"
+        style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#fff0a6,#e4b53b,#9c6d11);color:#081020;font-weight:900;font-size:0.95rem;cursor:pointer;"
+      >دخول إلى المنصة</button>
+      <div id="jaafariaLockStatus" style="min-height:20px;margin-top:10px;font-size:0.82rem;font-weight:700;color:#fca5a5;"></div>
+    </div>
+  `;
+
+  function mountLock() {
+    if (!document.body) return;
+    if (!document.getElementById("jaafariaPreSubmitLock")) {
+      document.body.appendChild(lockOverlay);
+    }
+
+    const passInput = document.getElementById("jaafariaLockPassInput");
+    const submitBtn = document.getElementById("jaafariaLockSubmitBtn");
+    const statusEl = document.getElementById("jaafariaLockStatus");
+
+    function checkPass() {
+      const val = (passInput.value || "").trim();
+      if (val === PASS_KEY) {
+        sessionStorage.setItem(SESSION_KEY, "ok");
+        lockOverlay.remove();
+      } else {
+        statusEl.textContent = "كلمة المرور غير صحيحة";
+        passInput.value = "";
+        passInput.focus();
+      }
+    }
+
+    if (submitBtn && !submitBtn.dataset.bound) {
+      submitBtn.dataset.bound = "true";
+      submitBtn.addEventListener("click", checkPass);
+    }
+    if (passInput && !passInput.dataset.bound) {
+      passInput.dataset.bound = "true";
+      passInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") checkPass();
+      });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mountLock);
+  } else {
+    mountLock();
+  }
+})();
+</script>
 </body>
 </html>
+
 
 
 
