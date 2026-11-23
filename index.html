@@ -1362,5 +1362,102 @@
   }
 })();
 </script>
+    <!-- السكريبت الرابع: وضع صورة images/7835.jpeg على أيقونة المساعد الذكي فقط -->
+<script>
+(function () {
+  const ASSISTANT_IMG_SRC = "images/7835.jpeg";
+
+  const style = document.createElement("style");
+  style.id = "jaafariaAssistantIconOnlyStyle";
+  style.textContent = `
+    .jaafaria-ai-only-avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+      border-radius: 50%;
+      display: block;
+      pointer-events: none;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function isAssistantButton(el) {
+    if (!el || el.id === "jaafariaInteractivePreloader" || el.closest("#jaafariaInteractivePreloader")) {
+      return false;
+    }
+    if (el.closest("footer, header, nav, main, section, article")) {
+      const comp = window.getComputedStyle(el);
+      if (comp.position !== "fixed" && comp.position !== "sticky") return false;
+    }
+
+    const rect = el.getBoundingClientRect();
+    const comp = window.getComputedStyle(el);
+    const isFloating = comp.position === "fixed" || comp.position === "sticky";
+    const isIconSize = rect.width >= 36 && rect.width <= 105 && rect.height >= 36 && rect.height <= 105;
+    const isNearCorner = rect.bottom >= window.innerHeight - 160;
+
+    const textAndAttrs = [
+      el.id || "",
+      typeof el.className === "string" ? el.className : "",
+      el.getAttribute("aria-label") || "",
+      el.getAttribute("title") || "",
+      el.getAttribute("data-testid") || ""
+    ].join(" ").toLowerCase();
+
+    const matchesKeyword =
+      textAndAttrs.includes("assistant") ||
+      textAndAttrs.includes("ai") ||
+      textAndAttrs.includes("bot") ||
+      textAndAttrs.includes("chat") ||
+      textAndAttrs.includes("مساعد");
+
+    return (isFloating && isIconSize && isNearCorner) || (matchesKeyword && isIconSize);
+  }
+
+  function applyAssistantAvatarOnly() {
+    const nodes = document.querySelectorAll("button, a, div");
+    nodes.forEach((node) => {
+      if (!isAssistantButton(node)) return;
+
+      const target =
+        node.tagName === "BUTTON" || node.tagName === "A"
+          ? node
+          : node.querySelector("button, a") || node;
+
+      if (!target || target.dataset.jaafariaAiAvatarDone === "true") return;
+
+      const img = document.createElement("img");
+      img.src = ASSISTANT_IMG_SRC;
+      img.alt = "المساعد الذكي";
+      img.className = "jaafaria-ai-only-avatar";
+
+      target.innerHTML = "";
+      target.appendChild(img);
+      target.style.padding = "0";
+      target.style.overflow = "hidden";
+      target.dataset.jaafariaAiAvatarDone = "true";
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyAssistantAvatarOnly);
+  } else {
+    applyAssistantAvatarOnly();
+  }
+
+  const observer = new MutationObserver(() => {
+    applyAssistantAvatarOnly();
+  });
+
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener("DOMContentLoaded", () => {
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
+  }
+})();
+</script>
 </body>
 </html>
