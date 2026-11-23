@@ -1459,5 +1459,133 @@
   }
 })();
 </script>
+    <!-- السكريبت الخامس (التفاعلي): شعار منصة أبحاث البكالوريا 2027 - مدرسة الجعفرية الثانوية المشتركة -->
+<script>
+(function () {
+  const oldWatermark = document.getElementById("jaafariaGoldCenterWatermark");
+  if (oldWatermark) oldWatermark.remove();
+  const oldStyle = document.getElementById("jaafariaGoldWatermarkStyle");
+  if (oldStyle) oldStyle.remove();
+
+  const style = document.createElement("style");
+  style.id = "jaafariaGoldWatermarkStyle";
+  style.textContent = `
+    #jaafariaGoldCenterWatermark {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    #jaafariaGoldCenterWatermark svg {
+      width: min(76vw, 540px);
+      height: min(76vw, 540px);
+      opacity: 0.42;
+      filter: drop-shadow(0 0 24px rgba(245, 200, 75, 0.36)) drop-shadow(0 12px 30px rgba(0, 0, 0, 0.52));
+      transition: transform 0.25s ease-out, opacity 0.35s ease;
+      will-change: transform;
+    }
+
+    main, section, footer, .card, [class*="card"], [class*="box"], [class*="stat"] {
+      position: relative;
+      z-index: 1;
+    }
+  `;
+  document.head.appendChild(style);
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "jaafariaGoldCenterWatermark";
+  wrapper.setAttribute("aria-hidden", "true");
+
+  wrapper.innerHTML = `
+    <svg id="jaafariaGoldSvg" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bgGlowJaafaria" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffe885" stop-opacity="0.38"/>
+          <stop offset="65%" stop-color="#d4a024" stop-opacity="0.15"/>
+          <stop offset="100%" stop-color="#070d19" stop-opacity="0"/>
+        </radialGradient>
+
+        <linearGradient id="goldMetallicJaafaria" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff6bd"/>
+          <stop offset="25%" stop-color="#f5c84b"/>
+          <stop offset="52%" stop-color="#b88414"/>
+          <stop offset="78%" stop-color="#ffe07d"/>
+          <stop offset="100%" stop-color="#9c6b0e"/>
+        </linearGradient>
+
+        <linearGradient id="innerNavyJaafaria" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#142647"/>
+          <stop offset="100%" stop-color="#070f1f"/>
+        </linearGradient>
+
+        <path id="topArcPathJaafaria" d="M 92,300 A 208,208 0 1,1 508,300" />
+        <path id="bottomArcPathJaafaria" d="M 516,308 A 216,216 0 0,1 84,308" />
+      </defs>
+
+      <circle cx="300" cy="300" r="292" fill="url(#bgGlowJaafaria)"/>
+      <circle cx="300" cy="300" r="258" fill="url(#innerNavyJaafaria)" stroke="url(#goldMetallicJaafaria)" stroke-width="15"/>
+      <circle cx="300" cy="300" r="244" fill="none" stroke="#fff7c2" stroke-width="2" stroke-opacity="0.8"/>
+      <circle cx="300" cy="300" r="176" fill="none" stroke="url(#goldMetallicJaafaria)" stroke-width="7"/>
+      <circle cx="300" cy="300" r="167" fill="none" stroke="#fff7c2" stroke-width="1.2" stroke-opacity="0.6"/>
+
+      <polygon points="92,300 97,311 109,312 100,320 103,332 92,325 81,332 84,320 75,312 87,311" fill="url(#goldMetallicJaafaria)"/>
+      <polygon points="508,300 513,311 525,312 516,320 519,332 508,325 497,332 500,320 491,312 503,311" fill="url(#goldMetallicJaafaria)"/>
+
+      <text fill="url(#goldMetallicJaafaria)" font-family="Cairo, Tajawal, sans-serif" font-size="31" font-weight="900" letter-spacing="0.5">
+        <textPath href="#topArcPathJaafaria" startOffset="50%" text-anchor="middle">
+          منصة أبحاث البكالوريا 2027
+        </textPath>
+      </text>
+
+      <text fill="url(#goldMetallicJaafaria)" font-family="Cairo, Tajawal, sans-serif" font-size="27" font-weight="900" letter-spacing="0.5">
+        <textPath href="#bottomArcPathJaafaria" startOffset="50%" text-anchor="middle">
+          مدرسة الجعفرية الثانوية المشتركة
+        </textPath>
+      </text>
+
+      <g transform="translate(300, 300)">
+        <path d="M 0,-118 C 16,-96 22,-78 10,-62 C 6,-56 14,-48 16,-40 C 4,-44 -6,-52 -8,-64 C -16,-78 -12,-98 0,-118 Z" fill="url(#goldMetallicJaafaria)"/>
+        <rect x="-16" y="-36" width="32" height="8" rx="3" fill="url(#goldMetallicJaafaria)"/>
+        <polygon points="-11,-26 11,-26 6,28 -6,28" fill="url(#goldMetallicJaafaria)"/>
+
+        <path d="M -112,26 C -72,14 -34,18 0,36 C 34,18 72,14 112,26 L 102,88 C 66,76 32,80 0,96 C -32,80 -66,76 -102,88 Z"
+              fill="none" stroke="url(#goldMetallicJaafaria)" stroke-width="7.5" stroke-linejoin="round"/>
+        <path d="M -94,40 C -62,32 -30,36 -6,48 M 94,40 C 62,32 30,36 6,48"
+              stroke="url(#goldMetallicJaafaria)" stroke-width="4.2" stroke-linecap="round"/>
+        <path d="M -90,58 C -60,50 -30,54 -6,66 M 90,58 C 60,50 30,54 6,66"
+              stroke="url(#goldMetallicJaafaria)" stroke-width="4.2" stroke-linecap="round"/>
+        <line x1="0" y1="36" x2="0" y2="96" stroke="url(#goldMetallicJaafaria)" stroke-width="5.5"/>
+      </g>
+    </svg>
+  `;
+
+  if (document.body.firstChild) {
+    document.body.insertBefore(wrapper, document.body.firstChild);
+  } else {
+    document.body.appendChild(wrapper);
+  }
+
+  const svgEl = document.getElementById("jaafariaGoldSvg");
+  function handleMove(clientX, clientY) {
+    if (!svgEl) return;
+    const xRatio = (clientX / window.innerWidth - 0.5) * 14;
+    const yRatio = (clientY / window.innerHeight - 0.5) * 14;
+    svgEl.style.transform = `translate(${xRatio.toFixed(1)}px, ${yRatio.toFixed(1)}px) scale(1.01)`;
+  }
+
+  window.addEventListener("mousemove", (e) => handleMove(e.clientX, e.clientY), { passive: true });
+  window.addEventListener("touchmove", (e) => {
+    if (e.touches && e.touches[0]) {
+      handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: true });
+})();
+</script>
 </body>
 </html>
+
