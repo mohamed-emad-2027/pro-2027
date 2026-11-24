@@ -873,7 +873,7 @@ async function askBot(question) {
     let sourceName = '🧠 AI Pro Engine';
 
     if (activeGeminiKey) {
-        const geminiModels = ['gemini-3.8-flash', 'gemini-flash-letest'];
+        const geminiModels = ['gemini-3.8-flash', 'gemini-flash-latest'];
         const payload = JSON.stringify({
             contents: [{ parts: [{ text: systemPrompt + '\n\nسياق المحادثة:\n' + recentMemory }] }]
         });
