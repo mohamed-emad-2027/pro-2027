@@ -873,27 +873,51 @@ async function askBot(question) {
     let sourceName = '🧠 AI Pro Engine';
 
     if (activeGeminiKey) {
-        try {
-            const gemRes = await fetchWithTimeout(
-                'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-goog-api-key': activeGeminiKey
-                    },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: systemPrompt + '\n\nسياق المحادثة:\n' + recentMemory }] }]
-                    })
-                },
-                customSavedKey ? 15000 : 12000
-            );
-            if (gemRes.ok) {
-                const gemData = await gemRes.json();
-                liveReply = cleanAIOutput(gemData?.candidates?.[0]?.content?.parts?.[0]?.text);
-                if (liveReply) sourceName = '✨ Gemini Live API';
+        const geminiModels = ['gemini-2.5-flash', 'gemini-2.0-flash'];
+        const payload = JSON.stringify({
+            contents: [{ parts: [{ text: systemPrompt + '\n\nسياق المحادثة:\n' + recentMemory }] }]
+        });
+
+        for (const modelName of geminiModels) {
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(activeGeminiKey)}`;
+                    const gemRes = await fetchWithTimeout(
+                        url,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: payload
+                        },
+                        customSavedKey ? 15000 : 12000
+                    );
+
+                    if (gemRes.ok) {
+                        const gemData = await gemRes.json();
+                        liveReply = cleanAIOutput(gemData?.candidates?.[0]?.content?.parts?.[0]?.text);
+                        if (liveReply) {
+                            sourceName = `✨ Gemini (${modelName})`;
+                            break;
+                        }
+                    } else {
+                        const errText = await gemRes.text().catch(() => '');
+                        console.warn(`Gemini ${modelName} (محاولة ${attempt}) رجّع حالة ${gemRes.status}:`, errText);
+                        if (gemRes.status === 400 || gemRes.status === 401 || gemRes.status === 403 || gemRes.status === 404) {
+                            break;
+                        }
+                        if (attempt < 2) {
+                            await new Promise(r => setTimeout(r, 600));
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Gemini ${modelName} (محاولة ${attempt}) فشل الاتصال:`, e);
+                    if (attempt < 2) {
+                        await new Promise(r => setTimeout(r, 600));
+                    }
+                }
             }
-        } catch (e) {}
+            if (liveReply) break;
+        }
     }
 
     if (!liveReply) {
@@ -924,7 +948,6 @@ async function askBot(question) {
     const finalAnswer = liveReply || getUniversalKnowledgeReply(question);
     renderStreamedBotResponse(botDiv, finalAnswer, sourceName, question);
 }
-
 function sendBotMessage() {
     const input = document.getElementById('botInput');
     const val = input.value.trim();
