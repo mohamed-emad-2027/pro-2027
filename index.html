@@ -1571,6 +1571,69 @@
   }
 })();
 </script>
+    <!-- سكريبت إضافة صورة المساعد الذكي (بعد القفل): يركب images/7835.jpeg على الزر الدائري فقط دون المساس بالردود -->
+<script>
+(function () {
+  const AVATAR_URL = "images/7835.jpeg";
+
+  function applySafeAssistantAvatar() {
+    const candidates = document.querySelectorAll("button, a, div");
+    for (const el of candidates) {
+      if (el.dataset.jaafariaSafeAvatar === "1") return true;
+
+      if (el.querySelector("input, textarea") || el.closest("input, textarea")) continue;
+
+      const style = window.getComputedStyle(el);
+      if (style.position !== "fixed") continue;
+
+      const rect = el.getBoundingClientRect();
+      const isSmallCircleBtn =
+        rect.width >= 38 &&
+        rect.width <= 80 &&
+        rect.height >= 38 &&
+        rect.height <= 80 &&
+        Math.abs(rect.width - rect.height) <= 10;
+
+      const isBottomCorner =
+        rect.bottom >= window.innerHeight - 130 &&
+        (rect.left <= 130 || rect.right >= window.innerWidth - 130);
+
+      if (isSmallCircleBtn && isBottomCorner) {
+        el.dataset.jaafariaSafeAvatar = "1";
+        el.style.backgroundImage = `url("${AVATAR_URL}")`;
+        el.style.backgroundSize = "cover";
+        el.style.backgroundPosition = "center";
+        el.style.backgroundRepeat = "no-repeat";
+        el.style.borderRadius = "50%";
+        el.style.overflow = "hidden";
+
+        el.querySelectorAll("svg, i, img, span").forEach((child) => {
+          child.style.opacity = "0";
+          child.style.pointerEvents = "none";
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function runWithRetry() {
+    if (applySafeAssistantAvatar()) return;
+    setTimeout(applySafeAssistantAvatar, 500);
+    setTimeout(applySafeAssistantAvatar, 1500);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", runWithRetry);
+  } else {
+    runWithRetry();
+  }
+
+  document.addEventListener("click", function () {
+    setTimeout(applySafeAssistantAvatar, 150);
+  });
+})();
+</script>
 </body>
 </html>
 
